@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -14,6 +15,7 @@ import { ProfilePage } from './components/ProfilePage';
 import { HeartStateWidget } from './components/HeartStateWidget';
 import { PrayerDetailModal } from './components/PrayerDetailModal';
 import { RakibSystem } from './components/RakibSystem';
+import { DuaPage } from './components/DuaPage';
 import { MOCK_USER, INITIAL_PRAYERS, MOCK_QADA } from './constants';
 import { Prayer, PrayerStatus, ActionId, HeartCondition } from './types';
 
@@ -58,6 +60,9 @@ const App: React.FC = () => {
       case 'qibla':
         setIsQiblaOpen(true);
         break;
+      case 'dua':
+        setActiveTab('dua');
+        break;
       case 'partners':
         setActiveTab('partners');
         break;
@@ -89,6 +94,8 @@ const App: React.FC = () => {
   // Render Content based on active tab
   const renderContent = () => {
     switch (activeTab) {
+      case 'dua':
+        return <DuaPage onBack={() => setActiveTab('home')} />;
       case 'partners':
         return <RakibSystem />;
       case 'lectures':
@@ -135,9 +142,11 @@ const App: React.FC = () => {
       <div className="max-w-md mx-auto bg-neutral-body min-h-screen relative shadow-2xl shadow-black/5 overflow-hidden">
         
         <div className="px-5 pt-safe-top space-y-1">
-          <Header user={user} />
+          {/* Hide header on full-page specific views to give them more space, or keep it for consistency. 
+              Let's keep it consistent except for DuaPage which has its own internal header. */}
+          {activeTab !== 'dua' && <Header user={user} />}
           
-          <main className="pt-2 pb-10">
+          <main className={activeTab === 'dua' ? 'pt-0 -mx-5' : 'pt-2 pb-10'}>
             {renderContent()}
           </main>
         </div>

@@ -71,7 +71,13 @@ const MiniStatusIcon = ({ status }: { status: PrayerStatus }) => {
 };
 
 // 3. Partner Card
-const PartnerCard = ({ partner, onClick, onRemind }: { partner: PrayerPartner, onClick: () => void, onRemind: () => void }) => (
+interface PartnerCardProps {
+  partner: PrayerPartner;
+  onClick: () => void;
+  onRemind: () => void;
+}
+
+const PartnerCard: React.FC<PartnerCardProps> = ({ partner, onClick, onRemind }) => (
   <div onClick={onClick} className="bg-white p-4 rounded-2xl border border-neutral-line shadow-sm mb-3 active:scale-[0.99] transition-transform cursor-pointer">
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center space-x-3">

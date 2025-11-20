@@ -74,6 +74,15 @@ export interface Lecture {
   category: 'Quran' | 'Fiqh' | 'History' | 'General';
 }
 
+export interface Dua {
+  category: string;
+  title: string;
+  arabic: string;
+  transliteration: string;
+  translation: string;
+  source: string;
+}
+
 // --- RAKIB SYSTEM TYPES ---
 
 export type ShareLevel = 'minimal' | 'standard' | 'full';
