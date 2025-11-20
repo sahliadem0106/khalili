@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Muslim Daily",
+  "description": "A modern, mobile-first prayer management dashboard designed for tracking prayers, reading Quran, and daily Islamic routines.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
