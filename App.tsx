@@ -17,6 +17,7 @@ import { PrayerDetailModal } from './components/PrayerDetailModal';
 import { RakibSystem } from './components/RakibSystem';
 import { DuaPage } from './components/DuaPage';
 import { GuidedTour, TourStep } from './components/GuidedTour';
+import { SplashScreen } from './components/SplashScreen'; // Import Splash
 import { MOCK_USER, INITIAL_PRAYERS, MOCK_QADA } from './constants';
 import { Prayer, PrayerStatus, ActionId, HeartCondition } from './types';
 import { Sparkles } from 'lucide-react';
@@ -36,6 +37,7 @@ const App: React.FC = () => {
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [isTourOpen, setIsTourOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true); // Splash State
 
   // References for scrolling
   const qadaRef = useRef<HTMLDivElement>(null);
@@ -169,6 +171,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-neutral-body text-neutral-primary font-sans pb-20">
+      {/* Splash Screen Layer */}
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+
       <div className="max-w-md mx-auto bg-neutral-body min-h-screen relative shadow-2xl shadow-black/5 overflow-hidden">
         
         <div className="px-5 pt-safe-top space-y-1">

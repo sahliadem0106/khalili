@@ -1,12 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, RotateCcw, Settings2, CheckCircle2, ChevronRight, Plus, Sparkles } from 'lucide-react';
+import { X, RotateCcw, Settings2, CheckCircle2, Plus, Sparkles, Trash2, ArrowDown } from 'lucide-react';
 import { Button } from './ui/Button';
 import { DhikrPreset, TasbihMode } from '../types';
 
 interface TasbihModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface ComboStep {
+  id: string;
+  label: string;
+  arabic: string;
+  target: number;
 }
 
 const PRESETS: DhikrPreset[] = [
@@ -18,19 +25,25 @@ const PRESETS: DhikrPreset[] = [
   { label: 'La ilaha illallah', arabic: 'لَا إِلَٰهَ إِلَّا ٱللَّٰهُ' },
 ];
 
-const COMBO_STEPS = [
-  { label: 'SubhanAllah', arabic: 'سُبْحَانَ ٱللَّٰهِ', target: 33 },
-  { label: 'Alhamdulillah', arabic: 'ٱلْحَمْدُ لِلَّٰهِ', target: 33 },
-  { label: 'Allahu Akbar', arabic: 'ٱللَّٰهُ أَكْبَرُ', target: 34 },
-];
-
 export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => {
+  // View State
   const [view, setView] = useState<'setup' | 'active'>('setup');
+  const [mode, setMode] = useState<TasbihMode>('single');
+
+  // Single Mode State
   const [selectedDhikr, setSelectedDhikr] = useState<DhikrPreset>(PRESETS[0]);
   const [customInput, setCustomInput] = useState('');
   const [target, setTarget] = useState<number>(33);
-  const [mode, setMode] = useState<TasbihMode>('single');
   const [isCustom, setIsCustom] = useState(false);
+
+  // Combo Builder State
+  const [comboSequence, setComboSequence] = useState<ComboStep[]>([]);
+  const [builderDhikr, setBuilderDhikr] = useState<DhikrPreset>(PRESETS[0]);
+  const [builderTarget, setBuilderTarget] = useState<number>(33);
+  const [builderCustomInput, setBuilderCustomInput] = useState('');
+  const [isBuilderCustom, setIsBuilderCustom] = useState(false);
+
+  // Session State
   const [count, setCount] = useState(0);
   const [comboIndex, setComboIndex] = useState(0);
   const [sessionComplete, setSessionComplete] = useState(false);
@@ -62,10 +75,28 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
     setView('active');
   };
 
+  const addToSequence = () => {
+    const label = isBuilderCustom ? (builderCustomInput || 'Custom') : builderDhikr.label;
+    const arabic = isBuilderCustom ? 'ذكر' : builderDhikr.arabic;
+    
+    const newStep: ComboStep = {
+      id: Math.random().toString(36).substr(2, 9),
+      label,
+      arabic,
+      target: builderTarget === 0 ? 33 : builderTarget
+    };
+
+    setComboSequence([...comboSequence, newStep]);
+  };
+
+  const removeFromSequence = (id: string) => {
+    setComboSequence(comboSequence.filter(s => s.id !== id));
+  };
+
   const handleIncrement = () => {
     if (sessionComplete || isTransitioning) return;
 
-    const currentTarget = mode === 'combo' ? COMBO_STEPS[comboIndex].target : target;
+    const currentTarget = mode === 'combo' ? comboSequence[comboIndex].target : target;
     const newCount = count + 1;
 
     setIsPulse(true);
@@ -74,7 +105,7 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
 
     if (currentTarget > 0 && newCount >= currentTarget) {
       if (mode === 'combo') {
-        if (comboIndex < COMBO_STEPS.length - 1) {
+        if (comboIndex < comboSequence.length - 1) {
           setIsTransitioning(true);
           if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
           setTimeout(() => {
@@ -98,13 +129,16 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
   };
 
   const getCurrentDhikr = () => {
-    if (mode === 'combo') return COMBO_STEPS[comboIndex] || COMBO_STEPS[0];
+    if (mode === 'combo') {
+       const step = comboSequence[comboIndex];
+       return step ? { label: step.label, arabic: step.arabic } : { label: 'Done', arabic: '' };
+    }
     if (isCustom) return { label: customInput || 'Custom Dhikr', arabic: 'ذكر' };
     return selectedDhikr || PRESETS[0];
   };
 
   const getCurrentTarget = () => {
-    if (mode === 'combo') return COMBO_STEPS[comboIndex].target;
+    if (mode === 'combo') return comboSequence[comboIndex]?.target || 0;
     return target;
   };
 
@@ -118,8 +152,9 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-neutral-body w-full h-[90vh] sm:h-auto sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden">
+      <div className="bg-neutral-body w-full h-[95vh] sm:h-[85vh] sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden">
         
+        {/* HEADER */}
         <div className="bg-white px-6 py-4 flex justify-between items-center border-b border-neutral-line relative z-10">
           <div className="flex items-center space-x-2">
              {view === 'active' && (
@@ -134,9 +169,13 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
           </button>
         </div>
 
+        {/* BODY */}
         <div className="flex-1 overflow-y-auto no-scrollbar bg-neutral-body">
+          
+          {/* --- SETUP VIEW --- */}
           {view === 'setup' && (
-            <div className="p-6 space-y-8">
+            <div className="p-6 space-y-6 pb-32">
+              {/* Mode Toggle */}
               <div className="bg-white p-1 rounded-xl flex shadow-sm border border-neutral-line">
                  <button 
                     onClick={() => { setMode('single'); setIsCustom(false); }}
@@ -148,10 +187,11 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
                     onClick={() => setMode('combo')}
                     className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${mode === 'combo' ? 'bg-brand-forest text-white shadow-sm' : 'text-neutral-500 hover:bg-neutral-50'}`}
                  >
-                   Fatima Combo
+                   Custom Sequence
                  </button>
               </div>
 
+              {/* SINGLE MODE SETUP */}
               {mode === 'single' && (
                 <>
                   <div className="space-y-3">
@@ -204,30 +244,125 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
                 </>
               )}
 
+              {/* COMBO MODE SETUP (Builder) */}
               {mode === 'combo' && (
-                 <div className="bg-white p-5 rounded-2xl border border-neutral-line space-y-4 shadow-sm">
-                    <div className="flex items-center space-x-3">
-                       <div className="w-10 h-10 rounded-full bg-brand-mint flex items-center justify-center text-brand-forest font-bold">1</div>
-                       <div><p className="font-bold text-neutral-primary">SubhanAllah</p><p className="text-xs text-neutral-500">33 times</p></div>
+                 <div className="space-y-6">
+                    
+                    {/* Current Sequence List */}
+                    <div className="space-y-2">
+                       <label className="text-sm font-bold text-neutral-primary uppercase tracking-wide flex justify-between items-center">
+                          <span>Your Sequence</span>
+                          <span className="text-xs text-neutral-400 normal-case font-normal">{comboSequence.length} steps</span>
+                       </label>
+                       
+                       <div className="bg-white rounded-2xl border border-neutral-line min-h-[100px] p-1">
+                          {comboSequence.length === 0 ? (
+                             <div className="h-24 flex flex-col items-center justify-center text-neutral-400">
+                                <p className="text-xs italic">No steps added yet.</p>
+                             </div>
+                          ) : (
+                             <div className="space-y-1">
+                                {comboSequence.map((step, index) => (
+                                   <div key={step.id} className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl border border-transparent hover:border-neutral-200 group">
+                                      <div className="flex items-center space-x-3">
+                                         <span className="w-6 h-6 bg-white rounded-full border border-neutral-200 flex items-center justify-center text-[10px] font-bold text-neutral-500">
+                                            {index + 1}
+                                         </span>
+                                         <div>
+                                            <p className="text-sm font-bold text-neutral-primary">{step.label}</p>
+                                            <p className="text-[10px] text-neutral-500 font-arabic">{step.arabic}</p>
+                                         </div>
+                                      </div>
+                                      <div className="flex items-center space-x-3">
+                                         <span className="text-xs font-mono bg-white px-2 py-1 rounded border border-neutral-200 text-brand-forest font-bold">
+                                            x{step.target}
+                                         </span>
+                                         <button 
+                                            onClick={() => removeFromSequence(step.id)}
+                                            className="text-neutral-300 hover:text-red-500 transition-colors"
+                                         >
+                                            <Trash2 size={16} />
+                                         </button>
+                                      </div>
+                                   </div>
+                                ))}
+                             </div>
+                          )}
+                       </div>
                     </div>
-                    <div className="w-0.5 h-4 bg-neutral-200 ml-5"></div>
-                    <div className="flex items-center space-x-3">
-                       <div className="w-10 h-10 rounded-full bg-brand-mint flex items-center justify-center text-brand-forest font-bold">2</div>
-                       <div><p className="font-bold text-neutral-primary">Alhamdulillah</p><p className="text-xs text-neutral-500">33 times</p></div>
+
+                    {/* Add Step Form */}
+                    <div className="bg-white p-4 rounded-2xl border border-neutral-line shadow-sm space-y-4">
+                       <div className="flex items-center space-x-2 text-brand-teal font-medium text-xs uppercase tracking-wide mb-1">
+                          <Plus size={14} />
+                          <span>Add New Step</span>
+                       </div>
+
+                       {/* Step 1: Choose Dhikr */}
+                       <div className="grid grid-cols-3 gap-2">
+                          {PRESETS.slice(0, 5).map(p => (
+                             <button
+                                key={p.label}
+                                onClick={() => { setBuilderDhikr(p); setIsBuilderCustom(false); }}
+                                className={`p-2 rounded-lg border text-[10px] font-medium transition-all ${!isBuilderCustom && builderDhikr.label === p.label ? 'bg-brand-forest text-white border-brand-forest' : 'bg-neutral-50 border-transparent text-neutral-600 hover:bg-neutral-100'}`}
+                             >
+                                {p.label}
+                             </button>
+                          ))}
+                          <button
+                             onClick={() => setIsBuilderCustom(true)}
+                             className={`p-2 rounded-lg border text-[10px] font-medium transition-all ${isBuilderCustom ? 'bg-brand-forest text-white border-brand-forest' : 'bg-neutral-50 border-dashed border-neutral-300 text-neutral-600'}`}
+                          >
+                             Custom
+                          </button>
+                       </div>
+
+                       {isBuilderCustom && (
+                          <input 
+                             type="text" 
+                             placeholder="Enter custom Dhikr name"
+                             className="w-full text-sm p-2 rounded-lg border border-neutral-line bg-neutral-50 focus:outline-none focus:border-brand-teal"
+                             value={builderCustomInput}
+                             onChange={(e) => setBuilderCustomInput(e.target.value)}
+                          />
+                       )}
+
+                       {/* Step 2: Choose Count */}
+                       <div className="flex items-center space-x-2">
+                          {[33, 34, 100].map(t => (
+                             <button
+                                key={t}
+                                onClick={() => setBuilderTarget(t)}
+                                className={`flex-1 py-2 rounded-lg border text-xs font-bold transition-all ${builderTarget === t ? 'bg-brand-mint text-brand-forest border-brand-mint' : 'bg-white border-neutral-200 text-neutral-500'}`}
+                             >
+                                {t}
+                             </button>
+                          ))}
+                          <div className="relative flex-1">
+                             <input 
+                                type="number" 
+                                value={builderTarget}
+                                onChange={(e) => setBuilderTarget(parseInt(e.target.value) || 0)}
+                                className="w-full py-2 text-center rounded-lg border border-neutral-200 text-xs font-bold focus:outline-none focus:border-brand-teal"
+                             />
+                             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-neutral-400 uppercase">Count</span>
+                          </div>
+                       </div>
+
+                       <Button fullWidth variant="outline" onClick={addToSequence} className="border-dashed border-brand-teal text-brand-teal hover:bg-brand-mint/20 h-10 text-xs">
+                          Add Step to Sequence
+                       </Button>
                     </div>
-                    <div className="w-0.5 h-4 bg-neutral-200 ml-5"></div>
-                    <div className="flex items-center space-x-3">
-                       <div className="w-10 h-10 rounded-full bg-brand-mint flex items-center justify-center text-brand-forest font-bold">3</div>
-                       <div><p className="font-bold text-neutral-primary">Allahu Akbar</p><p className="text-xs text-neutral-500">34 times</p></div>
-                    </div>
+
                  </div>
               )}
             </div>
           )}
 
+          {/* --- ACTIVE VIEW --- */}
           {view === 'active' && (
             <div className="h-full flex flex-col items-center justify-center p-6 relative">
-              <div className="text-center mb-8 space-y-1 min-h-[60px]">
+              <div className="text-center mb-8 space-y-1 min-h-[80px]">
                 <h2 className="text-xl font-bold text-neutral-primary animate-in fade-in slide-in-from-bottom-4 duration-500">
                    {getCurrentDhikr().label}
                 </h2>
@@ -235,10 +370,15 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
                    {getCurrentDhikr().arabic}
                 </p>
                 {mode === 'combo' && (
-                  <div className="mt-2 animate-in fade-in duration-1000">
-                    <span className="px-3 py-1 bg-neutral-100 rounded-full text-xs font-medium text-neutral-600">
-                      Step {comboIndex + 1} / 3
+                  <div className="mt-3 animate-in fade-in duration-1000 flex flex-col items-center space-y-1">
+                    <span className="px-3 py-1 bg-neutral-100 rounded-full text-xs font-medium text-neutral-600 border border-neutral-200 shadow-sm">
+                      Step {comboIndex + 1} of {comboSequence.length}
                     </span>
+                    {comboIndex < comboSequence.length - 1 && (
+                       <span className="text-[10px] text-neutral-400 flex items-center">
+                          Next: {comboSequence[comboIndex + 1].label} <ArrowDown size={10} className="ml-1" />
+                       </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -247,6 +387,7 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
                 onClick={handleIncrement}
                 className="relative w-72 h-72 flex items-center justify-center mb-8 cursor-pointer select-none touch-manipulation"
               >
+                {/* Progress Ring SVG */}
                 <svg className="absolute inset-0 w-full h-full transform -rotate-90 pointer-events-none" viewBox="0 0 288 288">
                   <circle cx="144" cy="144" r="135" stroke="#F3F4F6" strokeWidth="5" fill="none" />
                   <circle
@@ -303,10 +444,17 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
           )}
         </div>
 
+        {/* FOOTER ACTION */}
         {view === 'setup' && (
           <div className="p-6 bg-white border-t border-neutral-line z-10">
-            <Button fullWidth size="lg" onClick={startSession} className="shadow-lg shadow-brand-forest/30">
-              Start Tasbih
+            <Button 
+              fullWidth 
+              size="lg" 
+              onClick={startSession} 
+              disabled={mode === 'combo' && comboSequence.length === 0}
+              className={`shadow-lg shadow-brand-forest/30 ${mode === 'combo' && comboSequence.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {mode === 'single' ? 'Start Tasbih' : `Start Combo (${comboSequence.length} steps)`}
             </Button>
           </div>
         )}
