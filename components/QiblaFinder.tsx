@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { X, Compass, MapPin, Navigation } from 'lucide-react';
 import { Button } from './ui/Button';
@@ -13,10 +14,12 @@ export const QiblaFinder: React.FC<QiblaFinderProps> = ({ isOpen, onClose }) => 
 
   useEffect(() => {
     if (isOpen) {
+      // Lock scroll
+      document.body.style.overflow = 'hidden';
+
       // Simulate compass movement
       setCalibrating(true);
       const interval = setInterval(() => {
-        // Random gentle fluctuation around the "Kaaba direction" (let's say 294 degrees)
         const baseQibla = 294;
         const fluctuation = (Math.random() * 10) - 5;
         setHeading(baseQibla + fluctuation);
@@ -27,6 +30,7 @@ export const QiblaFinder: React.FC<QiblaFinderProps> = ({ isOpen, onClose }) => 
       return () => {
         clearInterval(interval);
         clearTimeout(timeout);
+        document.body.style.overflow = '';
       };
     }
   }, [isOpen]);
@@ -93,7 +97,7 @@ export const QiblaFinder: React.FC<QiblaFinderProps> = ({ isOpen, onClose }) => 
               {/* Kaaba Pointer (The Goal) */}
               <div 
                 className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ transform: `rotate(294deg)` }} // Assuming 294 is the target relative to North
+                style={{ transform: `rotate(294deg)` }} 
               >
                  <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center">
                     <div className="w-12 h-12 bg-brand-jamaah rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(31,166,106,0.6)] animate-pulse">

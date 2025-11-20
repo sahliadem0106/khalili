@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { IMAGES } from '../constants';
 import { ArrowRight, Moon } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-brand-forest text-white shadow-lg mb-6">
+    <div id="hero-section" className="relative overflow-hidden rounded-3xl bg-brand-forest text-white shadow-lg mb-6">
       {/* Background Image with Gradient Overlay */}
       <div className="absolute inset-0 z-0">
         <img 

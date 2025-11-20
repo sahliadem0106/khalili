@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { X, RotateCcw, Settings2, CheckCircle2, ChevronRight, Plus, Sparkles } from 'lucide-react';
 import { Button } from './ui/Button';
@@ -24,24 +25,19 @@ const COMBO_STEPS = [
 ];
 
 export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => {
-  // View State: 'setup' or 'active'
   const [view, setView] = useState<'setup' | 'active'>('setup');
-  
-  // Configuration State
   const [selectedDhikr, setSelectedDhikr] = useState<DhikrPreset>(PRESETS[0]);
   const [customInput, setCustomInput] = useState('');
-  const [target, setTarget] = useState<number>(33); // 0 for infinity
+  const [target, setTarget] = useState<number>(33);
   const [mode, setMode] = useState<TasbihMode>('single');
   const [isCustom, setIsCustom] = useState(false);
-
-  // Active Session State
   const [count, setCount] = useState(0);
   const [comboIndex, setComboIndex] = useState(0);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [isPulse, setIsPulse] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Reset state when opening
+  // Reset state and Lock Scroll
   useEffect(() => {
     if (isOpen) {
       setView('setup');
@@ -49,7 +45,13 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
       setComboIndex(0);
       setSessionComplete(false);
       setIsTransitioning(false);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
     }
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
 
   const startSession = () => {
@@ -66,33 +68,26 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
     const currentTarget = mode === 'combo' ? COMBO_STEPS[comboIndex].target : target;
     const newCount = count + 1;
 
-    // Trigger text animation
     setIsPulse(true);
     setTimeout(() => setIsPulse(false), 100);
-
-    // Handle vibration
     if (navigator.vibrate) navigator.vibrate(5);
 
-    // Check completion
     if (currentTarget > 0 && newCount >= currentTarget) {
       if (mode === 'combo') {
         if (comboIndex < COMBO_STEPS.length - 1) {
-          // Move to next step in combo
           setIsTransitioning(true);
           if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
           setTimeout(() => {
              setCount(0);
              setComboIndex(prev => prev + 1);
              setIsTransitioning(false);
-          }, 300); // Small delay for visual feedback
+          }, 300);
         } else {
-          // Combo finished
           setCount(newCount);
           setSessionComplete(true);
           if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
         }
       } else {
-        // Single mode finished
         setCount(newCount);
         setSessionComplete(true);
         if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
@@ -102,7 +97,6 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
     }
   };
 
-  // Helpers for display
   const getCurrentDhikr = () => {
     if (mode === 'combo') return COMBO_STEPS[comboIndex] || COMBO_STEPS[0];
     if (isCustom) return { label: customInput || 'Custom Dhikr', arabic: 'ذكر' };
@@ -126,7 +120,6 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-neutral-body w-full h-[90vh] sm:h-auto sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden">
         
-        {/* Header */}
         <div className="bg-white px-6 py-4 flex justify-between items-center border-b border-neutral-line relative z-10">
           <div className="flex items-center space-x-2">
              {view === 'active' && (
@@ -142,12 +135,8 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
         </div>
 
         <div className="flex-1 overflow-y-auto no-scrollbar bg-neutral-body">
-          
-          {/* SETUP VIEW */}
           {view === 'setup' && (
             <div className="p-6 space-y-8">
-              
-              {/* Mode Selection */}
               <div className="bg-white p-1 rounded-xl flex shadow-sm border border-neutral-line">
                  <button 
                     onClick={() => { setMode('single'); setIsCustom(false); }}
@@ -165,7 +154,6 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
 
               {mode === 'single' && (
                 <>
-                  {/* Dhikr Selection */}
                   <div className="space-y-3">
                     <label className="text-sm font-bold text-neutral-primary uppercase tracking-wide">Select Dhikr</label>
                     <div className="grid grid-cols-2 gap-3">
@@ -179,7 +167,6 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
                           <p className="text-xs text-neutral-muted font-arabic mt-1 truncate">{p.arabic}</p>
                         </button>
                       ))}
-                      {/* Custom Option */}
                       <button
                         onClick={() => setIsCustom(true)}
                         className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${isCustom ? 'border-brand-forest bg-brand-mint/30' : 'border-dashed border-neutral-300 bg-transparent hover:bg-white'}`}
@@ -200,7 +187,6 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
                     )}
                   </div>
 
-                  {/* Target Selection */}
                   <div className="space-y-3">
                     <label className="text-sm font-bold text-neutral-primary uppercase tracking-wide">Set Goal</label>
                     <div className="flex space-x-3">
@@ -239,10 +225,8 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
             </div>
           )}
 
-          {/* ACTIVE VIEW */}
           {view === 'active' && (
             <div className="h-full flex flex-col items-center justify-center p-6 relative">
-              
               <div className="text-center mb-8 space-y-1 min-h-[60px]">
                 <h2 className="text-xl font-bold text-neutral-primary animate-in fade-in slide-in-from-bottom-4 duration-500">
                    {getCurrentDhikr().label}
@@ -259,19 +243,12 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
                 )}
               </div>
 
-              {/* Simplified Counter UI */}
               <div 
                 onClick={handleIncrement}
                 className="relative w-72 h-72 flex items-center justify-center mb-8 cursor-pointer select-none touch-manipulation"
               >
-                {/* 1. The Progress Ring (Outer Layer) */}
                 <svg className="absolute inset-0 w-full h-full transform -rotate-90 pointer-events-none" viewBox="0 0 288 288">
-                  {/* Background Track */}
-                  <circle
-                    cx="144" cy="144" r="135"
-                    stroke="#F3F4F6" strokeWidth="5" fill="none"
-                  />
-                  {/* Active Progress */}
+                  <circle cx="144" cy="144" r="135" stroke="#F3F4F6" strokeWidth="5" fill="none" />
                   <circle
                     cx="144" cy="144" r="135"
                     stroke={sessionComplete ? "#1FA66A" : "#0F6B4A"} 
@@ -283,7 +260,6 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
                   />
                 </svg>
 
-                {/* 2. The Clickable Button (Inner Layer) */}
                 <div className={`
                     w-64 h-64 rounded-full bg-white 
                     shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)]
@@ -323,12 +299,10 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
                   <RotateCcw size={16} className="mr-2" /> Reset
                 </Button>
               </div>
-
             </div>
           )}
         </div>
 
-        {/* Footer Action for Setup */}
         {view === 'setup' && (
           <div className="p-6 bg-white border-t border-neutral-line z-10">
             <Button fullWidth size="lg" onClick={startSession} className="shadow-lg shadow-brand-forest/30">
@@ -336,7 +310,6 @@ export const TasbihModal: React.FC<TasbihModalProps> = ({ isOpen, onClose }) => 
             </Button>
           </div>
         )}
-
       </div>
     </div>
   );

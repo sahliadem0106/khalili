@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from './ui/Card';
 import { PlayCircle, Clock, BookOpen } from 'lucide-react';
@@ -49,7 +50,7 @@ export const LecturesPage: React.FC = () => {
       </div>
 
       {/* Featured Card */}
-      <div className="relative rounded-2xl overflow-hidden h-48 shadow-card group cursor-pointer">
+      <div id="lectures-featured" className="relative rounded-2xl overflow-hidden h-48 shadow-card group cursor-pointer">
          <img 
            src="https://images.unsplash.com/photo-1584286595398-a59f21d313f5?q=80&w=800&auto=format&fit=crop" 
            alt="Featured" 
@@ -66,8 +67,12 @@ export const LecturesPage: React.FC = () => {
 
       {/* List Grid */}
       <div className="grid grid-cols-1 gap-4">
-        {LECTURES.map((lecture) => (
-          <Card key={lecture.id} className="p-0 overflow-hidden flex h-28 cursor-pointer active:scale-[0.99] transition-transform">
+        {LECTURES.map((lecture, index) => (
+          <Card 
+            key={lecture.id} 
+            id={index === 0 ? "lecture-card-first" : undefined}
+            className="p-0 overflow-hidden flex h-28 cursor-pointer active:scale-[0.99] transition-transform"
+          >
              <div className="w-28 h-full relative">
                 <img src={lecture.image} alt={lecture.title} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/10 flex items-center justify-center">

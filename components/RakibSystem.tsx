@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Users, ChevronRight, Plus, QrCode, Search, Camera, X, 
@@ -478,13 +479,13 @@ export const RakibSystem = () => {
              <h2 className="text-2xl font-bold text-neutral-primary">Prayer Partners</h2>
              <p className="text-xs text-neutral-muted">Accountability & Support (Rakib)</p>
           </div>
-          <button onClick={() => setView('add')} className="w-10 h-10 bg-brand-forest rounded-full flex items-center justify-center text-white shadow-lg shadow-brand-forest/30 active:scale-90 transition-transform">
+          <button id="partner-add-btn" onClick={() => setView('add')} className="w-10 h-10 bg-brand-forest rounded-full flex items-center justify-center text-white shadow-lg shadow-brand-forest/30 active:scale-90 transition-transform">
              <Plus size={20} />
           </button>
        </div>
 
        {/* Groups Section */}
-       <div className="space-y-3">
+       <div id="partner-groups" className="space-y-3">
           <h3 className="text-sm font-bold text-neutral-500 uppercase tracking-wider">Your Circle</h3>
           {MOCK_GROUPS.map(group => (
              <div key={group.id} onClick={() => navigateToGroup(group.id)} className="bg-gradient-to-r from-brand-forest to-brand-teal rounded-2xl p-5 text-white shadow-md cursor-pointer active:scale-[0.99] transition-transform">

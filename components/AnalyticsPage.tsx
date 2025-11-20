@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Card } from './ui/Card';
@@ -57,7 +58,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
       </div>
 
       {/* Streak Hero */}
-      <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-6 text-white shadow-lg shadow-orange-200 flex justify-between items-center relative overflow-hidden">
+      <div id="analytics-streak" className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-6 text-white shadow-lg shadow-orange-200 flex justify-between items-center relative overflow-hidden">
         <div className="relative z-10">
           <div className="flex items-center space-x-2 mb-1">
             <Flame className="fill-white text-white" size={20} />
@@ -74,34 +75,36 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
       </div>
 
       {/* Weakness Identification (Behavioral) */}
-      {weakness.name !== 'None' ? (
-        <Card className={`border-l-4 ${weakness.type === 'critical' ? 'border-l-red-400' : 'border-l-orange-400'}`}>
-          <div className="flex items-start space-x-4">
-            <div className={`p-2 rounded-full ${weakness.type === 'critical' ? 'bg-red-50' : 'bg-orange-50'}`}>
-              <AlertCircle size={20} className={weakness.type === 'critical' ? 'text-red-500' : 'text-orange-500'} />
-            </div>
-            <div>
-              <h3 className="font-bold text-neutral-primary">Focus Area: {weakness.name}</h3>
-              <p className="text-sm text-neutral-muted mt-1">
-                Primary barrier identified is <span className="font-semibold text-neutral-primary">{weakness.reason}</span>. 
-                {weakness.reason.toLowerCase().includes('sleep') 
-                  ? ' Try setting an alarm 15 mins earlier.' 
-                  : ' Try preparing for wudu 10 mins before.'}
-              </p>
-            </div>
-          </div>
-        </Card>
-      ) : (
-        <Card className="bg-brand-mint/30 border-l-4 border-l-brand-forest">
-           <div className="flex items-center space-x-3">
-              <Shield size={20} className="text-brand-forest" />
-              <div>
-                <h3 className="font-bold text-brand-forest">No Weaknesses Detected</h3>
-                <p className="text-xs text-neutral-muted">Perfect consistency today. MashaAllah!</p>
+      <div id="analytics-weakness">
+        {weakness.name !== 'None' ? (
+          <Card className={`border-l-4 ${weakness.type === 'critical' ? 'border-l-red-400' : 'border-l-orange-400'}`}>
+            <div className="flex items-start space-x-4">
+              <div className={`p-2 rounded-full ${weakness.type === 'critical' ? 'bg-red-50' : 'bg-orange-50'}`}>
+                <AlertCircle size={20} className={weakness.type === 'critical' ? 'text-red-500' : 'text-orange-500'} />
               </div>
-           </div>
-        </Card>
-      )}
+              <div>
+                <h3 className="font-bold text-neutral-primary">Focus Area: {weakness.name}</h3>
+                <p className="text-sm text-neutral-muted mt-1">
+                  Primary barrier identified is <span className="font-semibold text-neutral-primary">{weakness.reason}</span>. 
+                  {weakness.reason.toLowerCase().includes('sleep') 
+                    ? ' Try setting an alarm 15 mins earlier.' 
+                    : ' Try preparing for wudu 10 mins before.'}
+                </p>
+              </div>
+            </div>
+          </Card>
+        ) : (
+          <Card className="bg-brand-mint/30 border-l-4 border-l-brand-forest">
+             <div className="flex items-center space-x-3">
+                <Shield size={20} className="text-brand-forest" />
+                <div>
+                  <h3 className="font-bold text-brand-forest">No Weaknesses Detected</h3>
+                  <p className="text-xs text-neutral-muted">Perfect consistency today. MashaAllah!</p>
+                </div>
+             </div>
+          </Card>
+        )}
+      </div>
 
       {/* Consistency Heatmap */}
       <Card>

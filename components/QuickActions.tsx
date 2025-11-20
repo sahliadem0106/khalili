@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BookOpen, Compass, Heart, List, RotateCcw, Settings, Share2 } from 'lucide-react';
 import { QuickAction, ActionId } from '../types';
@@ -18,7 +19,7 @@ interface QuickActionsProps {
 
 export const QuickActions: React.FC<QuickActionsProps> = ({ onActionClick }) => {
   return (
-    <div className="grid grid-cols-4 gap-y-6 gap-x-4 mb-8">
+    <div id="quick-actions" className="grid grid-cols-4 gap-y-6 gap-x-4 mb-8">
       {ACTIONS.map((action) => (
         <button 
           key={action.id} 

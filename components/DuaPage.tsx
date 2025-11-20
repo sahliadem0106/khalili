@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { Search, ArrowLeft, Share2, Copy, Bookmark, Heart, ChevronRight } from 'lucide-react';
+import { Search, ArrowLeft, Share2, Copy, Bookmark, Heart, ChevronRight, Sparkles } from 'lucide-react';
 import { DUA_DATA } from '../duas';
 import { Dua } from '../types';
 import { Button } from './ui/Button';
@@ -44,10 +44,11 @@ const getCategoryIcon = (category: string) => {
 }
 
 interface DuaPageProps {
-  onBack?: () => void; // Optional if we want to go back to home
+  onBack?: () => void; 
+  onHelp?: () => void; // Add Help trigger
 }
 
-export const DuaPage: React.FC<DuaPageProps> = ({ onBack }) => {
+export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
@@ -93,6 +94,16 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack }) => {
     // Could add toast notification here
   };
 
+  const handleHelpClick = () => {
+    // Reset view to ensure tour targets exist
+    setActiveCategory(null);
+    setSearchQuery('');
+    // Small delay to allow render before tour starts
+    setTimeout(() => {
+       if (onHelp) onHelp();
+    }, 50);
+  };
+
   // --- RENDER ---
 
   return (
@@ -100,22 +111,33 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack }) => {
       
       {/* HEADER */}
       <div className="bg-white sticky top-0 z-20 border-b border-neutral-line px-4 py-3 shadow-sm">
-        <div className="flex items-center space-x-3 mb-3">
-          {activeCategory && !isSearching ? (
-             <button onClick={() => setActiveCategory(null)} className="p-2 -ml-2 rounded-full hover:bg-neutral-100">
-                <ArrowLeft size={20} className="text-neutral-600" />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-3">
+            {activeCategory && !isSearching ? (
+               <button onClick={() => setActiveCategory(null)} className="p-2 -ml-2 rounded-full hover:bg-neutral-100">
+                  <ArrowLeft size={20} className="text-neutral-600" />
+               </button>
+            ) : (
+               onBack && <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-neutral-100"><ArrowLeft size={20} /></button>
+            )}
+            <h2 className="text-xl font-bold text-neutral-primary truncate">
+              {isSearching ? 'Search Results' : (activeCategory || 'Hisnul Muslim')}
+            </h2>
+          </div>
+          
+          {onHelp && (
+             <button 
+               onClick={handleHelpClick} 
+               className="flex items-center space-x-1.5 bg-gradient-to-r from-brand-forest to-brand-teal text-white px-3 py-1.5 rounded-full shadow-md hover:shadow-lg transform transition-all active:scale-95"
+             >
+                <Sparkles size={14} className="fill-current" />
+                <span className="text-xs font-bold">Guide</span>
              </button>
-          ) : (
-             // If onBack provided (main app navigation), show it, otherwise just title icon
-             onBack && <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-neutral-100"><ArrowLeft size={20} /></button>
           )}
-          <h2 className="text-xl font-bold text-neutral-primary truncate">
-            {isSearching ? 'Search Results' : (activeCategory || 'Hisnul Muslim')}
-          </h2>
         </div>
 
         {/* Search Bar */}
-        <div className="relative">
+        <div className="relative" id="dua-search">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
           <input 
             type="text" 
@@ -138,9 +160,10 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack }) => {
         {/* VIEW 1: CATEGORY GRID */}
         {!activeCategory && !isSearching && (
           <div className="grid grid-cols-2 gap-3">
-            {categories.map((category) => (
+            {categories.map((category, idx) => (
               <button
                 key={category}
+                id={idx === 0 ? 'dua-category-first' : undefined} // Target only the first for the tour
                 onClick={() => setActiveCategory(category)}
                 className="group relative h-32 rounded-2xl overflow-hidden text-left p-4 shadow-sm hover:shadow-md transition-all active:scale-95"
               >

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Prayer, PrayerStatus } from '../types';
 import { STATUS_COLORS, STATUS_LABELS } from '../constants';
@@ -22,7 +23,7 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
   };
 
   return (
-    <div className="space-y-3 mb-8">
+    <div id="prayer-list" className="space-y-3 mb-8">
       <div className="flex items-center justify-between mb-2 px-1">
         <h3 className="font-bold text-lg text-neutral-primary">Today's Prayers</h3>
         <button className="text-xs font-medium text-brand-forest hover:underline">See Weekly Stats</button>

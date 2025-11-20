@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from './ui/Button';
 import { User } from '../types';
@@ -61,7 +62,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
     <div className="space-y-6 animate-in fade-in duration-500 pb-24">
       
       {/* Simplified User Profile Header */}
-      <div className="flex items-center space-x-4 p-5 bg-white rounded-2xl border border-neutral-line shadow-sm mt-4">
+      <div id="profile-user-card" className="flex items-center space-x-4 p-5 bg-white rounded-2xl border border-neutral-line shadow-sm mt-4">
          <div className="w-16 h-16 rounded-full relative flex-shrink-0">
             <img 
               src={user.avatar} 
@@ -82,9 +83,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
       </div>
 
       {/* Comprehensive Settings List */}
-      <div className="space-y-6">
+      <div id="profile-settings" className="space-y-6">
         {SETTINGS_SECTIONS.map((section, idx) => (
-          <div key={idx}>
+          <div key={idx} id={idx === 0 ? "profile-settings-first" : undefined}>
             <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-3 mb-2">{section.title}</h3>
             <div className="bg-white rounded-2xl border border-neutral-line overflow-hidden shadow-sm">
               {section.items.map((item, i) => (

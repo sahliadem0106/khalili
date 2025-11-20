@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Home, BookOpen, BarChart2, User, Users } from 'lucide-react';
 
@@ -16,7 +17,7 @@ interface BottomNavProps {
 
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-line shadow-nav pb-safe-area z-40">
+    <div id="bottom-nav" className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-line shadow-nav pb-safe-area z-40">
       <div className="flex justify-around items-center h-16 px-2">
         {NAV_ITEMS.map((item) => (
           <button 

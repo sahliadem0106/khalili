@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { X, Star, AlertTriangle, CheckCircle2, Clock, Home, Users } from 'lucide-react';
 import { Button } from './ui/Button';
@@ -33,6 +34,18 @@ export const PrayerDetailModal: React.FC<PrayerDetailModalProps> = ({ prayer, is
       setJournal(prayer.journalEntry || '');
     }
   }, [prayer]);
+
+  // Lock scroll
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   if (!isOpen || !prayer) return null;
 
