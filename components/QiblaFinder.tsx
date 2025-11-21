@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { X, Compass, MapPin, Navigation } from 'lucide-react';
 import { Button } from './ui/Button';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface QiblaFinderProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface QiblaFinderProps {
 export const QiblaFinder: React.FC<QiblaFinderProps> = ({ isOpen, onClose }) => {
   const [heading, setHeading] = useState(0);
   const [calibrating, setCalibrating] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (isOpen) {
@@ -43,11 +45,11 @@ export const QiblaFinder: React.FC<QiblaFinderProps> = ({ isOpen, onClose }) => 
         
         {/* Header */}
         <div className="flex justify-between items-center mb-8 z-10">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <div className="bg-white/10 p-2 rounded-full">
               <Compass size={20} className="text-brand-mint" />
             </div>
-            <span className="font-bold text-lg">Qibla Finder</span>
+            <span className="font-bold text-lg">{t('qibla_finder')}</span>
           </div>
           <button 
             onClick={onClose} 
@@ -114,11 +116,11 @@ export const QiblaFinder: React.FC<QiblaFinderProps> = ({ isOpen, onClose }) => 
           {/* Status Text */}
           <div className="mt-12 text-center">
              {calibrating ? (
-               <p className="text-neutral-400 animate-pulse">Calibrating sensors...</p>
+               <p className="text-neutral-400 animate-pulse">{t('qibla_calibrating')}</p>
              ) : (
-               <div className="flex items-center justify-center space-x-2 text-brand-mint bg-brand-mint/10 px-4 py-2 rounded-full">
+               <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse text-brand-mint bg-brand-mint/10 px-4 py-2 rounded-full">
                  <Navigation size={14} className="fill-current" />
-                 <span className="text-sm font-medium">Qibla Aligned</span>
+                 <span className="text-sm font-medium">{t('qibla_aligned')}</span>
                </div>
              )}
           </div>
@@ -127,12 +129,12 @@ export const QiblaFinder: React.FC<QiblaFinderProps> = ({ isOpen, onClose }) => 
 
         {/* Footer */}
         <div className="mt-auto pb-4">
-          <div className="bg-white/5 rounded-2xl p-4 flex items-center space-x-3">
+          <div className="bg-white/5 rounded-2xl p-4 flex items-center space-x-3 rtl:space-x-reverse">
             <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
               <MapPin size={20} className="text-white" />
             </div>
             <div>
-              <p className="text-xs text-neutral-400">Current Location</p>
+              <p className="text-xs text-neutral-400">{t('qibla_location')}</p>
               <p className="text-sm font-medium">Sampang, Indonesia</p>
             </div>
           </div>

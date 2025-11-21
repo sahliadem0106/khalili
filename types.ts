@@ -1,4 +1,7 @@
+
 import React from 'react';
+
+export type Language = 'en' | 'ar';
 
 export enum PrayerStatus {
   Upcoming = 'upcoming',

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Button } from './ui/Button';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export interface TourStep {
   targetId: string;
@@ -20,6 +21,10 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, steps, onClose }
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const { t, dir } = useLanguage();
+  
+  const NextIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
+  const PrevIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
 
   // Reset when opening and Lock Scroll
   useEffect(() => {
@@ -150,7 +155,7 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, steps, onClose }
           <div className={`absolute w-4 h-4 border-8 border-x-transparent ${arrowClass}`} />
 
           <div className="flex justify-between items-start mb-3">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 rtl:space-x-reverse">
                <span className="bg-brand-forest text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                  {currentStep + 1} / {steps.length}
                </span>
@@ -171,15 +176,15 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, steps, onClose }
                disabled={currentStep === 0}
                className={`text-neutral-400 hover:text-brand-forest transition-colors ${currentStep === 0 ? 'opacity-0 cursor-default' : 'opacity-100'}`}
             >
-               <ChevronLeft size={20} />
+               <PrevIcon size={20} />
             </button>
             
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 rtl:space-x-reverse">
               <button onClick={onClose} className="text-xs font-medium text-neutral-400 hover:text-neutral-600 px-3 py-2">
-                Skip
+                {t('tour_skip')}
               </button>
               <Button size="sm" onClick={handleNext} className="px-4 h-8 text-xs">
-                {isLast ? 'Finish' : 'Next'} {isLast ? null : <ChevronRight size={14} className="ml-1" />}
+                {isLast ? t('tour_finish') : t('tour_next')} {isLast ? null : <NextIcon size={14} className="ms-1" />}
               </Button>
             </div>
           </div>

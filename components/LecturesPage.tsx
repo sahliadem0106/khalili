@@ -3,6 +3,7 @@ import React from 'react';
 import { Card } from './ui/Card';
 import { PlayCircle, Clock, BookOpen } from 'lucide-react';
 import { Lecture } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const LECTURES: Lecture[] = [
   {
@@ -40,12 +41,14 @@ const LECTURES: Lecture[] = [
 ];
 
 export const LecturesPage: React.FC = () => {
+  const { t } = useLanguage();
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between mb-4">
-         <h2 className="text-2xl font-bold text-neutral-primary">Knowledge</h2>
+         <h2 className="text-2xl font-bold text-neutral-primary">{t('knowledge')}</h2>
          <div className="bg-white px-3 py-1 rounded-full text-xs font-medium shadow-sm border border-neutral-line">
-            All Categories
+            {t('allCategories')}
          </div>
       </div>
 
@@ -57,10 +60,10 @@ export const LecturesPage: React.FC = () => {
            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
          />
          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-5 flex flex-col justify-end">
-            <span className="bg-brand-forest text-white text-xs px-2 py-1 rounded-md self-start mb-2">Series of the Month</span>
+            <span className="bg-brand-forest text-white text-xs px-2 py-1 rounded-md self-start mb-2">{t('featuredSeries')}</span>
             <h3 className="text-white font-bold text-xl mb-1">Tafseer of Juz Amma</h3>
             <p className="text-white/80 text-sm flex items-center">
-               <PlayCircle size={14} className="mr-1.5" /> 12 Episodes
+               <PlayCircle size={14} className="me-1.5" /> 12 Episodes
             </p>
          </div>
       </div>
@@ -88,7 +91,7 @@ export const LecturesPage: React.FC = () => {
                 <h4 className="font-bold text-neutral-primary text-sm mb-1 line-clamp-2">{lecture.title}</h4>
                 <p className="text-xs text-neutral-muted mb-2">{lecture.author}</p>
                 <div className="flex items-center text-[10px] text-neutral-400 mt-auto">
-                   <Clock size={10} className="mr-1" /> {lecture.duration}
+                   <Clock size={10} className="me-1" /> {lecture.duration}
                 </div>
              </div>
           </Card>

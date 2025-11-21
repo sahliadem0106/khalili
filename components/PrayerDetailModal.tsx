@@ -4,6 +4,7 @@ import { X, Star, AlertTriangle, CheckCircle2, Clock, Home, Users } from 'lucide
 import { Button } from './ui/Button';
 import { Prayer, PrayerStatus, BarrierType } from '../types';
 import { STATUS_COLORS, STATUS_LABELS } from '../constants';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PrayerDetailModalProps {
   prayer: Prayer | null;
@@ -12,19 +13,32 @@ interface PrayerDetailModalProps {
   onSave: (id: string, updates: Partial<Prayer>) => void;
 }
 
-const BARRIERS: { id: BarrierType; label: string }[] = [
-  { id: 'sleep', label: 'Overslept' },
-  { id: 'work', label: 'Work/School' },
-  { id: 'procrastination', label: 'Procrastination' },
-  { id: 'travel', label: 'Travel' },
-  { id: 'forgetfulness', label: 'Forgot' },
-];
-
 export const PrayerDetailModal: React.FC<PrayerDetailModalProps> = ({ prayer, isOpen, onClose, onSave }) => {
+  const { t, language } = useLanguage();
   const [status, setStatus] = useState<PrayerStatus>(PrayerStatus.Upcoming);
   const [khushu, setKhushu] = useState<number>(0);
   const [barrier, setBarrier] = useState<BarrierType>('none');
   const [journal, setJournal] = useState('');
+
+  const BARRIERS: { id: BarrierType; label: string }[] = [
+    { id: 'sleep', label: t('barrier_sleep') },
+    { id: 'work', label: t('barrier_work') },
+    { id: 'procrastination', label: t('barrier_procrastination') },
+    { id: 'travel', label: t('barrier_travel') },
+    { id: 'forgetfulness', label: t('barrier_forgetfulness') },
+  ];
+
+  // Status label translation helper
+  const getStatusLabel = (status: PrayerStatus) => {
+    switch (status) {
+      case PrayerStatus.Jamaah: return t('status_jamaah');
+      case PrayerStatus.Home: return t('status_home');
+      case PrayerStatus.Late: return t('status_late');
+      case PrayerStatus.Missed: return t('status_missed');
+      case PrayerStatus.QadaDone: return t('status_qada_done');
+      default: return t('status_upcoming');
+    }
+  };
 
   useEffect(() => {
     if (prayer) {
@@ -68,8 +82,8 @@ export const PrayerDetailModal: React.FC<PrayerDetailModalProps> = ({ prayer, is
         
         <div className="bg-white p-6 border-b border-neutral-line sticky top-0 z-10 flex justify-between items-center rounded-t-3xl">
           <div>
-            <h3 className="text-xl font-bold text-neutral-primary">{prayer.name} Prayer</h3>
-            <p className="text-sm text-neutral-muted font-arabic">{prayer.arabicName} • {prayer.time}</p>
+            <h3 className="text-xl font-bold text-neutral-primary">{language === 'ar' ? prayer.arabicName : prayer.name}</h3>
+            <p className="text-sm text-neutral-muted font-arabic">{language === 'ar' ? prayer.name : prayer.arabicName} • {prayer.time}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-neutral-100 rounded-full">
             <X size={24} className="text-neutral-500" />
@@ -80,7 +94,7 @@ export const PrayerDetailModal: React.FC<PrayerDetailModalProps> = ({ prayer, is
           
           {/* Status Selection */}
           <div className="space-y-3">
-            <label className="text-sm font-bold text-neutral-primary uppercase tracking-wide">Status</label>
+            <label className="text-sm font-bold text-neutral-primary uppercase tracking-wide">{t('insights')} (Status)</label>
             <div className="grid grid-cols-3 gap-2">
               {[PrayerStatus.Jamaah, PrayerStatus.Home, PrayerStatus.Late, PrayerStatus.Missed, PrayerStatus.QadaDone].map((s) => (
                 <button
@@ -91,7 +105,7 @@ export const PrayerDetailModal: React.FC<PrayerDetailModalProps> = ({ prayer, is
                     ${status === s ? `${STATUS_COLORS[s]} border-transparent shadow-md` : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-50'}
                   `}
                 >
-                  <span className="text-xs font-bold">{STATUS_LABELS[s]}</span>
+                  <span className="text-xs font-bold">{getStatusLabel(s)}</span>
                 </button>
               ))}
             </div>
@@ -101,8 +115,8 @@ export const PrayerDetailModal: React.FC<PrayerDetailModalProps> = ({ prayer, is
           {isCompleted && (
             <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
               <div className="flex justify-between items-baseline">
-                 <label className="text-sm font-bold text-neutral-primary uppercase tracking-wide">Khushu (Presence)</label>
-                 <span className="text-xs text-neutral-muted">How focused were you?</span>
+                 <label className="text-sm font-bold text-neutral-primary uppercase tracking-wide">{t('detail_khushu')}</label>
+                 <span className="text-xs text-neutral-muted">{t('detail_khushu_desc')}</span>
               </div>
               <div className="flex justify-between bg-white p-4 rounded-2xl border border-neutral-line">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -121,8 +135,8 @@ export const PrayerDetailModal: React.FC<PrayerDetailModalProps> = ({ prayer, is
           {isMissedOrLate && (
             <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
               <div className="flex justify-between items-baseline">
-                 <label className="text-sm font-bold text-red-500 uppercase tracking-wide">Identify Barrier</label>
-                 <span className="text-xs text-neutral-muted">Why did this happen?</span>
+                 <label className="text-sm font-bold text-red-500 uppercase tracking-wide">{t('detail_barrier')}</label>
+                 <span className="text-xs text-neutral-muted">{t('detail_barrier_desc')}</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {BARRIERS.map((b) => (
@@ -143,17 +157,17 @@ export const PrayerDetailModal: React.FC<PrayerDetailModalProps> = ({ prayer, is
 
           {/* Reflection Journal */}
           <div className="space-y-3">
-            <label className="text-sm font-bold text-neutral-primary uppercase tracking-wide">Reflection</label>
+            <label className="text-sm font-bold text-neutral-primary uppercase tracking-wide">{t('detail_reflection')}</label>
             <textarea
               value={journal}
               onChange={(e) => setJournal(e.target.value)}
-              placeholder="Briefly note your feelings or spiritual state..."
+              placeholder={t('detail_reflection_placeholder')}
               className="w-full h-24 bg-white rounded-xl p-4 text-sm border border-neutral-line focus:ring-2 focus:ring-brand-teal focus:outline-none resize-none placeholder:text-neutral-300"
             />
           </div>
 
           <Button fullWidth size="lg" onClick={handleSave}>
-            Update Prayer Log
+            {t('detail_update_btn')}
           </Button>
 
         </div>

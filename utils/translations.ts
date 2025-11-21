@@ -1,0 +1,473 @@
+
+import { Language } from '../types';
+
+export const translations = {
+  en: {
+    // General
+    appName: "Muslim Daily",
+    greeting: "Salam",
+    
+    // Header
+    guide: "Guide",
+    
+    // Hero
+    heroTitle: "Ramadan Preparation",
+    heroSubtitle: "Track your prayers and set your spiritual goals early.",
+    heroAction: "Explore Now",
+    
+    // Prayer Card
+    nextPrayer: "Next Prayer",
+    remaining: "remaining",
+    nearestMosque: "Nearest Mosque",
+    setRoutine: "Set Ramadan Routine",
+    
+    // Actions
+    quran: "Quran",
+    qibla: "Qibla",
+    dua: "Dua",
+    tasbih: "Tasbih",
+    zakat: "Zakat",
+    qada: "Qada",
+    settings: "Settings",
+    partners: "Partners",
+    
+    // Prayer List
+    todaysPrayers: "Today's Prayers",
+    weeklyStats: "See Weekly Stats",
+    status_jamaah: "Jamaah",
+    status_home: "Home",
+    status_late: "Late",
+    status_missed: "Missed",
+    status_qada_done: "Made Up",
+    status_upcoming: "Upcoming",
+    
+    // Heart Widget
+    heartState: "Spiritual Heart State",
+    heartSubtitle: "Based on prayer timeliness & presence",
+    howYouFeel: "How do you feel right now?",
+    feel_peaceful: "Peaceful",
+    feel_grateful: "Grateful",
+    feel_anxious: "Anxious",
+    feel_distracted: "Distracted",
+    feel_sad: "Low",
+    
+    // Qada
+    missedPrayers: "Missed Prayers",
+    makeUp: "Make Up",
+    progress: "Progress",
+    pending: "Pending",
+    completed: "Completed",
+    travelMode: "Travel Mode (Safar)",
+    travelModeDesc: "Tap to enable Qasr rules",
+    travelModeActive: "Shortening prayers enabled",
+    
+    // Bottom Nav
+    nav_home: "Home",
+    nav_partners: "Partners",
+    nav_lectures: "Lectures",
+    nav_stats: "Stats",
+    nav_profile: "Profile",
+    
+    // Profile
+    edit: "Edit",
+    signOut: "Sign Out",
+    section_account: "Account & Security",
+    section_prayer: "Prayer Configuration",
+    section_notifications: "Notifications & Sounds",
+    section_app: "App Preferences",
+    section_support: "Support",
+    pref_language: "Language",
+    pref_theme: "Theme",
+    
+    // Analytics
+    insights: "Insights",
+    last30days: "Last 30 Days",
+    currentStreak: "Current Streak",
+    streakDesc: "You're 80% consistent this week!",
+    consistencyHeatmap: "Monthly Consistency",
+    khushuQuality: "Khushu Quality",
+    topBarriers: "Top Barriers",
+    activeGoal: "Active Goal",
+    prayerGuardian: "Prayer Guardian: 7 Day Streak",
+    
+    // Lectures
+    knowledge: "Knowledge",
+    allCategories: "All Categories",
+    featuredSeries: "Series of the Month",
+    
+    // Tasbih
+    tasbih_title: "Digital Tasbih",
+    tasbih_mode_single: "Single",
+    tasbih_mode_combo: "Custom Sequence",
+    tasbih_select_dhikr: "Select Dhikr",
+    tasbih_custom: "Custom",
+    tasbih_custom_placeholder: "Type your custom Dhikr...",
+    tasbih_set_goal: "Set Goal",
+    tasbih_sequence: "Your Sequence",
+    tasbih_steps: "steps",
+    tasbih_no_steps: "No steps added yet.",
+    tasbih_add_step: "Add New Step",
+    tasbih_count: "Count",
+    tasbih_add_btn: "Add Step to Sequence",
+    tasbih_start_single: "Start Tasbih",
+    tasbih_start_combo: "Start Combo",
+    tasbih_step_progress: "Step {current} of {total}",
+    tasbih_next: "Next",
+    tasbih_reset: "Reset",
+    tasbih_done: "Done",
+
+    // Partners (Rakib)
+    partners_title: "Prayer Partners",
+    partners_subtitle: "Accountability & Support (Rakib)",
+    partners_your_circle: "Your Circle",
+    partners_members: "Members",
+    partners_streak: "Day Streak",
+    partners_consistency: "Group Consistency",
+    partners_today: "Today",
+    partners_manage: "Manage",
+    partners_remind_all: "Remind All Members",
+    partners_individual: "Individual Partners",
+    partners_empty: "No partners yet.",
+    partners_find: "Find a Friend",
+    partners_add_title: "Add Partner",
+    partners_by_id: "By ID",
+    partners_scan_qr: "Scan QR",
+    partners_search_label: "Partner Profile ID",
+    partners_search_placeholder: "e.g. AHMED-92",
+    partners_search_btn: "Search",
+    partners_send_request: "Send Request",
+    partners_scan_desc: "Allow camera access to scan your partner's QR code.",
+    partners_open_camera: "Open Camera",
+    partners_align_qr: "Align QR code within frame",
+    partners_message: "Message",
+    partners_sharing_settings: "Sharing Settings",
+    partners_sharing_desc: "Control exactly what {name} can see about your activity.",
+    partners_level_minimal: "Minimal",
+    partners_level_minimal_desc: "Only checks (✓) or X. No specific times or details.",
+    partners_level_standard: "Standard",
+    partners_level_standard_desc: "Prayer status (Late/On-time), Streaks, Charts.",
+    partners_level_full: "Full Access",
+    partners_level_full_desc: "Includes Heart State and Badges. Full transparency.",
+    partners_save: "Save Changes",
+    partners_unpair: "Unpair from {name}",
+    partners_remind: "Remind",
+    partners_remind_sent: "Sent",
+
+    // Prayer Detail
+    detail_khushu: "Khushu (Presence)",
+    detail_khushu_desc: "How focused were you?",
+    detail_barrier: "Identify Barrier",
+    detail_barrier_desc: "Why did this happen?",
+    detail_reflection: "Reflection",
+    detail_reflection_placeholder: "Briefly note your feelings or spiritual state...",
+    detail_update_btn: "Update Prayer Log",
+    barrier_sleep: "Overslept",
+    barrier_work: "Work/School",
+    barrier_procrastination: "Procrastination",
+    barrier_travel: "Travel",
+    barrier_forgetfulness: "Forgot",
+    
+    // Qibla
+    qibla_finder: "Qibla Finder",
+    qibla_calibrating: "Calibrating sensors...",
+    qibla_aligned: "Qibla Aligned",
+    qibla_location: "Current Location",
+
+    // Dua
+    dua_search_results: "Search Results",
+    dua_guide: "Guide",
+    dua_search_placeholder: "Search by feeling, topic, or text...",
+    dua_clear: "Clear",
+    dua_view_duas: "View Duas",
+    dua_no_results: "No Duas found matching your criteria.",
+    dua_source: "Source",
+    dua_end: "End of category",
+    dua_back_top: "Back to Top",
+
+    // Tour
+    tour_skip: "Skip",
+    tour_next: "Next",
+    tour_finish: "Finish",
+    
+    // Tour Steps
+    tour_home_profile_title: "Your Profile",
+    tour_home_profile_content: "Access your location settings and personal details here.",
+    tour_home_hero_title: "Daily Inspiration",
+    tour_home_hero_content: "Find motivational quotes and seasonal updates to start your day.",
+    tour_home_next_title: "Next Prayer",
+    tour_home_next_content: "See exactly how much time is left until your next Salah.",
+    tour_home_quick_title: "Quick Tools",
+    tour_home_quick_content: "Instantly access Qibla, Tasbih, Dua, and more.",
+    tour_home_list_title: "Prayer Tracker",
+    tour_home_list_content: "Log your prayers daily. Tap any prayer to add details about your focus (Khushu).",
+    tour_home_nav_title: "Navigation",
+    tour_home_nav_content: "Switch between Partners, Knowledge, Statistics, and Profile.",
+    
+    tour_dua_search_title: "Smart Search",
+    tour_dua_search_content: "Find any Dua by topic, emotion, or keywords instantly.",
+    tour_dua_cat_title: "Categories",
+    tour_dua_cat_content: "Tap any card to explore our curated collection of Duas for every occasion.",
+    
+    tour_partners_add_title: "Add Partner",
+    tour_partners_add_content: "Connect with friends or family to keep each other accountable.",
+    tour_partners_group_title: "Groups",
+    tour_partners_group_content: "Create circles for your family to track progress together.",
+    
+    tour_stats_streak_title: "Your Streak",
+    tour_stats_streak_content: "Keep your momentum going! See how many days in a row you have prayed.",
+    tour_stats_insights_title: "Insights",
+    tour_stats_insights_content: "We analyze your logs to help you identify barriers like sleep or work.",
+    
+    tour_lectures_featured_title: "Featured Series",
+    tour_lectures_featured_content: "Hand-picked series to boost your knowledge this week.",
+    tour_lectures_lib_title: "Library",
+    tour_lectures_lib_content: "Browse lectures by category including Quran, Fiqh, and History. Tap to watch.",
+    
+    tour_profile_id_title: "Your Identity",
+    tour_profile_id_content: "Manage your personal details and avatar here.",
+    tour_profile_settings_title: "Settings",
+    tour_profile_settings_content: "Customize calculation methods, adhan sounds, and app theme here.",
+
+    // Splash
+    splash_slogan: "Ascend Together",
+
+    // Common
+    cancel: "Cancel",
+    save: "Save",
+    back: "Back",
+  },
+  ar: {
+    // General
+    appName: "يوميات المسلم",
+    greeting: "سلام",
+    
+    // Header
+    guide: "دليل",
+    
+    // Hero
+    heroTitle: "الاستعداد لرمضان",
+    heroSubtitle: "تابع صلواتك وحدد أهدافك الروحية مبكراً.",
+    heroAction: "اكتشف الآن",
+    
+    // Prayer Card
+    nextPrayer: "الصلاة القادمة",
+    remaining: "متبقي",
+    nearestMosque: "أقرب مسجد",
+    setRoutine: "حدد روتين رمضان",
+    
+    // Actions
+    quran: "القرآن",
+    qibla: "القبلة",
+    dua: "الأدعية",
+    tasbih: "التسبيح",
+    zakat: "الزكاة",
+    qada: "القضاء",
+    settings: "الإعدادات",
+    partners: "الرفقاء",
+    
+    // Prayer List
+    todaysPrayers: "صلوات اليوم",
+    weeklyStats: "الإحصائيات الأسبوعية",
+    status_jamaah: "جماعة",
+    status_home: "منفرداً",
+    status_late: "متأخر",
+    status_missed: "فائتة",
+    status_qada_done: "قضاء",
+    status_upcoming: "قادمة",
+    
+    // Heart Widget
+    heartState: "حالة القلب الروحي",
+    heartSubtitle: "بناءً على الالتزام والخشوع",
+    howYouFeel: "كيف تشعر الآن؟",
+    feel_peaceful: "مطمئن",
+    feel_grateful: "ممتن",
+    feel_anxious: "قلق",
+    feel_distracted: "مشتت",
+    feel_sad: "حزين",
+    
+    // Qada
+    missedPrayers: "الصلوات الفائتة",
+    makeUp: "قضاء",
+    progress: "التقدم",
+    pending: "المتبقي",
+    completed: "المكتمل",
+    travelMode: "وضع السفر",
+    travelModeDesc: "اضغط لتفعيل أحكام القصر",
+    travelModeActive: "قصر الصلاة مفعل",
+    
+    // Bottom Nav
+    nav_home: "الرئيسية",
+    nav_partners: "الرفقاء",
+    nav_lectures: "دروس",
+    nav_stats: "إحصائيات",
+    nav_profile: "حسابي",
+    
+    // Profile
+    edit: "تعديل",
+    signOut: "تسجيل الخروج",
+    section_account: "الحساب والأمان",
+    section_prayer: "إعدادات الصلاة",
+    section_notifications: "الإشعارات والأصوات",
+    section_app: "تفضيلات التطبيق",
+    section_support: "الدعم",
+    pref_language: "اللغة",
+    pref_theme: "المظهر",
+    
+    // Analytics
+    insights: "رؤى",
+    last30days: "آخر 30 يوم",
+    currentStreak: "سلسلة الثبات",
+    streakDesc: "أنت ملتزم بنسبة 80% هذا الأسبوع!",
+    consistencyHeatmap: "الثبات الشهري",
+    khushuQuality: "جودة الخشوع",
+    topBarriers: "أبرز العوائق",
+    activeGoal: "الهدف النشط",
+    prayerGuardian: "حارس الصلاة: ٧ أيام ثبات",
+    
+    // Lectures
+    knowledge: "المعرفة",
+    allCategories: "كل التصنيفات",
+    featuredSeries: "سلسلة الشهر",
+
+    // Tasbih
+    tasbih_title: "المسبحة الإلكترونية",
+    tasbih_mode_single: "مفرد",
+    tasbih_mode_combo: "تسلسل مخصص",
+    tasbih_select_dhikr: "اختر الذكر",
+    tasbih_custom: "مخصص",
+    tasbih_custom_placeholder: "اكتب الذكر المخصص...",
+    tasbih_set_goal: "حدد الهدف",
+    tasbih_sequence: "التسلسل الخاص بك",
+    tasbih_steps: "خطوات",
+    tasbih_no_steps: "لم يتم إضافة خطوات بعد.",
+    tasbih_add_step: "إضافة خطوة جديدة",
+    tasbih_count: "العدد",
+    tasbih_add_btn: "إضافة للتسلسل",
+    tasbih_start_single: "ابدأ التسبيح",
+    tasbih_start_combo: "ابدأ التسلسل",
+    tasbih_step_progress: "خطوة {current} من {total}",
+    tasbih_next: "التالي",
+    tasbih_reset: "إعادة ضبط",
+    tasbih_done: "تم",
+
+    // Partners (Rakib)
+    partners_title: "رفقاء الصلاة",
+    partners_subtitle: "المسؤولية والمؤازرة (الرقيب)",
+    partners_your_circle: "دائرتك",
+    partners_members: "أعضاء",
+    partners_streak: "أيام متتالية",
+    partners_consistency: "ثبات المجموعة",
+    partners_today: "اليوم",
+    partners_manage: "إدارة",
+    partners_remind_all: "تذكير الجميع",
+    partners_individual: "الرفقاء",
+    partners_empty: "لا يوجد رفقاء بعد.",
+    partners_find: "ابحث عن صديق",
+    partners_add_title: "إضافة رفيق",
+    partners_by_id: "بالمعرف",
+    partners_scan_qr: "مسح QR",
+    partners_search_label: "معرف الرفيق",
+    partners_search_placeholder: "مثال: AHMED-92",
+    partners_search_btn: "بحث",
+    partners_send_request: "إرسال طلب",
+    partners_scan_desc: "اسمح للكاميرا بمسح رمز QR الخاص برفيقك.",
+    partners_open_camera: "فتح الكاميرا",
+    partners_align_qr: "ضع الرمز داخل الإطار",
+    partners_message: "مراسلة",
+    partners_sharing_settings: "إعدادات المشاركة",
+    partners_sharing_desc: "تحكم بالضبط فيما يمكن لـ {name} رؤيته عن نشاطك.",
+    partners_level_minimal: "أدنى",
+    partners_level_minimal_desc: "فقط علامة (✓) أو X. لا تفاصيل.",
+    partners_level_standard: "قياسي",
+    partners_level_standard_desc: "حالة الصلاة (متأخر/في الوقت)، الرسوم البيانية.",
+    partners_level_full: "كامل",
+    partners_level_full_desc: "يشمل حالة القلب والشارات. شفافية كاملة.",
+    partners_save: "حفظ التغييرات",
+    partners_unpair: "إلغاء الارتباط مع {name}",
+    partners_remind: "تذكير",
+    partners_remind_sent: "تم الإرسال",
+
+    // Prayer Detail
+    detail_khushu: "الخشوع (الحضور)",
+    detail_khushu_desc: "ما مدى تركيزك؟",
+    detail_barrier: "تحديد العائق",
+    detail_barrier_desc: "لماذا حدث هذا؟",
+    detail_reflection: "خواطر",
+    detail_reflection_placeholder: "سجل مشاعرك أو حالتك الروحية باختصار...",
+    detail_update_btn: "تحديث سجل الصلاة",
+    barrier_sleep: "غلبني النوم",
+    barrier_work: "عمل/دراسة",
+    barrier_procrastination: "تسويف",
+    barrier_travel: "سفر",
+    barrier_forgetfulness: "نسيان",
+    
+    // Qibla
+    qibla_finder: "محدد القبلة",
+    qibla_calibrating: "جاري المعايرة...",
+    qibla_aligned: "تم تحديد القبلة",
+    qibla_location: "الموقع الحالي",
+
+    // Dua
+    dua_search_results: "نتائج البحث",
+    dua_guide: "دليل",
+    dua_search_placeholder: "بحث بالشعور، الموضوع، أو النص...",
+    dua_clear: "مسح",
+    dua_view_duas: "عرض الأدعية",
+    dua_no_results: "لم يتم العثور على أدعية مطابقة.",
+    dua_source: "المصدر",
+    dua_end: "نهاية التصنيف",
+    dua_back_top: "العودة للأعلى",
+
+    // Tour
+    tour_skip: "تخطي",
+    tour_next: "التالي",
+    tour_finish: "إنهاء",
+    
+    // Tour Steps
+    tour_home_profile_title: "ملفك الشخصي",
+    tour_home_profile_content: "تحكم في إعدادات الموقع والتفاصيل الشخصية من هنا.",
+    tour_home_hero_title: "إلهام يومي",
+    tour_home_hero_content: "اكتشف اقتباسات تحفيزية وتحديثات موسمية لبدء يومك.",
+    tour_home_next_title: "الصلاة القادمة",
+    tour_home_next_content: "اعرف بالضبط كم تبقى من الوقت حتى الصلاة التالية.",
+    tour_home_quick_title: "أدوات سريعة",
+    tour_home_quick_content: "وصول فوري للقبلة، التسبيح، الأدعية والمزيد.",
+    tour_home_list_title: "سجل الصلوات",
+    tour_home_list_content: "سجل صلواتك يومياً. اضغط على أي صلاة لإضافة تفاصيل الخشوع.",
+    tour_home_nav_title: "التنقل",
+    tour_home_nav_content: "تنقل بين الرفقاء، المعرفة، الإحصائيات، والملف الشخصي.",
+    
+    tour_dua_search_title: "بحث ذكي",
+    tour_dua_search_content: "اعثر على أي دعاء حسب الموضوع، المشاعر، أو الكلمات المفتاحية.",
+    tour_dua_cat_title: "التصنيفات",
+    tour_dua_cat_content: "تصفح مجموعتنا المختارة من الأدعية لكل مناسبة.",
+    
+    tour_partners_add_title: "إضافة رفيق",
+    tour_partners_add_content: "تواصل مع الأصدقاء أو العائلة للحفاظ على الالتزام المشترك.",
+    tour_partners_group_title: "المجموعات",
+    tour_partners_group_content: "أنشئ حلقات لعائلتك لتتبع التقدم معاً.",
+    
+    tour_stats_streak_title: "سلسلة ثباتك",
+    tour_stats_streak_content: "حافظ على زخمك! انظر كم يوماً صليت بانتظام.",
+    tour_stats_insights_title: "رؤى تحليلية",
+    tour_stats_insights_content: "نحلل سجلاتك لمساعدتك في تحديد العوائق مثل النوم أو العمل.",
+    
+    tour_lectures_featured_title: "سلسلة مميزة",
+    tour_lectures_featured_content: "سلاسل مختارة بعناية لزيادة معرفتك هذا الأسبوع.",
+    tour_lectures_lib_title: "المكتبة",
+    tour_lectures_lib_content: "تصفح الدروس حسب الفئة. اضغط للمشاهدة.",
+    
+    tour_profile_id_title: "هويتك",
+    tour_profile_id_content: "أدر تفاصيلك الشخصية والصورة الرمزية هنا.",
+    tour_profile_settings_title: "الإعدادات",
+    tour_profile_settings_content: "خصص طرق الحساب، أصوات الأذان، ومظهر التطبيق من هنا.",
+
+    // Splash
+    splash_slogan: "نرتقي معاً",
+    
+    // Common
+    cancel: "إلغاء",
+    save: "حفظ",
+    back: "رجوع",
+  }
+};

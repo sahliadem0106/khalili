@@ -2,22 +2,25 @@
 import React from 'react';
 import { BookOpen, Compass, Heart, List, RotateCcw, Settings, Share2 } from 'lucide-react';
 import { QuickAction, ActionId } from '../types';
-
-const ACTIONS: QuickAction[] = [
-  { id: 'lectures', label: 'Quran', icon: BookOpen, color: 'text-emerald-600 bg-emerald-50' },
-  { id: 'qibla', label: 'Qibla', icon: Compass, color: 'text-blue-600 bg-blue-50' },
-  { id: 'dua', label: 'Dua', icon: Heart, color: 'text-rose-600 bg-rose-50' },
-  { id: 'tasbih', label: 'Tasbih', icon: List, color: 'text-purple-600 bg-purple-50' },
-  { id: 'zakat', label: 'Zakat', icon: Share2, color: 'text-amber-600 bg-amber-50' },
-  { id: 'qada', label: 'Qada', icon: RotateCcw, color: 'text-indigo-600 bg-indigo-50' },
-  { id: 'settings', label: 'Settings', icon: Settings, color: 'text-slate-600 bg-slate-50' },
-];
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface QuickActionsProps {
   onActionClick: (id: ActionId) => void;
 }
 
 export const QuickActions: React.FC<QuickActionsProps> = ({ onActionClick }) => {
+  const { t } = useLanguage();
+
+  const ACTIONS: QuickAction[] = [
+    { id: 'lectures', label: t('quran'), icon: BookOpen, color: 'text-emerald-600 bg-emerald-50' },
+    { id: 'qibla', label: t('qibla'), icon: Compass, color: 'text-blue-600 bg-blue-50' },
+    { id: 'dua', label: t('dua'), icon: Heart, color: 'text-rose-600 bg-rose-50' },
+    { id: 'tasbih', label: t('tasbih'), icon: List, color: 'text-purple-600 bg-purple-50' },
+    { id: 'zakat', label: t('zakat'), icon: Share2, color: 'text-amber-600 bg-amber-50' },
+    { id: 'qada', label: t('qada'), icon: RotateCcw, color: 'text-indigo-600 bg-indigo-50' },
+    { id: 'settings', label: t('settings'), icon: Settings, color: 'text-slate-600 bg-slate-50' },
+  ];
+
   return (
     <div id="quick-actions" className="grid grid-cols-4 gap-y-6 gap-x-4 mb-8">
       {ACTIONS.map((action) => (

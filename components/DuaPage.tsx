@@ -1,13 +1,13 @@
 
 import React, { useState, useMemo } from 'react';
-import { Search, ArrowLeft, Share2, Copy, Bookmark, Heart, ChevronRight, Sparkles } from 'lucide-react';
+import { Search, ArrowLeft, Share2, Copy, Bookmark, Heart, ChevronRight, Sparkles, ChevronLeft } from 'lucide-react';
 import { DUA_DATA } from '../duas';
 import { Dua } from '../types';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // --- HELPER: Gradient Generator ---
-// Deterministically assigns a gradient based on the category name length/char codes
 const getCategoryGradient = (category: string) => {
   const gradients = [
     'from-orange-400 to-rose-500',      // Morning/Warm
@@ -45,13 +45,18 @@ const getCategoryIcon = (category: string) => {
 
 interface DuaPageProps {
   onBack?: () => void; 
-  onHelp?: () => void; // Add Help trigger
+  onHelp?: () => void; 
 }
 
 export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
+  const { t, dir } = useLanguage();
+  
+  const ArrowIcon = dir === 'rtl' ? ChevronRight : ArrowLeft; // Back is usually ArrowLeft in LTR, but in app header context arrow directions vary. Let's stick to simple logic: arrow points back. In RTL back is right.
+  const BackIcon = dir === 'rtl' ? ChevronRight : ArrowLeft; 
+  const ForwardIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   // Extract unique categories
   const categories = useMemo(() => {
@@ -91,14 +96,11 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    // Could add toast notification here
   };
 
   const handleHelpClick = () => {
-    // Reset view to ensure tour targets exist
     setActiveCategory(null);
     setSearchQuery('');
-    // Small delay to allow render before tour starts
     setTimeout(() => {
        if (onHelp) onHelp();
     }, 50);
@@ -112,43 +114,43 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
       {/* HEADER */}
       <div className="bg-white sticky top-0 z-20 border-b border-neutral-line px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse">
             {activeCategory && !isSearching ? (
-               <button onClick={() => setActiveCategory(null)} className="p-2 -ml-2 rounded-full hover:bg-neutral-100">
-                  <ArrowLeft size={20} className="text-neutral-600" />
+               <button onClick={() => setActiveCategory(null)} className="p-2 -ml-2 rtl:ml-0 rtl:-mr-2 rounded-full hover:bg-neutral-100">
+                  <BackIcon size={20} className="text-neutral-600" />
                </button>
             ) : (
-               onBack && <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-neutral-100"><ArrowLeft size={20} /></button>
+               onBack && <button onClick={onBack} className="p-2 -ml-2 rtl:ml-0 rtl:-mr-2 rounded-full hover:bg-neutral-100"><BackIcon size={20} /></button>
             )}
             <h2 className="text-xl font-bold text-neutral-primary truncate">
-              {isSearching ? 'Search Results' : (activeCategory || 'Hisnul Muslim')}
+              {isSearching ? t('dua_search_results') : (activeCategory || 'Hisnul Muslim')}
             </h2>
           </div>
           
           {onHelp && (
              <button 
                onClick={handleHelpClick} 
-               className="flex items-center space-x-1.5 bg-gradient-to-r from-brand-forest to-brand-teal text-white px-3 py-1.5 rounded-full shadow-md hover:shadow-lg transform transition-all active:scale-95"
+               className="flex items-center space-x-1.5 rtl:space-x-reverse bg-gradient-to-r from-brand-forest to-brand-teal text-white px-3 py-1.5 rounded-full shadow-md hover:shadow-lg transform transition-all active:scale-95"
              >
                 <Sparkles size={14} className="fill-current" />
-                <span className="text-xs font-bold">Guide</span>
+                <span className="text-xs font-bold">{t('dua_guide')}</span>
              </button>
           )}
         </div>
 
         {/* Search Bar */}
         <div className="relative" id="dua-search">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
+          <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
           <input 
             type="text" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by feeling, topic, or text..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-100 border-none focus:ring-2 focus:ring-brand-teal focus:bg-white transition-all text-sm"
+            placeholder={t('dua_search_placeholder')}
+            className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-2.5 rounded-xl bg-neutral-100 border-none focus:ring-2 focus:ring-brand-teal focus:bg-white transition-all text-sm"
           />
           {searchQuery && (
-             <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-neutral-500 bg-white px-2 py-0.5 rounded-md shadow-sm">
-               Clear
+             <button onClick={() => setSearchQuery('')} className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-neutral-500 bg-white px-2 py-0.5 rounded-md shadow-sm">
+               {t('dua_clear')}
              </button>
           )}
         </div>
@@ -165,7 +167,7 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
                 key={category}
                 id={idx === 0 ? 'dua-category-first' : undefined} // Target only the first for the tour
                 onClick={() => setActiveCategory(category)}
-                className="group relative h-32 rounded-2xl overflow-hidden text-left p-4 shadow-sm hover:shadow-md transition-all active:scale-95"
+                className="group relative h-32 rounded-2xl overflow-hidden text-start p-4 shadow-sm hover:shadow-md transition-all active:scale-95"
               >
                 {/* Dynamic Gradient Background */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${getCategoryGradient(category)} opacity-90 group-hover:opacity-100 transition-opacity`} />
@@ -180,7 +182,7 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
                         {category}
                       </h3>
                       <p className="text-white/80 text-[10px] font-medium mt-1 flex items-center">
-                         View Duas <ChevronRight size={10} className="ml-0.5" />
+                         {t('dua_view_duas')} <ForwardIcon size={10} className="ms-0.5 rtl:rotate-180" />
                       </p>
                    </div>
                 </div>
@@ -194,7 +196,7 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
           <div className="space-y-4">
              {filteredDuas.length === 0 ? (
                 <div className="text-center py-10 text-neutral-400">
-                   <p>No Duas found matching your criteria.</p>
+                   <p>{t('dua_no_results')}</p>
                 </div>
              ) : (
                filteredDuas.map((dua, idx) => (
@@ -204,7 +206,7 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
                        <span className="text-[10px] font-bold text-brand-forest bg-brand-mint px-2 py-0.5 rounded-full uppercase tracking-wider">
                           {isSearching ? dua.category : `#${idx + 1}`}
                        </span>
-                       <div className="flex space-x-1">
+                       <div className="flex space-x-1 rtl:space-x-reverse">
                           <button onClick={() => copyToClipboard(`${dua.arabic}\n\n${dua.translation}`)} className="p-1.5 text-neutral-400 hover:text-brand-teal transition-colors rounded-md hover:bg-white">
                              <Copy size={14} />
                           </button>
@@ -233,7 +235,7 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
                        {/* Source */}
                        <div className="pt-4 border-t border-neutral-line border-dashed">
                           <p className="text-[10px] text-neutral-400 font-medium uppercase tracking-wide">
-                             Source: <span className="text-neutral-500">{dua.source}</span>
+                             {t('dua_source')}: <span className="text-neutral-500">{dua.source}</span>
                           </p>
                        </div>
                     </div>
@@ -243,9 +245,9 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
              
              {!isSearching && (
                 <div className="text-center pt-6 pb-4">
-                   <p className="text-xs text-neutral-400">End of category</p>
+                   <p className="text-xs text-neutral-400">{t('dua_end')}</p>
                    <Button variant="ghost" size="sm" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth'})}>
-                      Back to Top
+                      {t('dua_back_top')}
                    </Button>
                 </div>
              )}

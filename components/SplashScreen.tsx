@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { Star } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -8,6 +9,7 @@ interface SplashScreenProps {
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const [animationPhase, setAnimationPhase] = useState<'racing' | 'zooming' | 'hidden'>('racing');
+  const { t } = useLanguage();
 
   // Generate 9 random stars for the ascent
   const racers = useMemo(() => {
@@ -85,7 +87,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         <h1 className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 to-yellow-500 mb-4 tracking-tighter drop-shadow-lg font-sans">Khalili</h1>
         <div className="inline-block px-5 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
            <p className="text-brand-mint text-[10px] font-bold tracking-[0.3em] uppercase">
-             Ascend Together
+             {t('splash_slogan')}
            </p>
         </div>
       </div>

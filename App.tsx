@@ -17,12 +17,13 @@ import { PrayerDetailModal } from './components/PrayerDetailModal';
 import { RakibSystem } from './components/RakibSystem';
 import { DuaPage } from './components/DuaPage';
 import { GuidedTour, TourStep } from './components/GuidedTour';
-import { SplashScreen } from './components/SplashScreen'; // Import Splash
+import { SplashScreen } from './components/SplashScreen';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { MOCK_USER, INITIAL_PRAYERS, MOCK_QADA } from './constants';
 import { Prayer, PrayerStatus, ActionId, HeartCondition } from './types';
 import { Sparkles } from 'lucide-react';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   // State management
   const [prayers, setPrayers] = useState<Prayer[]>(() => {
     const saved = localStorage.getItem('muslimDaily_prayers');
@@ -37,7 +38,9 @@ const App: React.FC = () => {
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [isTourOpen, setIsTourOpen] = useState(false);
-  const [showSplash, setShowSplash] = useState(true); // Splash State
+  const [showSplash, setShowSplash] = useState(true);
+
+  const { t } = useLanguage();
 
   // References for scrolling
   const qadaRef = useRef<HTMLDivElement>(null);
@@ -96,36 +99,36 @@ const App: React.FC = () => {
   const currentTourSteps: TourStep[] = useMemo(() => {
      const tours: Record<string, TourStep[]> = {
        'home': [
-         { targetId: 'app-header', title: 'Your Profile', content: 'Access your location settings and personal details here.' },
-         { targetId: 'hero-section', title: 'Daily Inspiration', content: 'Find motivational quotes and seasonal updates to start your day.' },
-         { targetId: 'next-prayer-card', title: 'Next Prayer', content: 'See exactly how much time is left until your next Salah.' },
-         { targetId: 'quick-actions', title: 'Quick Tools', content: 'Instantly access Qibla, Tasbih, Dua, and more.' },
-         { targetId: 'prayer-list', title: 'Prayer Tracker', content: 'Log your prayers daily. Tap any prayer to add details about your focus (Khushu).' },
-         { targetId: 'bottom-nav', title: 'Navigation', content: 'Switch between Partners, Knowledge, Statistics, and Profile.' },
+         { targetId: 'app-header', title: t('tour_home_profile_title'), content: t('tour_home_profile_content') },
+         { targetId: 'hero-section', title: t('tour_home_hero_title'), content: t('tour_home_hero_content') },
+         { targetId: 'next-prayer-card', title: t('tour_home_next_title'), content: t('tour_home_next_content') },
+         { targetId: 'quick-actions', title: t('tour_home_quick_title'), content: t('tour_home_quick_content') },
+         { targetId: 'prayer-list', title: t('tour_home_list_title'), content: t('tour_home_list_content') },
+         { targetId: 'bottom-nav', title: t('tour_home_nav_title'), content: t('tour_home_nav_content') },
        ],
        'dua': [
-         { targetId: 'dua-search', title: 'Smart Search', content: 'Find any Dua by topic, emotion, or keywords instantly.' },
-         { targetId: 'dua-category-first', title: 'Categories', content: 'Tap any card to explore our curated collection of Duas for every occasion.' },
+         { targetId: 'dua-search', title: t('tour_dua_search_title'), content: t('tour_dua_search_content') },
+         { targetId: 'dua-category-first', title: t('tour_dua_cat_title'), content: t('tour_dua_cat_content') },
        ],
        'partners': [
-          { targetId: 'partner-add-btn', title: 'Add Partner', content: 'Connect with friends or family to keep each other accountable.' },
-          { targetId: 'partner-groups', title: 'Groups', content: 'Create circles for your family to track progress together.' },
+          { targetId: 'partner-add-btn', title: t('tour_partners_add_title'), content: t('tour_partners_add_content') },
+          { targetId: 'partner-groups', title: t('tour_partners_group_title'), content: t('tour_partners_group_content') },
        ],
        'stats': [
-          { targetId: 'analytics-streak', title: 'Your Streak', content: 'Keep your momentum going! See how many days in a row you have prayed.' },
-          { targetId: 'analytics-weakness', title: 'Insights', content: 'We analyze your logs to help you identify barriers like sleep or work.' },
+          { targetId: 'analytics-streak', title: t('tour_stats_streak_title'), content: t('tour_stats_streak_content') },
+          { targetId: 'analytics-weakness', title: t('tour_stats_insights_title'), content: t('tour_stats_insights_content') },
        ],
        'lectures': [
-          { targetId: 'lectures-featured', title: 'Featured Series', content: 'Hand-picked series to boost your knowledge this week.' },
-          { targetId: 'lecture-card-first', title: 'Library', content: 'Browse lectures by category including Quran, Fiqh, and History. Tap to watch.' },
+          { targetId: 'lectures-featured', title: t('tour_lectures_featured_title'), content: t('tour_lectures_featured_content') },
+          { targetId: 'lecture-card-first', title: t('tour_lectures_lib_title'), content: t('tour_lectures_lib_content') },
        ],
        'profile': [
-          { targetId: 'profile-user-card', title: 'Your Identity', content: 'Manage your personal details and avatar here.' },
-          { targetId: 'profile-settings-first', title: 'Settings', content: 'Customize calculation methods, adhan sounds, and app theme here.' },
+          { targetId: 'profile-user-card', title: t('tour_profile_id_title'), content: t('tour_profile_id_content') },
+          { targetId: 'profile-settings-first', title: t('tour_profile_settings_title'), content: t('tour_profile_settings_content') },
        ]
      };
      return tours[activeTab] || [];
-  }, [activeTab]);
+  }, [activeTab, t]);
 
   const nextPrayer = prayers.find(p => p.isNext) || prayers[0];
 
@@ -170,7 +173,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-body text-neutral-primary font-sans pb-20">
+    <div className="min-h-screen bg-neutral-body text-neutral-primary font-sans pb-20" dir="auto">
       {/* Splash Screen Layer */}
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
@@ -191,7 +194,7 @@ const App: React.FC = () => {
         {/* Global Floating Help Button */}
         <button 
            onClick={() => setIsTourOpen(true)}
-           className="fixed bottom-24 right-5 z-40 w-12 h-12 rounded-full bg-gradient-to-br from-brand-forest to-brand-teal text-white shadow-lg shadow-brand-forest/40 flex items-center justify-center animate-pulse active:scale-90 transition-transform"
+           className="fixed bottom-24 right-5 z-40 w-12 h-12 rounded-full bg-gradient-to-br from-brand-forest to-brand-teal text-white shadow-lg shadow-brand-forest/40 flex items-center justify-center animate-pulse active:scale-90 transition-transform rtl:right-auto rtl:left-5"
            aria-label="Start Tour"
         >
            <Sparkles size={22} className="fill-white/20" />
@@ -215,6 +218,14 @@ const App: React.FC = () => {
 
       </div>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
 

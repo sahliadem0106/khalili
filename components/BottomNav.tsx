@@ -1,21 +1,19 @@
 
 import React from 'react';
 import { Home, BookOpen, BarChart2, User, Users } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
-const NAV_ITEMS = [
-  { id: 'home', label: 'Home', icon: Home },
-  { id: 'partners', label: 'Partners', icon: Users },
-  { id: 'lectures', label: 'Lectures', icon: BookOpen },
-  { id: 'stats', label: 'Stats', icon: BarChart2 },
-  { id: 'profile', label: 'Profile', icon: User },
-];
+export const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) => void; }> = ({ activeTab, onTabChange }) => {
+  const { t } = useLanguage();
 
-interface BottomNavProps {
-  activeTab: string;
-  onTabChange: (id: string) => void;
-}
+  const NAV_ITEMS = [
+    { id: 'home', label: t('nav_home'), icon: Home },
+    { id: 'partners', label: t('nav_partners'), icon: Users },
+    { id: 'lectures', label: t('nav_lectures'), icon: BookOpen },
+    { id: 'stats', label: t('nav_stats'), icon: BarChart2 },
+    { id: 'profile', label: t('nav_profile'), icon: User },
+  ];
 
-export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) => {
   return (
     <div id="bottom-nav" className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-line shadow-nav pb-safe-area z-40">
       <div className="flex justify-around items-center h-16 px-2">

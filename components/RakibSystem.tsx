@@ -9,6 +9,7 @@ import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { MOCK_PARTNERS, MOCK_GROUPS, STATUS_COLORS } from '../constants';
 import { PrayerPartner, RakibGroup, ShareLevel, PrayerStatus } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // ---------------------------------------------------------------------------
 // SUB-COMPONENTS (For Cleanliness)
@@ -17,6 +18,7 @@ import { PrayerPartner, RakibGroup, ShareLevel, PrayerStatus } from '../types';
 // 1. Remind Button Component
 const RemindButton = ({ name, onRemind, disabled }: { name: string, onRemind: () => void, disabled?: boolean }) => {
   const [status, setStatus] = useState<'idle' | 'sent' | 'limit'>('idle');
+  const { t } = useLanguage();
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -33,7 +35,7 @@ const RemindButton = ({ name, onRemind, disabled }: { name: string, onRemind: ()
   if (status === 'sent') {
     return (
       <button className="px-3 py-1.5 bg-green-50 text-green-600 text-xs font-medium rounded-full flex items-center cursor-default animate-in fade-in">
-        <CheckCircle2 size={14} className="mr-1" /> Sent
+        <CheckCircle2 size={14} className="me-1" /> {t('partners_remind_sent')}
       </button>
     );
   }
@@ -49,25 +51,9 @@ const RemindButton = ({ name, onRemind, disabled }: { name: string, onRemind: ()
           : 'bg-brand-mint text-brand-forest hover:bg-brand-forest hover:text-white active:scale-95'}
       `}
     >
-      <Bell size={14} className="mr-1.5" />
-      Remind
+      <Bell size={14} className="me-1.5" />
+      {t('partners_remind')}
     </button>
-  );
-};
-
-// 2. Status Icon Component
-const MiniStatusIcon = ({ status }: { status: PrayerStatus }) => {
-  const colors = {
-    [PrayerStatus.Jamaah]: 'bg-status-jamaah',
-    [PrayerStatus.Home]: 'bg-status-home',
-    [PrayerStatus.Late]: 'bg-status-late',
-    [PrayerStatus.Missed]: 'bg-status-missed',
-    [PrayerStatus.QadaDone]: 'bg-status-qada',
-    [PrayerStatus.Upcoming]: 'bg-neutral-200',
-  };
-
-  return (
-    <div className={`w-2.5 h-2.5 rounded-full ${colors[status] || 'bg-neutral-200'}`} />
   );
 };
 
@@ -78,54 +64,58 @@ interface PartnerCardProps {
   onRemind: () => void;
 }
 
-const PartnerCard: React.FC<PartnerCardProps> = ({ partner, onClick, onRemind }) => (
-  <div onClick={onClick} className="bg-white p-4 rounded-2xl border border-neutral-line shadow-sm mb-3 active:scale-[0.99] transition-transform cursor-pointer">
-    <div className="flex items-center justify-between mb-3">
-      <div className="flex items-center space-x-3">
-        <img src={partner.avatar} alt={partner.name} className="w-10 h-10 rounded-full object-cover" />
-        <div>
-          <h4 className="font-bold text-neutral-primary text-sm">{partner.name}</h4>
-          <div className="flex items-center text-xs text-neutral-muted">
-            <Flame size={12} className="text-orange-500 mr-1" />
-            <span className="font-medium text-orange-500 mr-2">{partner.streak} Day Streak</span>
+const PartnerCard: React.FC<PartnerCardProps> = ({ partner, onClick, onRemind }) => {
+  const { t } = useLanguage();
+  return (
+    <div onClick={onClick} className="bg-white p-4 rounded-2xl border border-neutral-line shadow-sm mb-3 active:scale-[0.99] transition-transform cursor-pointer">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-3 rtl:space-x-reverse">
+          <img src={partner.avatar} alt={partner.name} className="w-10 h-10 rounded-full object-cover" />
+          <div>
+            <h4 className="font-bold text-neutral-primary text-sm">{partner.name}</h4>
+            <div className="flex items-center text-xs text-neutral-muted">
+              <Flame size={12} className="text-orange-500 me-1" />
+              <span className="font-medium text-orange-500 me-2">{partner.streak} {t('partners_streak')}</span>
+            </div>
           </div>
         </div>
+        <RemindButton name={partner.name} onRemind={onRemind} disabled={!partner.canRemind} />
       </div>
-      <RemindButton name={partner.name} onRemind={onRemind} disabled={!partner.canRemind} />
+      
+      {/* Status Row */}
+      <div className="flex justify-between items-center bg-neutral-50 p-2 rounded-xl">
+        {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((p) => {
+          const key = p.toLowerCase();
+          // @ts-ignore
+          const status = partner.today[key] as PrayerStatus;
+          return (
+            <div key={p} className="flex flex-col items-center space-y-1">
+               <span className="text-[10px] text-neutral-400 uppercase">{p.charAt(0)}</span>
+               <div className={`w-6 h-6 rounded-full flex items-center justify-center ${status === PrayerStatus.Upcoming ? 'bg-neutral-200' : STATUS_COLORS[status]}`}>
+                 {status === PrayerStatus.Jamaah && <Users size={10} className="text-white" />}
+                 {status === PrayerStatus.Home && <div className="w-2 h-2 bg-neutral-primary rounded-full" />}
+                 {status === PrayerStatus.Missed && <X size={10} className="text-white" />}
+                 {status === PrayerStatus.Late && <Clock size={10} className="text-white" />}
+               </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
-    
-    {/* Status Row */}
-    <div className="flex justify-between items-center bg-neutral-50 p-2 rounded-xl">
-      {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((p) => {
-        const key = p.toLowerCase();
-        // @ts-ignore
-        const status = partner.today[key] as PrayerStatus;
-        return (
-          <div key={p} className="flex flex-col items-center space-y-1">
-             <span className="text-[10px] text-neutral-400 uppercase">{p.charAt(0)}</span>
-             <div className={`w-6 h-6 rounded-full flex items-center justify-center ${status === PrayerStatus.Upcoming ? 'bg-neutral-200' : STATUS_COLORS[status]}`}>
-               {status === PrayerStatus.Jamaah && <Users size={10} className="text-white" />}
-               {status === PrayerStatus.Home && <div className="w-2 h-2 bg-neutral-primary rounded-full" />}
-               {status === PrayerStatus.Missed && <X size={10} className="text-white" />}
-               {status === PrayerStatus.Late && <Clock size={10} className="text-white" />}
-             </div>
-          </div>
-        );
-      })}
-    </div>
-  </div>
-);
+  );
+};
 
 // 4. Privacy Badge
 const PrivacyBadge = ({ level }: { level: ShareLevel }) => {
+  const { t } = useLanguage();
   const config = {
-    minimal: { label: 'Minimal', color: 'text-neutral-500 bg-neutral-100' },
-    standard: { label: 'Standard', color: 'text-blue-600 bg-blue-50' },
-    full: { label: 'Full', color: 'text-brand-forest bg-brand-mint' },
+    minimal: { label: t('partners_level_minimal'), color: 'text-neutral-500 bg-neutral-100' },
+    standard: { label: t('partners_level_standard'), color: 'text-blue-600 bg-blue-50' },
+    full: { label: t('partners_level_full'), color: 'text-brand-forest bg-brand-mint' },
   };
   return (
     <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium uppercase tracking-wider ${config[level].color}`}>
-      {config[level].label} Shared
+      {config[level].label}
     </span>
   );
 };
@@ -139,14 +129,16 @@ const AddPartnerFlow = ({ onBack }: { onBack: () => void }) => {
   const [mode, setMode] = useState<'search' | 'qr'>('search');
   const [searchId, setSearchId] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+  const { t, dir } = useLanguage();
+  const ArrowIcon = dir === 'rtl' ? ArrowLeft : ArrowLeft; // Always back arrow
 
   return (
     <div className="space-y-6 animate-in slide-in-from-right duration-300">
-      <div className="flex items-center space-x-3 mb-6">
+      <div className="flex items-center space-x-3 rtl:space-x-reverse mb-6">
         <button onClick={onBack} className="p-2 hover:bg-neutral-100 rounded-full">
-           <ArrowLeft size={20} className="text-neutral-600" />
+           <ArrowIcon size={20} className="text-neutral-600 rtl:rotate-180" />
         </button>
-        <h2 className="text-xl font-bold text-neutral-primary">Add Partner</h2>
+        <h2 className="text-xl font-bold text-neutral-primary">{t('partners_add_title')}</h2>
       </div>
 
       {/* Toggle */}
@@ -155,47 +147,46 @@ const AddPartnerFlow = ({ onBack }: { onBack: () => void }) => {
            onClick={() => setMode('search')} 
            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'search' ? 'bg-white shadow-sm text-neutral-primary' : 'text-neutral-500'}`}
          >
-           By ID
+           {t('partners_by_id')}
          </button>
          <button 
            onClick={() => setMode('qr')} 
            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'qr' ? 'bg-white shadow-sm text-neutral-primary' : 'text-neutral-500'}`}
          >
-           Scan QR
+           {t('partners_scan_qr')}
          </button>
       </div>
 
       {mode === 'search' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-bold text-neutral-primary mb-2">Partner Profile ID</label>
-            <div className="flex space-x-2">
+            <label className="block text-sm font-bold text-neutral-primary mb-2">{t('partners_search_label')}</label>
+            <div className="flex space-x-2 rtl:space-x-reverse">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
+                <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
                 <input 
                   type="text" 
                   value={searchId}
                   onChange={(e) => setSearchId(e.target.value)}
-                  placeholder="e.g. AHMED-92"
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-neutral-line focus:ring-2 focus:ring-brand-teal focus:outline-none bg-white"
+                  placeholder={t('partners_search_placeholder')}
+                  className="w-full pl-10 pr-4 rtl:pr-10 rtl:pl-4 py-3 rounded-xl border border-neutral-line focus:ring-2 focus:ring-brand-teal focus:outline-none bg-white"
                 />
               </div>
-              <Button disabled={!searchId}>Search</Button>
+              <Button disabled={!searchId}>{t('partners_search_btn')}</Button>
             </div>
-            <p className="text-xs text-neutral-muted mt-2 ml-1">Ask your partner for their ID from their profile.</p>
           </div>
           
           {/* Mock Result */}
           {searchId.length > 3 && (
              <div className="bg-white p-4 rounded-2xl border border-neutral-line shadow-sm animate-in fade-in slide-in-from-bottom-2">
-                <div className="flex items-center space-x-3 mb-4">
+                <div className="flex items-center space-x-3 rtl:space-x-reverse mb-4">
                    <div className="w-12 h-12 bg-neutral-200 rounded-full"></div>
                    <div>
                       <p className="font-bold text-neutral-primary">Ahmed R.</p>
                       <p className="text-xs text-neutral-muted">London, UK</p>
                    </div>
                 </div>
-                <Button fullWidth>Send Request</Button>
+                <Button fullWidth>{t('partners_send_request')}</Button>
              </div>
           )}
         </div>
@@ -206,9 +197,9 @@ const AddPartnerFlow = ({ onBack }: { onBack: () => void }) => {
           {!isScanning ? (
              <>
                 <QrCode size={64} className="text-white/20 mb-4" />
-                <p className="mb-6 text-white/80">Allow camera access to scan your partner's QR code.</p>
+                <p className="mb-6 text-white/80">{t('partners_scan_desc')}</p>
                 <Button onClick={() => setIsScanning(true)} className="bg-white text-black hover:bg-neutral-200">
-                   <Camera size={18} className="mr-2" /> Open Camera
+                   <Camera size={18} className="me-2" /> {t('partners_open_camera')}
                 </Button>
              </>
           ) : (
@@ -217,10 +208,10 @@ const AddPartnerFlow = ({ onBack }: { onBack: () => void }) => {
                 <div className="absolute inset-12 border-4 border-brand-mint/50 rounded-2xl animate-pulse flex items-center justify-center">
                    <div className="w-full h-0.5 bg-red-500 shadow-[0_0_10px_red]"></div>
                 </div>
-                <button onClick={() => setIsScanning(false)} className="absolute top-4 right-4 bg-black/50 p-2 rounded-full">
+                <button onClick={() => setIsScanning(false)} className="absolute top-4 right-4 rtl:right-auto rtl:left-4 bg-black/50 p-2 rounded-full">
                    <X size={20} />
                 </button>
-                <p className="absolute bottom-8 left-0 right-0 text-center text-sm font-medium">Align QR code within frame</p>
+                <p className="absolute bottom-8 left-0 right-0 text-center text-sm font-medium">{t('partners_align_qr')}</p>
              </div>
           )}
         </div>
@@ -232,6 +223,7 @@ const AddPartnerFlow = ({ onBack }: { onBack: () => void }) => {
 // B. PARTNER DETAIL PAGE
 const PartnerDetail = ({ partner, onBack }: { partner: PrayerPartner, onBack: () => void }) => {
   const [showSettings, setShowSettings] = useState(false);
+  const { t, dir } = useLanguage();
 
   if (showSettings) {
      return <SharingSettings partner={partner} onBack={() => setShowSettings(false)} />;
@@ -241,10 +233,10 @@ const PartnerDetail = ({ partner, onBack }: { partner: PrayerPartner, onBack: ()
     <div className="space-y-6 animate-in slide-in-from-right duration-300 pb-20">
        {/* Header */}
        <div className="relative bg-white rounded-2xl p-6 shadow-sm border border-neutral-line text-center">
-          <button onClick={onBack} className="absolute left-4 top-4 p-2 hover:bg-neutral-50 rounded-full">
-             <ArrowLeft size={20} className="text-neutral-600" />
+          <button onClick={onBack} className="absolute left-4 rtl:left-auto rtl:right-4 top-4 p-2 hover:bg-neutral-50 rounded-full">
+             <ArrowLeft size={20} className="text-neutral-600 rtl:rotate-180" />
           </button>
-          <button onClick={() => setShowSettings(true)} className="absolute right-4 top-4 p-2 hover:bg-neutral-50 rounded-full">
+          <button onClick={() => setShowSettings(true)} className="absolute right-4 rtl:right-auto rtl:left-4 top-4 p-2 hover:bg-neutral-50 rounded-full">
              <Shield size={20} className="text-neutral-400" />
           </button>
           
@@ -252,26 +244,26 @@ const PartnerDetail = ({ partner, onBack }: { partner: PrayerPartner, onBack: ()
              <img src={partner.avatar} alt={partner.name} className="w-full h-full rounded-full object-cover border-2 border-white" />
           </div>
           <h2 className="text-xl font-bold text-neutral-primary">{partner.name}</h2>
-          <div className="flex justify-center items-center space-x-2 mt-2">
+          <div className="flex justify-center items-center space-x-2 rtl:space-x-reverse mt-2">
              <PrivacyBadge level={partner.shareLevel} />
              {partner.streak > 3 && (
                 <span className="text-[10px] bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full font-bold flex items-center">
-                   <Flame size={10} className="mr-1" /> {partner.streak} Day Streak
+                   <Flame size={10} className="me-1" /> {partner.streak} {t('partners_streak')}
                 </span>
              )}
           </div>
 
-          <div className="mt-6 flex justify-center space-x-3">
+          <div className="mt-6 flex justify-center space-x-3 rtl:space-x-reverse">
              <RemindButton name={partner.name} onRemind={() => alert('Reminder sent!')} disabled={!partner.canRemind} />
              <button className="px-4 py-1.5 rounded-full border border-neutral-200 text-xs font-medium flex items-center hover:bg-neutral-50">
-                <MessageCircle size={14} className="mr-1.5" /> Message
+                <MessageCircle size={14} className="me-1.5" /> {t('partners_message')}
              </button>
           </div>
        </div>
 
        {/* Today's Status Grid */}
        <Card>
-          <h3 className="font-bold text-neutral-primary mb-4">Today's Prayers</h3>
+          <h3 className="font-bold text-neutral-primary mb-4">{t('partners_today')}</h3>
           <div className="grid grid-cols-5 gap-2 text-center">
              {Object.entries(partner.today).map(([name, status]) => (
                 <div key={name} className="flex flex-col items-center">
@@ -293,7 +285,7 @@ const PartnerDetail = ({ partner, onBack }: { partner: PrayerPartner, onBack: ()
           <div className="bg-gradient-to-br from-rose-50 to-white p-5 rounded-2xl border border-rose-100 flex items-center justify-between">
              <div>
                 <h3 className="font-bold text-rose-900 flex items-center">
-                   <Activity size={16} className="mr-2" /> Spiritual State
+                   <Activity size={16} className="me-2" /> {t('heartState')}
                 </h3>
                 <p className="text-xs text-rose-700 mt-1">Shared with you via Full Access</p>
              </div>
@@ -308,32 +300,33 @@ const PartnerDetail = ({ partner, onBack }: { partner: PrayerPartner, onBack: ()
 
 // C. GROUP DASHBOARD
 const GroupDashboard = ({ group, onBack }: { group: RakibGroup, onBack: () => void }) => {
+  const { t } = useLanguage();
   return (
     <div className="space-y-6 animate-in slide-in-from-right duration-300 pb-20">
        {/* Group Header */}
        <div className="bg-brand-forest text-white rounded-2xl p-6 relative overflow-hidden shadow-lg">
-          <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-          <button onClick={onBack} className="absolute left-4 top-4 p-2 bg-white/10 hover:bg-white/20 rounded-full">
-             <ArrowLeft size={20} className="text-white" />
+          <div className="absolute -right-10 rtl:right-auto rtl:-left-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+          <button onClick={onBack} className="absolute left-4 rtl:left-auto rtl:right-4 top-4 p-2 bg-white/10 hover:bg-white/20 rounded-full">
+             <ArrowLeft size={20} className="text-white rtl:rotate-180" />
           </button>
           
           <div className="relative z-10 mt-6">
              <h2 className="text-2xl font-bold mb-1">{group.name}</h2>
-             <div className="flex items-center space-x-4 text-brand-mint text-sm">
-                <span className="flex items-center"><Users size={14} className="mr-1" /> {group.members.length} Members</span>
-                <span className="flex items-center"><Flame size={14} className="mr-1" /> {group.streak} Day Streak</span>
+             <div className="flex items-center space-x-4 rtl:space-x-reverse text-brand-mint text-sm">
+                <span className="flex items-center"><Users size={14} className="me-1" /> {group.members.length} {t('partners_members')}</span>
+                <span className="flex items-center"><Flame size={14} className="me-1" /> {group.streak} {t('partners_streak')}</span>
              </div>
           </div>
 
           <div className="mt-6 bg-white/10 rounded-xl p-3 flex justify-between items-center backdrop-blur-sm">
              <div>
-                <p className="text-xs text-brand-mint font-medium uppercase tracking-wider">Group Consistency</p>
+                <p className="text-xs text-brand-mint font-medium uppercase tracking-wider">{t('partners_consistency')}</p>
                 <p className="text-xl font-bold">{group.consistency}%</p>
              </div>
              <div className="h-8 w-px bg-white/20"></div>
              <div className="text-right">
-                <p className="text-xs text-brand-mint font-medium uppercase tracking-wider">Today</p>
-                <p className="text-xl font-bold">{group.members.filter(m => m.todayCompleted === 5).length} / {group.members.length} Done</p>
+                <p className="text-xs text-brand-mint font-medium uppercase tracking-wider">{t('partners_today')}</p>
+                <p className="text-xl font-bold">{group.members.filter(m => m.todayCompleted === 5).length} / {group.members.length}</p>
              </div>
           </div>
        </div>
@@ -341,22 +334,22 @@ const GroupDashboard = ({ group, onBack }: { group: RakibGroup, onBack: () => vo
        {/* Members List */}
        <div>
           <div className="flex justify-between items-center mb-3 px-1">
-             <h3 className="font-bold text-neutral-primary">Family Members</h3>
-             {group.currentUserRole !== 'member' && <button className="text-xs text-brand-forest font-medium">Manage</button>}
+             <h3 className="font-bold text-neutral-primary">{t('partners_members')}</h3>
+             {group.currentUserRole !== 'member' && <button className="text-xs text-brand-forest font-medium">{t('partners_manage')}</button>}
           </div>
           <div className="space-y-3">
              {group.members.map(member => (
                 <div key={member.id} className="bg-white p-4 rounded-2xl shadow-sm border border-neutral-line flex items-center justify-between">
-                   <div className="flex items-center space-x-3">
+                   <div className="flex items-center space-x-3 rtl:space-x-reverse">
                       <div className="relative">
                          <img src={member.avatar} alt={member.name} className="w-12 h-12 rounded-full object-cover" />
                          {member.role === 'creator' && (
-                            <div className="absolute -bottom-1 -right-1 bg-amber-400 rounded-full p-1 border-2 border-white">
+                            <div className="absolute -bottom-1 -right-1 rtl:right-auto rtl:-left-1 bg-amber-400 rounded-full p-1 border-2 border-white">
                                <Crown size={10} className="text-white fill-current" />
                             </div>
                          )}
                          {member.role === 'admin' && (
-                            <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1 border-2 border-white">
+                            <div className="absolute -bottom-1 -right-1 rtl:right-auto rtl:-left-1 bg-blue-500 rounded-full p-1 border-2 border-white">
                                <Shield size={10} className="text-white fill-current" />
                             </div>
                          )}
@@ -373,7 +366,7 @@ const GroupDashboard = ({ group, onBack }: { group: RakibGroup, onBack: () => vo
                                 {member.role}
                             </span>
                          </div>
-                         <div className="flex space-x-1 mt-1.5">
+                         <div className="flex space-x-1 rtl:space-x-reverse mt-1.5">
                             {[...Array(5)].map((_, i) => (
                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < member.todayCompleted ? 'bg-brand-forest' : 'bg-neutral-200'}`}></div>
                             ))}
@@ -382,7 +375,6 @@ const GroupDashboard = ({ group, onBack }: { group: RakibGroup, onBack: () => vo
                    </div>
                    <div className="text-right">
                       <span className="block text-sm font-bold text-neutral-500">{member.todayCompleted}/5</span>
-                      <span className="text-[10px] text-neutral-400">Prayers</span>
                    </div>
                 </div>
              ))}
@@ -391,7 +383,7 @@ const GroupDashboard = ({ group, onBack }: { group: RakibGroup, onBack: () => vo
        
        {/* Group Action */}
        {group.currentUserRole !== 'member' && (
-         <Button fullWidth className="bg-neutral-primary">Remind All Members</Button>
+         <Button fullWidth className="bg-neutral-primary">{t('partners_remind_all')}</Button>
        )}
     </div>
   );
@@ -400,23 +392,24 @@ const GroupDashboard = ({ group, onBack }: { group: RakibGroup, onBack: () => vo
 // D. SHARING SETTINGS
 const SharingSettings = ({ partner, onBack }: { partner: PrayerPartner, onBack: () => void }) => {
    const [level, setLevel] = useState<ShareLevel>(partner.myShareLevel);
+   const { t } = useLanguage();
 
    return (
       <div className="space-y-6 animate-in slide-in-from-bottom duration-300">
-         <div className="flex items-center space-x-3 mb-4">
+         <div className="flex items-center space-x-3 rtl:space-x-reverse mb-4">
             <button onClick={onBack} className="p-2 hover:bg-neutral-100 rounded-full">
-               <ArrowLeft size={20} className="text-neutral-600" />
+               <ArrowLeft size={20} className="text-neutral-600 rtl:rotate-180" />
             </button>
-            <h2 className="text-xl font-bold text-neutral-primary">Sharing Settings</h2>
+            <h2 className="text-xl font-bold text-neutral-primary">{t('partners_sharing_settings')}</h2>
          </div>
 
-         <p className="text-sm text-neutral-muted">Control exactly what <strong>{partner.name}</strong> can see about your activity.</p>
+         <p className="text-sm text-neutral-muted">{t('partners_sharing_desc').replace('{name}', partner.name)}</p>
 
          <div className="space-y-3">
             {[
-               { id: 'minimal', label: 'Minimal', desc: 'Only checks (✓) or X. No specific times or details.' },
-               { id: 'standard', label: 'Standard', desc: 'Prayer status (Late/On-time), Streaks, Charts.' },
-               { id: 'full', label: 'Full Access', desc: 'Includes Heart State and Badges. Full transparency.' },
+               { id: 'minimal', label: t('partners_level_minimal'), desc: t('partners_level_minimal_desc') },
+               { id: 'standard', label: t('partners_level_standard'), desc: t('partners_level_standard_desc') },
+               { id: 'full', label: t('partners_level_full'), desc: t('partners_level_full_desc') },
             ].map((opt) => (
                <div 
                   key={opt.id}
@@ -433,11 +426,11 @@ const SharingSettings = ({ partner, onBack }: { partner: PrayerPartner, onBack: 
          </div>
 
          <div className="pt-4">
-            <Button fullWidth onClick={onBack}>Save Changes</Button>
+            <Button fullWidth onClick={onBack}>{t('partners_save')}</Button>
          </div>
          
          <div className="text-center">
-            <button className="text-xs text-red-500 font-medium hover:underline">Unpair from {partner.name}</button>
+            <button className="text-xs text-red-500 font-medium hover:underline">{t('partners_unpair').replace('{name}', partner.name)}</button>
          </div>
       </div>
    );
@@ -451,6 +444,7 @@ export const RakibSystem = () => {
   const [view, setView] = useState<'home' | 'add' | 'partner_detail' | 'group_detail'>('home');
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const selectedPartner = MOCK_PARTNERS.find(p => p.id === selectedPartnerId);
   const selectedGroup = MOCK_GROUPS.find(g => g.id === selectedGroupId);
@@ -476,8 +470,8 @@ export const RakibSystem = () => {
        {/* Header */}
        <div className="flex justify-between items-center mb-2 pt-2">
           <div>
-             <h2 className="text-2xl font-bold text-neutral-primary">Prayer Partners</h2>
-             <p className="text-xs text-neutral-muted">Accountability & Support (Rakib)</p>
+             <h2 className="text-2xl font-bold text-neutral-primary">{t('partners_title')}</h2>
+             <p className="text-xs text-neutral-muted">{t('partners_subtitle')}</p>
           </div>
           <button id="partner-add-btn" onClick={() => setView('add')} className="w-10 h-10 bg-brand-forest rounded-full flex items-center justify-center text-white shadow-lg shadow-brand-forest/30 active:scale-90 transition-transform">
              <Plus size={20} />
@@ -486,20 +480,20 @@ export const RakibSystem = () => {
 
        {/* Groups Section */}
        <div id="partner-groups" className="space-y-3">
-          <h3 className="text-sm font-bold text-neutral-500 uppercase tracking-wider">Your Circle</h3>
+          <h3 className="text-sm font-bold text-neutral-500 uppercase tracking-wider">{t('partners_your_circle')}</h3>
           {MOCK_GROUPS.map(group => (
              <div key={group.id} onClick={() => navigateToGroup(group.id)} className="bg-gradient-to-r from-brand-forest to-brand-teal rounded-2xl p-5 text-white shadow-md cursor-pointer active:scale-[0.99] transition-transform">
                 <div className="flex justify-between items-start">
                    <div>
                       <h4 className="font-bold text-lg">{group.name}</h4>
-                      <p className="text-xs text-brand-mint opacity-80">{group.members.length} Members • {group.currentUserRole}</p>
+                      <p className="text-xs text-brand-mint opacity-80">{group.members.length} {t('partners_members')} • {group.currentUserRole}</p>
                    </div>
                    <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
                       <Users size={20} />
                    </div>
                 </div>
                 <div className="mt-4 flex items-end justify-between">
-                   <div className="flex -space-x-2">
+                   <div className="flex -space-x-2 rtl:space-x-reverse">
                       {group.members.slice(0, 3).map(m => (
                          <img key={m.id} src={m.avatar} alt={m.name} className="w-8 h-8 rounded-full border-2 border-brand-teal object-cover" />
                       ))}
@@ -511,7 +505,7 @@ export const RakibSystem = () => {
                    </div>
                    <div className="text-right">
                       <span className="text-2xl font-bold">{group.consistency}%</span>
-                      <span className="block text-[10px] opacity-80 uppercase tracking-wide">Consistency</span>
+                      <span className="block text-[10px] opacity-80 uppercase tracking-wide">{t('partners_consistency')}</span>
                    </div>
                 </div>
              </div>
@@ -520,7 +514,7 @@ export const RakibSystem = () => {
 
        {/* One-on-One Partners */}
        <div className="space-y-3 pb-20">
-          <h3 className="text-sm font-bold text-neutral-500 uppercase tracking-wider mt-6">Individual Partners</h3>
+          <h3 className="text-sm font-bold text-neutral-500 uppercase tracking-wider mt-6">{t('partners_individual')}</h3>
           {MOCK_PARTNERS.map(partner => (
              <PartnerCard 
                key={partner.id} 
@@ -534,8 +528,8 @@ export const RakibSystem = () => {
           {MOCK_PARTNERS.length === 0 && (
              <div className="text-center py-10 bg-white rounded-2xl border-2 border-dashed border-neutral-200">
                 <Users size={32} className="mx-auto text-neutral-300 mb-3" />
-                <p className="text-neutral-500 font-medium">No partners yet.</p>
-                <Button variant="ghost" onClick={() => setView('add')}>Find a Friend</Button>
+                <p className="text-neutral-500 font-medium">{t('partners_empty')}</p>
+                <Button variant="ghost" onClick={() => setView('add')}>{t('partners_find')}</Button>
              </div>
           )}
        </div>
