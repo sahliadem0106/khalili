@@ -67,6 +67,7 @@ export const translations = {
     nav_lectures: "Lectures",
     nav_stats: "Stats",
     nav_profile: "Profile",
+    nav_quran: "Quran",
     
     // Profile
     edit: "Edit",
@@ -184,6 +185,20 @@ export const translations = {
     dua_end: "End of category",
     dua_back_top: "Back to Top",
 
+    // Quran
+    quran_search: "Search Surahs...",
+    quran_juz: "Juz",
+    quran_ayahs: "Ayahs",
+    quran_revelation: "Revelation",
+    quran_meccan: "Meccan",
+    quran_medinan: "Medinan",
+    quran_tafsir: "Tafsir",
+    quran_notes: "Notes",
+    quran_bookmark: "Bookmark",
+    quran_play: "Play Audio",
+    quran_notes_placeholder: "Add your reflections on this verse...",
+    quran_tafsir_placeholder: "Tafsir Ibn Kathir content would be loaded here for this Ayah...",
+
     // Tour
     tour_skip: "Skip",
     tour_next: "Next",
@@ -227,6 +242,11 @@ export const translations = {
     tour_profile_id_content: "Manage your personal details and avatar here.",
     tour_profile_settings_title: "Settings",
     tour_profile_settings_content: "Customize calculation methods, adhan sounds, and app theme here.",
+
+    tour_quran_search_title: "Search Surahs",
+    tour_quran_search_content: "Quickly find any Surah by name or number.",
+    tour_quran_tabs_title: "Browse Modes",
+    tour_quran_tabs_content: "Switch between Surah list and Juz/Hizb index.",
 
     // Splash
     splash_slogan: "Ascend Together",
@@ -301,6 +321,7 @@ export const translations = {
     nav_lectures: "دروس",
     nav_stats: "إحصائيات",
     nav_profile: "حسابي",
+    nav_quran: "القرآن",
     
     // Profile
     edit: "تعديل",
@@ -418,6 +439,20 @@ export const translations = {
     dua_end: "نهاية التصنيف",
     dua_back_top: "العودة للأعلى",
 
+    // Quran
+    quran_search: "بحث في السور...",
+    quran_juz: "جزء",
+    quran_ayahs: "آيات",
+    quran_revelation: "الوحي",
+    quran_meccan: "مكية",
+    quran_medinan: "مدنية",
+    quran_tafsir: "تفسير",
+    quran_notes: "ملاحظات",
+    quran_bookmark: "حفظ",
+    quran_play: "تشغيل الصوت",
+    quran_notes_placeholder: "أضف خواطرك حول هذه الآية...",
+    quran_tafsir_placeholder: "سيتم تحميل تفسير ابن كثير لهذه الآية هنا...",
+
     // Tour
     tour_skip: "تخطي",
     tour_next: "التالي",
@@ -461,6 +496,11 @@ export const translations = {
     tour_profile_id_content: "أدر تفاصيلك الشخصية والصورة الرمزية هنا.",
     tour_profile_settings_title: "الإعدادات",
     tour_profile_settings_content: "خصص طرق الحساب، أصوات الأذان، ومظهر التطبيق من هنا.",
+
+    tour_quran_search_title: "بحث في السور",
+    tour_quran_search_content: "اعثر بسرعة على أي سورة بالاسم أو الرقم.",
+    tour_quran_tabs_title: "أوضاع التصفح",
+    tour_quran_tabs_content: "تنقل بين قائمة السور وفهرس الأجزاء/الأحزاب.",
 
     // Splash
     splash_slogan: "نرتقي معاً",

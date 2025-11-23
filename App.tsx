@@ -16,6 +16,7 @@ import { HeartStateWidget } from './components/HeartStateWidget';
 import { PrayerDetailModal } from './components/PrayerDetailModal';
 import { RakibSystem } from './components/RakibSystem';
 import { DuaPage } from './components/DuaPage';
+import { QuranReader } from './components/QuranReader'; // Import the new component
 import { GuidedTour, TourStep } from './components/GuidedTour';
 import { SplashScreen } from './components/SplashScreen';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -40,7 +41,13 @@ const AppContent: React.FC = () => {
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
 
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
+
+  // Swipe Navigation Refs
+  const touchStartRef = useRef<{x: number, y: number} | null>(null);
+  const touchEndRef = useRef<{x: number, y: number} | null>(null);
+  // Added 'quran' to the main tabs
+  const MAIN_TABS = ['home', 'partners', 'quran', 'lectures', 'stats', 'profile'];
 
   // References for scrolling
   const qadaRef = useRef<HTMLDivElement>(null);
@@ -87,11 +94,54 @@ const AppContent: React.FC = () => {
       case 'goals':
         setActiveTab('stats');
         break;
-      case 'lectures':
-        setActiveTab('lectures');
+      case 'lectures': // Renamed from 'quran' in QuickActions initially to lectures, but now we have a real Quran tab
+        setActiveTab('quran'); 
         break;
       default:
         console.log(`Action ${id} clicked`);
+    }
+  };
+
+  // Swipe Handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchEndRef.current = null;
+    touchStartRef.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    touchEndRef.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStartRef.current || !touchEndRef.current) return;
+    
+    const distanceX = touchStartRef.current.x - touchEndRef.current.x;
+    const distanceY = touchStartRef.current.y - touchEndRef.current.y;
+    const isHorizontal = Math.abs(distanceX) > Math.abs(distanceY);
+    const minDistance = 50; // Minimum swipe distance in px
+
+    if (isHorizontal && Math.abs(distanceX) > minDistance) {
+      const currentIndex = MAIN_TABS.indexOf(activeTab);
+      if (currentIndex === -1) return; // Don't swipe if on a sub-page like 'dua'
+
+      const isLeftSwipe = distanceX > 0;
+      const isRightSwipe = distanceX < 0;
+
+      if (dir === 'rtl') {
+         // RTL Logic: Swipe Right (negative X) -> Next, Swipe Left (positive X) -> Prev
+         if (isRightSwipe && currentIndex < MAIN_TABS.length - 1) {
+            setActiveTab(MAIN_TABS[currentIndex + 1]);
+         } else if (isLeftSwipe && currentIndex > 0) {
+            setActiveTab(MAIN_TABS[currentIndex - 1]);
+         }
+      } else {
+         // LTR Logic: Swipe Left (positive X) -> Next, Swipe Right (negative X) -> Prev
+         if (isLeftSwipe && currentIndex < MAIN_TABS.length - 1) {
+            setActiveTab(MAIN_TABS[currentIndex + 1]);
+         } else if (isRightSwipe && currentIndex > 0) {
+            setActiveTab(MAIN_TABS[currentIndex - 1]);
+         }
+      }
     }
   };
 
@@ -125,6 +175,10 @@ const AppContent: React.FC = () => {
        'profile': [
           { targetId: 'profile-user-card', title: t('tour_profile_id_title'), content: t('tour_profile_id_content') },
           { targetId: 'profile-settings-first', title: t('tour_profile_settings_title'), content: t('tour_profile_settings_content') },
+       ],
+       'quran': [
+          { targetId: 'quran-list-search', title: t('tour_quran_search_title'), content: t('tour_quran_search_content') },
+          { targetId: 'quran-list-tabs', title: t('tour_quran_tabs_title'), content: t('tour_quran_tabs_content') },
        ]
      };
      return tours[activeTab] || [];
@@ -136,6 +190,8 @@ const AppContent: React.FC = () => {
     switch (activeTab) {
       case 'dua':
         return <DuaPage onBack={() => setActiveTab('home')} onHelp={() => setIsTourOpen(true)} />;
+      case 'quran':
+        return <QuranReader onHelp={() => setIsTourOpen(true)} />;
       case 'partners':
         return <RakibSystem />;
       case 'lectures':
@@ -173,32 +229,30 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-body text-neutral-primary font-sans pb-20" dir="auto">
+    <div 
+      className="min-h-screen bg-neutral-body text-neutral-primary font-sans pb-20" 
+      dir={dir}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {/* Splash Screen Layer */}
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
       <div className="max-w-md mx-auto bg-neutral-body min-h-screen relative shadow-2xl shadow-black/5 overflow-hidden">
         
+        {/* Conditional Header: We hide the main header for specific immersive pages like Quran/Dua */}
         <div className="px-5 pt-safe-top space-y-1">
-          {activeTab !== 'dua' && (
-             <Header user={user} />
+          {!['dua', 'quran'].includes(activeTab) && (
+             <Header user={user} onHelpClick={() => setIsTourOpen(true)} />
           )}
           
-          <main className={activeTab === 'dua' ? 'pt-0 -mx-5' : 'pt-2 pb-10'}>
+          <main className={['dua', 'quran'].includes(activeTab) ? 'pt-0 -mx-5' : 'pt-2 pb-10'}>
             {renderContent()}
           </main>
         </div>
 
         <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-        
-        {/* Global Floating Help Button */}
-        <button 
-           onClick={() => setIsTourOpen(true)}
-           className="fixed bottom-24 right-5 z-40 w-12 h-12 rounded-full bg-gradient-to-br from-brand-forest to-brand-teal text-white shadow-lg shadow-brand-forest/40 flex items-center justify-center animate-pulse active:scale-90 transition-transform rtl:right-auto rtl:left-5"
-           aria-label="Start Tour"
-        >
-           <Sparkles size={22} className="fill-white/20" />
-        </button>
         
         <TasbihModal isOpen={isTasbihOpen} onClose={() => setIsTasbihOpen(false)} />
         <QiblaFinder isOpen={isQiblaOpen} onClose={() => setIsQiblaOpen(false)} />

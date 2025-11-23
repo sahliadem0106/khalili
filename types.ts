@@ -1,16 +1,8 @@
 
-import React from 'react';
+import type { ElementType } from 'react';
 
+// TYPES
 export type Language = 'en' | 'ar';
-
-export enum PrayerStatus {
-  Upcoming = 'upcoming',
-  Jamaah = 'jamaah',
-  Home = 'home',
-  Late = 'late',
-  Missed = 'missed',
-  QadaDone = 'qada_done',
-}
 
 export type BarrierType = 'sleep' | 'work' | 'forgetfulness' | 'travel' | 'procrastination' | 'none';
 export type HeartCondition = 'grateful' | 'anxious' | 'distracted' | 'peaceful' | 'sad' | 'neutral';
@@ -45,13 +37,13 @@ export type ActionId = 'quran' | 'qibla' | 'dua' | 'tasbih' | 'zakat' | 'qada' |
 export interface NavItem {
   id: string;
   label: string;
-  icon: React.ElementType;
+  icon: ElementType;
 }
 
 export interface QuickAction {
   id: ActionId;
   label: string;
-  icon: React.ElementType;
+  icon: ElementType;
   color: string;
 }
 
@@ -84,6 +76,37 @@ export interface Dua {
   transliteration: string;
   translation: string;
   source: string;
+}
+
+// --- QURAN TYPES ---
+
+export interface Surah {
+  number: number;
+  name: string;
+  englishName: string;
+  englishNameTranslation: string;
+  numberOfAyahs: number;
+  revelationType: 'Meccan' | 'Medinan';
+}
+
+export interface Ayah {
+  number: number;
+  audio?: string;
+  text: string;
+  translation: string;
+  numberInSurah: number;
+  juz: number;
+  page: number;
+  surah: number;             
+  surahName: string;          
+  surahNameArabic: string;    
+}
+
+export interface QuranPage {
+  pageNumber: number;
+  ayahs: Ayah[];
+  surahName?: string; // The surah starting or continuing on this page
+  juzNumber?: number;
 }
 
 // --- RAKIB SYSTEM TYPES ---
@@ -123,4 +146,14 @@ export interface RakibGroup {
   consistency: number; // percentage
   streak: number;
   currentUserRole: PartnerRole;
+}
+
+// ENUMS (VALUES)
+export enum PrayerStatus {
+  Upcoming = 'upcoming',
+  Jamaah = 'jamaah',
+  Home = 'home',
+  Late = 'late',
+  Missed = 'missed',
+  QadaDone = 'qada_done',
 }
