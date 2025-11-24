@@ -1,75 +1,51 @@
-# khalili🌙
+# Khalili: AI-Driven Islamic Spiritual Platform
 
-> A modern, mobile-first spiritual companion designed to help Muslims track prayers, build consistency, and find spiritual balance through data-driven insights and social accountability.
+Khalili is a progressive web application (PWA) designed to integrate modern productivity frameworks with Islamic spiritual practices. It leverages Google's Gemini Generative AI to provide context-aware mentorship, behavioral analysis, and dynamic religious resources.
 
+The application is built with a mobile-first design philosophy, focusing on privacy (local computation), accessibility (RTL support), and offline capability for core functions.
 
-## 📖 About The Project
+## Key Features
 
-**khalili** is not just another prayer time app. It is a holistic dashboard designed to improve the *quality* (Khushu) of your worship, not just the quantity. By combining habit-tracking psychology with Islamic principles, it helps users identify barriers to prayer, track their spiritual heart state, and stay accountable with friends and family via the **Rakib System**.
+### 1. Generative AI Spiritual Mentorship (Al-Murshid)
+*   **Context-Aware Chat Interface:** Implements a persistent chat session that retains user context, including location, current time, and calculated "Heart State."
+*   **Persona Engineering:** Utilizes sophisticated system instructions to condition the LLM as a compassionate, poetic spiritual mentor rather than a generic assistant.
+*   **Streaming Responses:** Implements real-time text streaming for a natural conversational experience.
 
-Built with **React** and **Tailwind CSS**, it features a beautiful, minimalist UI optimized for mobile devices.
+### 2. Behavioral Habit Engine
+*   **Root Cause Analysis:** Unlike standard binary trackers, this engine analyzes user reflections upon failure. The AI diagnoses the trigger (e.g., environment, stress) and prescribes actionable spiritual remedies.
+*   **Intention (Niyyah) Tracking:** Enforces the declaration of intent for every habit, grounding productivity in spiritual purpose.
+*   **Dynamic Feedback:** Generates "Wisdom Cards" containing personalized advice based on the specific success or failure state of the user.
 
-##  Features (What We Did)
+### 3. Immersive Quranic Interface
+*   **Mushaf View:** A high-performance, infinite-scrolling view mimicking the physical Mushaf layout.
+*   **Rich Interaction:** Features verse-level interaction for bookmarking, copying, and reflection logging.
+*   **Navigation System:** Implements a drawer-based navigation system for rapid access to specific Surahs, Juz, or Hizb.
 
-###  Prayer Management
-*   **Smart Dashboard:** Countdown to the next prayer with a visual "Heart State" widget.
-*   **Detailed Logging:** Track status (Jamaah, Home, Late, Missed, Qada).
-*   **Quality Metrics:** Rate your *Khushu* (focus) and journal reflections for every prayer.
-*   **Barrier Analysis:** Identify why you missed a prayer (Sleep, Work, Travel, etc.) to find patterns.
+### 4. Algorithmic Prayer Dashboard
+*   **Local Calculation:** Uses the `adhan` library to calculate astronomical prayer times locally on the client device, ensuring privacy and offline functionality.
+*   **Heart State Algorithm:** A proprietary logic that calculates a spiritual health score (0-100%) based on prayer timeliness, frequency, and self-reported Khushu (focus).
+*   **Qada (Missed Prayer) Management:** A persistent tracker for calculating and managing missed prayers over time.
 
-###  Digital Tasbih
-*   **Modes:** Single Dhikr or "Fatima Combo" (33/33/34).
-*   **Haptics:** Vibration feedback on count.
-*   **Visuals:** Beautiful progress ring animation.
-*   **Presets:** Common Adhkar included with Arabic script.
+### 5. Sensor-Fused Qibla Direction
+*   **Great Circle Calculation:** Utilizes the Haversine formula to calculate the precise bearing to the Kaaba based on device GPS coordinates.
+*   **Sensor Integration:** Accesses device magnetometer and accelerometer data (DeviceOrientation API) to provide real-time compass feedback.
 
-###  Rakib System (Social Accountability)
-*   **Partners:** Add friends to share your progress.
-*   **Privacy Control:** Choose what you share (Minimal, Standard, or Full).
-*   **Groups:** Create family or friend groups to compete on consistency streaks.
-*   **Reminders:** Send gentle "Nudges" to partners who haven't prayed yet.
+## Technical Stack
 
-###  Tools
-*   **Qibla Finder:** Visual compass with calibration UI.
-*   **Qada Tracker:** Track missed prayers and "make-up" progress.
-*   **Travel Mode:** Toggle for Safar (travel) rules.
-*   **Knowledge:** Video lecture interface for spiritual learning.
+*   **Core Framework:** React 18 (TypeScript)
+*   **Build Tooling:** Vite (implied via usage patterns)
+*   **Styling:** Tailwind CSS with custom configuration for Dark Mode and Typography.
+*   **AI Integration:** Google GenAI SDK (`@google/genai`).
+*   **Astronomical Math:** `adhan` library for solar calculation.
+*   **Data Visualization:** Recharts for statistical analysis.
+*   **State Management:** React Context API and LocalStorage for persistence.
 
-###  Analytics
-*   **Weekly Consistency:** Bar charts showing prayer performance.
-*   **Trends:** Khushu quality over time.
-*   **Barrier Breakdown:** Pie charts showing your biggest obstacles to prayer.
+## Architecture and Design Decisions
 
-###  Settings & Profile
-*   **Comprehensive Configuration:** Setup prayer calculation methods, notifications, and appearance.
-*   **Clean UI:** Modern, categorized settings menu.
+*   **Privacy-First:** Location data and prayer logs are processed and stored entirely within the browser's LocalStorage. No personal data is sent to an external server except for the anonymized prompts sent to the LLM.
+*   **Modular Component Structure:** The codebase is organized into discrete feature modules (Habits, Prayers, Chat, Quran) to ensure maintainability and scalability.
+*   **Responsive Design:** The UI utilizes Tailwind's responsive prefixes to ensure full compatibility across mobile, tablet, and desktop viewports.
 
-##  Tech Stack
+## License
 
-*   **Frontend:** React 18 (TypeScript)
-*   **Styling:** Tailwind CSS
-*   **Icons:** Lucide React
-*   **Charts:** Recharts
-*   **Build Tool:** Vite (assumed based on structure)
-
-##  Roadmap (What I am Going To Do)
-
-The following features are planned for upcoming releases to move from "Prototype" to "Production":
-
-### Phase 1: Data & Backend
-- [ ] **Real-time Prayer Times:** Integrate `Aladhan API` for accurate global timings based on GPS.
-- [ ] **Authentication:** Implement Firebase/Supabase Auth for user accounts.
-- [ ] **Database:** Persist user data (prayers, settings, partners) to a cloud database.
-
-### Phase 2: Enhanced Experience
-- [ ] **Push Notifications:** Service workers for Adhan and reminders even when the app is closed.
-- [ ] **Geolocation:** Real GPS integration for the Qibla finder and automatic location detection.
-- [ ] **Quran Reader:** Full Mushaf integration with audio recitation.
-
-### Phase 3: Social & Gamification
-- [ ] **Real-time Rakib:** WebSocket integration for instant partner updates.
-- [ ] **Badges & Achievements:** Unlockable rewards for consistency (e.g., "Fajr Warrior").
-- [ ] **Widgets:** Home screen widgets for iOS and Android.
-
-
-*Made with ❤️ for the Ummah.*
+This project is licensed under the MIT License.
