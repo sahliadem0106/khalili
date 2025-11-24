@@ -1,51 +1,106 @@
-# Khalili: AI-Driven Islamic Spiritual Platform
 
-Khalili is a progressive web application (PWA) designed to integrate modern productivity frameworks with Islamic spiritual practices. It leverages Google's Gemini Generative AI to provide context-aware mentorship, behavioral analysis, and dynamic religious resources.
+# Khalili 🌙
 
-The application is built with a mobile-first design philosophy, focusing on privacy (local computation), accessibility (RTL support), and offline capability for core functions.
+> **Your AI-Powered Spiritual Companion** for the Modern Muslim.
 
-## Key Features
+**Khalili** (My Close Friend) is a holistic Islamic lifestyle platform that bridges the gap between modern productivity tools and timeless spiritual wisdom. Unlike standard prayer apps, Khalili uses **Generative AI** to act as a spiritual mentor (*Murshid*), analyzing your habits, mood, and worship patterns to provide personalized, poetic, and actionable advice.
 
-### 1. Generative AI Spiritual Mentorship (Al-Murshid)
-*   **Context-Aware Chat Interface:** Implements a persistent chat session that retains user context, including location, current time, and calculated "Heart State."
-*   **Persona Engineering:** Utilizes sophisticated system instructions to condition the LLM as a compassionate, poetic spiritual mentor rather than a generic assistant.
-*   **Streaming Responses:** Implements real-time text streaming for a natural conversational experience.
+Built with **React**, **Tailwind CSS**, and the **Google Gemini API**.
 
-### 2. Behavioral Habit Engine
-*   **Root Cause Analysis:** Unlike standard binary trackers, this engine analyzes user reflections upon failure. The AI diagnoses the trigger (e.g., environment, stress) and prescribes actionable spiritual remedies.
-*   **Intention (Niyyah) Tracking:** Enforces the declaration of intent for every habit, grounding productivity in spiritual purpose.
-*   **Dynamic Feedback:** Generates "Wisdom Cards" containing personalized advice based on the specific success or failure state of the user.
+---
 
-### 3. Immersive Quranic Interface
-*   **Mushaf View:** A high-performance, infinite-scrolling view mimicking the physical Mushaf layout.
-*   **Rich Interaction:** Features verse-level interaction for bookmarking, copying, and reflection logging.
-*   **Navigation System:** Implements a drawer-based navigation system for rapid access to specific Surahs, Juz, or Hizb.
+## ✨ Key Features
 
-### 4. Algorithmic Prayer Dashboard
-*   **Local Calculation:** Uses the `adhan` library to calculate astronomical prayer times locally on the client device, ensuring privacy and offline functionality.
-*   **Heart State Algorithm:** A proprietary logic that calculates a spiritual health score (0-100%) based on prayer timeliness, frequency, and self-reported Khushu (focus).
-*   **Qada (Missed Prayer) Management:** A persistent tracker for calculating and managing missed prayers over time.
+### 🤖 Al-Murshid (AI Spiritual Companion)
+*   **Context-Aware Chat:** A floating FAB opens a full-screen chat with "Al-Murshid," a wise persona that knows your name, location, and current "Heart State."
+*   **Dynamic Advice:** The AI offers comfort using metaphors from nature and quotes from the Quran/Sunnah, tailored to your emotions.
+*   **Smart Duas:** Describe your feeling (e.g., "anxious about exams"), and the AI generates a specific Dua with translation and spiritual context.
 
-### 5. Sensor-Fused Qibla Direction
-*   **Great Circle Calculation:** Utilizes the Haversine formula to calculate the precise bearing to the Kaaba based on device GPS coordinates.
-*   **Sensor Integration:** Accesses device magnetometer and accelerometer data (DeviceOrientation API) to provide real-time compass feedback.
+### 🌿 The Habit Engine (Istiqamah Tracker)
+*   **Beyond Streaks:** Focuses on *Istiqamah* (steadfastness) and *Niyyah* (intention) rather than just checking boxes.
+*   **The Spiritual Doctor:** When you log a habit (success or failure), the AI analyzes your reflection.
+    *   *If you slipped:* It diagnoses the trigger (ego, environment, etc.) and prescribes a spiritual remedy.
+    *   *If you succeeded:* It reminds you to offer Shukr (gratitude).
+*   **Wisdom Cards:** Generates beautiful, shareable cards with poetic insights based on your daily logs.
 
-## Technical Stack
+### 📖 Immersive Quran Reader
+*   **Mushaf Mode:** A clean, scrolling reading experience mimicking a physical Mushaf.
+*   **Smart Navigation:** Jump between Surahs, Juz, or specific pages instantly.
+*   **Rich Menu:** Tap any Ayah to bookmark, copy, or access (placeholder) Tafsir and audio.
+*   **Visual Index:** Beautiful list view with revelation types (Meccan/Medinan) and juz markers.
 
-*   **Core Framework:** React 18 (TypeScript)
-*   **Build Tooling:** Vite (implied via usage patterns)
-*   **Styling:** Tailwind CSS with custom configuration for Dark Mode and Typography.
-*   **AI Integration:** Google GenAI SDK (`@google/genai`).
-*   **Astronomical Math:** `adhan` library for solar calculation.
-*   **Data Visualization:** Recharts for statistical analysis.
-*   **State Management:** React Context API and LocalStorage for persistence.
+### 🕌 Prayer & Worship Dashboard
+*   **Precision Timing:** Calculates prayer times locally using the **Adhan.js** library (offline capable).
+*   **Heart State Widget:** A unique visual indicator of your spiritual health based on prayer timeliness and Khushu (focus) ratings.
+*   **Qada Tracker:** Keep track of missed prayers and your progress in making them up.
+*   **Qibla Finder:** Sensor-fused compass with visual calibration guides.
+*   **Digital Tasbih:** Haptic-feedback rosary with support for custom Dhikr sequences (Combos).
 
-## Architecture and Design Decisions
+### 📊 Deep Analytics
+*   **Khushu Trends:** Visual graphs showing the quality of your focus over time.
+*   **Barrier Analysis:** Pie charts identifying what stops you from praying (Sleep, Work, etc.).
+*   **Heatmaps:** GitHub-style consistency graphs for your prayers.
 
-*   **Privacy-First:** Location data and prayer logs are processed and stored entirely within the browser's LocalStorage. No personal data is sent to an external server except for the anonymized prompts sent to the LLM.
-*   **Modular Component Structure:** The codebase is organized into discrete feature modules (Habits, Prayers, Chat, Quran) to ensure maintainability and scalability.
-*   **Responsive Design:** The UI utilizes Tailwind's responsive prefixes to ensure full compatibility across mobile, tablet, and desktop viewports.
+### 🤝 The Rakib System (Social)
+*   **Accountability:** Add friends and family to track progress together.
+*   **Privacy Controls:** Granular sharing levels (Minimal, Standard, Full).
+*   **Leaderboards:** Healthy competition based on consistency streaks.
 
-## License
+---
 
-This project is licensed under the MIT License.
+## 🛠️ Tech Stack
+
+*   **Frontend Library:** React 18 (TypeScript)
+*   **Styling:** Tailwind CSS (with extensive custom config for Dark Mode & Typography)
+*   **AI Engine:** Google Gemini API (`gemini-2.5-flash`)
+*   **Prayer Math:** `adhan` (Astronomical calculations)
+*   **Charts:** Recharts
+*   **Icons:** Lucide React
+*   **Motion:** CSS Native Animations & Transitions
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+*   Node.js (v16+)
+*   A Google Gemini API Key (for AI features)
+
+### Installation
+
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/yourusername/khalili.git
+    cd khalili
+    ```
+
+2.  **Install Dependencies**
+    *(Note: This project uses direct ES modules via CDN for the prototype, but for local dev you might want a build step)*
+    ```bash
+    npm install
+    ```
+
+3.  **Environment Setup**
+    Create a `.env` file and add your API key:
+    ```env
+    API_KEY=your_google_gemini_api_key_here
+    ```
+
+4.  **Run**
+    ```bash
+    npm start
+    ```
+
+---
+
+## 🎨 Design Philosophy
+
+Khalili follows a **"Deen + Design"** philosophy:
+1.  **Mobile First:** Designed for the thumb zone.
+2.  **Dark Mode:** Fully supported for late-night worship (Qiyam).
+3.  **Calm UI:** Uses nature-inspired colors (Forest Green, Mint, Amber, Rose) to induce tranquility.
+4.  **Accessibility:** RTL (Right-to-Left) support for Arabic users.
+
+---
+
+*Made with ❤️ for the Ummah.*

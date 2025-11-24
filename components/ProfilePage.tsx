@@ -5,10 +5,11 @@ import { User, PrayerSettings } from '../types';
 import { 
   Settings, Bell, Moon, Globe, ChevronRight, LogOut, 
   User as UserIcon, Clock, MapPin, Volume2, HelpCircle, 
-  FileText, Sliders, Sun, Monitor, ChevronLeft, Check, X
+  FileText, Sliders, Sun, Monitor, ChevronLeft, Check, X, Speaker
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { notificationService } from '../services/notificationService';
 
 interface ProfilePageProps {
   user: User;
@@ -19,6 +20,7 @@ interface ProfilePageProps {
 export const ProfilePage: React.FC<ProfilePageProps> = ({ user, settings, onUpdateSettings }) => {
   const { t, language, setLanguage, dir } = useLanguage();
   const { theme, setThemeMode } = useTheme();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(Notification.permission === 'granted');
   
   // UI Modals State
   const [isLangModalOpen, setIsLangModalOpen] = useState(false);
@@ -29,6 +31,29 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, settings, onUpda
     { code: 'en', label: 'English', native: 'English' },
     { code: 'ar', label: 'Arabic', native: 'العربية' },
   ];
+
+  const handleNotificationToggle = async () => {
+    if (notificationsEnabled) {
+      // Cannot programmatically revoke permissions in browser, just update state locally
+      setNotificationsEnabled(false); 
+      // In a real app, we would unsubscribe from push server here
+    } else {
+      const granted = await notificationService.requestPermission();
+      setNotificationsEnabled(granted);
+    }
+  };
+
+  const handleTestNotification = () => {
+    if (notificationsEnabled) {
+      notificationService.sendNotification(
+        "Test Adhan",
+        "Hayya 'alas-Salah (Come to Prayer)"
+      );
+      alert(t('notification_sent'));
+    } else {
+      alert("Please enable notifications first.");
+    }
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-24">
@@ -147,18 +172,22 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, settings, onUpda
               <SettingItem 
                 icon={Bell} 
                 label="Adhan Notifications" 
-                value="On" 
-                onClick={() => {}}
+                value={notificationsEnabled ? "On" : "Off"}
+                onClick={handleNotificationToggle}
                 hasArrow
               />
               <div className="h-px bg-neutral-line mx-14"></div>
-              <SettingItem 
-                icon={Volume2} 
-                label="Adhan Sound" 
-                value="Makkah" 
-                onClick={() => {}}
-                hasArrow
-              />
+              <button onClick={handleTestNotification} className="w-full flex items-center justify-between p-4 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-start">
+                 <div className="flex items-center">
+                    <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 dark:text-neutral-400 me-3">
+                       <Speaker size={16} />
+                    </div>
+                    <span className="text-sm font-medium text-neutral-primary">{t('test_notification')}</span>
+                 </div>
+                 <div className="flex items-center">
+                    <span className="text-xs text-brand-forest font-bold">Test</span>
+                 </div>
+              </button>
            </div>
         </div>
 

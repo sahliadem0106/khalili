@@ -20,13 +20,15 @@ import { QuranReader } from './components/QuranReader';
 import { HabitTracker } from './components/HabitTracker';
 import { GuidedTour, TourStep } from './components/GuidedTour';
 import { SplashScreen } from './components/SplashScreen';
-import { MurshidChat } from './components/MurshidChat'; // New Import
+import { MurshidChat } from './components/MurshidChat';
+import { ZakatCalculator } from './components/ZakatCalculator'; // New Import
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
-import { ThemeProvider } from './contexts/ThemeContext'; // Import ThemeProvider
+import { ThemeProvider } from './contexts/ThemeContext'; 
 import { MOCK_USER, INITIAL_PRAYERS, MOCK_QADA } from './constants';
 import { Prayer, PrayerStatus, ActionId, HeartCondition } from './types';
 import { Sparkles, Loader2, MessageCircle } from 'lucide-react';
 import { fetchPrayerTimes } from './services/prayerService';
+import { notificationService } from './services/notificationService';
 
 const AppContent: React.FC = () => {
   // State management
@@ -102,6 +104,15 @@ const AppContent: React.FC = () => {
     initData();
   }, []);
 
+  // Notification Scheduler
+  useEffect(() => {
+    // Check every minute
+    const interval = setInterval(() => {
+      notificationService.checkAndNotify(prayers);
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [prayers]);
+
   // Persistence
   useEffect(() => {
     localStorage.setItem('muslimDaily_prayers', JSON.stringify(prayers));
@@ -129,6 +140,9 @@ const AppContent: React.FC = () => {
         break;
       case 'habits':
         setActiveTab('habits');
+        break;
+      case 'zakat':
+        setActiveTab('zakat');
         break;
       case 'partners':
         setActiveTab('partners');
@@ -232,6 +246,11 @@ const AppContent: React.FC = () => {
           { targetId: 'quran-list-search', title: t('tour_quran_search_title'), content: t('tour_quran_search_content') },
           { targetId: 'quran-list-tabs', title: t('tour_quran_tabs_title'), content: t('tour_quran_tabs_content') },
           { targetId: 'quran-surah-list-first', title: t('tour_quran_item_title'), content: t('tour_quran_item_content') },
+       ],
+       'habits': [
+          { targetId: 'habit-add-btn', title: t('tour_habits_add_title'), content: t('tour_habits_add_content') },
+          { targetId: 'habit-tabs', title: t('tour_habits_tabs_title'), content: t('tour_habits_tabs_content') },
+          { targetId: 'habit-list', title: t('tour_habits_list_title'), content: t('tour_habits_list_content') },
        ]
      };
      return tours[activeTab] || [];
@@ -249,6 +268,8 @@ const AppContent: React.FC = () => {
         return <RakibSystem />;
       case 'habits':
         return <HabitTracker onBack={() => setActiveTab('home')} />;
+      case 'zakat':
+        return <ZakatCalculator />;
       case 'lectures':
         return <LecturesPage />;
       case 'profile':

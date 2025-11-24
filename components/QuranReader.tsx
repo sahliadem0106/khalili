@@ -1,10 +1,11 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Search, ArrowLeft, ChevronRight, ChevronLeft, Bookmark, PlayCircle, Book, PenTool, List, Share2, Settings, X, Menu, Copy, Check, RotateCcw, Sparkles, FileQuestion } from 'lucide-react';
+import { Search, ArrowLeft, ChevronRight, ChevronLeft, Bookmark, PlayCircle, Book, PenTool, List, Share2, Settings, X, Menu, Copy, Check, RotateCcw, Sparkles, FileQuestion, PauseCircle, Loader2 } from 'lucide-react';
 import { MOCK_SURAHS } from '../constants';
 import QURAN_FULL_DATA from '../data/quran-full';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from './ui/Button';
+import { getTafsir } from '../services/genAiService';
 
 // Alias the full data to MUSHAF_DATA for compatibility
 const MUSHAF_DATA = QURAN_FULL_DATA;
@@ -78,6 +79,14 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
   const [targetSurahScroll, setTargetSurahScroll] = useState<number | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
   
+  // AUDIO STATE
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // AI TAFSIR STATE
+  const [tafsirContent, setTafsirContent] = useState<string | null>(null);
+  const [loadingTafsir, setLoadingTafsir] = useState(false);
+  
   const { t, dir } = useLanguage();
   const BackIcon = dir === 'rtl' ? ChevronRight : ArrowLeft;
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -109,6 +118,21 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
     
     const lastRead = localStorage.getItem('muslimDaily_lastRead');
     if (lastRead) setCurrentPage(parseInt(lastRead));
+
+    // Initialize Audio
+    audioRef.current = new Audio();
+    audioRef.current.onended = () => setIsPlaying(false);
+    audioRef.current.onerror = () => {
+        setIsPlaying(false);
+        alert("Could not load audio for this Ayah.");
+    };
+
+    return () => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current = null;
+        }
+    }
   }, []);
 
   // Save last read page whenever it changes
@@ -221,6 +245,9 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
     setSelectedPage(pageNumber); // Use the specific page of the clicked ayah
     setShowAyahMenu(true);
     setActiveSheet(null); 
+    setTafsirContent(null); // Reset previous tafsir
+    setIsPlaying(false); // Reset audio
+    if (audioRef.current) audioRef.current.pause();
   };
 
   const togglePageBookmark = () => {
@@ -245,6 +272,33 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
     navigator.clipboard.writeText(`${text}\n\n${translation}`);
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
+  };
+
+  const playAudio = (surah: number, ayah: number) => {
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+        return;
+    }
+
+    // Use EveryAyah CDN: 001001.mp3 format
+    const paddedSurah = String(surah).padStart(3, '0');
+    const paddedAyah = String(ayah).padStart(3, '0');
+    const url = `https://everyayah.com/data/Alafasy_128kbps/${paddedSurah}${paddedAyah}.mp3`;
+
+    audioRef.current.src = url;
+    audioRef.current.play();
+    setIsPlaying(true);
+  };
+
+  const fetchTafsir = async (ayah: any) => {
+      if (!ayah) return;
+      setLoadingTafsir(true);
+      const content = await getTafsir(ayah.surahName, ayah.numberInSurah, ayah.text, ayah.translation);
+      setTafsirContent(content);
+      setLoadingTafsir(false);
   };
 
   // --- RENDER HELPERS ---
@@ -403,8 +457,8 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                               {juzNum}
                            </div>
                            <div>
-                              <span className="font-bold text-neutral-primary block text-sm">{t('quran_juz')} {juzNum}</span>
-                              <span className="text-xs text-neutral-400 font-medium">Hizb {startHizb} - {endHizb}</span>
+                              <span className="font-bold text-neutral-700 dark:text-neutral-300 text-sm">Juz {juzNum}</span>
+                              <span className="text-[10px] text-neutral-400 block">Hizb {startHizb}-{startHizb+1}</span>
                            </div>
                         </div>
                         <div className="text-end">
@@ -676,7 +730,10 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                         <ActionButton 
                            icon={Book} 
                            label="Tafsir" 
-                           onClick={() => setActiveSheet('tafsir')} 
+                           onClick={() => {
+                              setActiveSheet('tafsir');
+                              fetchTafsir(activeAyahData);
+                           }} 
                         />
                         <ActionButton 
                            icon={Copy} 
@@ -696,8 +753,14 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                         <Button variant="outline" size="sm" onClick={() => setActiveSheet('notes')} className="w-full">
                            <PenTool size={16} className="me-2" /> Add Reflection
                         </Button>
-                        <Button variant="primary" size="sm" className="w-full">
-                           <PlayCircle size={16} className="me-2" /> Play Audio
+                        <Button 
+                           variant="primary" 
+                           size="sm" 
+                           className="w-full"
+                           onClick={() => playAudio(activeAyahData.surah, activeAyahData.numberInSurah)}
+                        >
+                           {isPlaying ? <PauseCircle size={16} className="me-2" /> : <PlayCircle size={16} className="me-2" />}
+                           {isPlaying ? 'Pause Audio' : 'Play Audio'}
                         </Button>
                      </div>
                   </>
@@ -708,24 +771,26 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                         <button onClick={() => setActiveSheet(null)} className="flex items-center text-sm font-bold text-neutral-500 hover:text-brand-forest">
                            <BackIcon size={18} className="me-1" /> {t('back')}
                         </button>
-                        <span className="font-bold text-neutral-800 dark:text-neutral-200 text-sm uppercase tracking-wide">{activeSheet === 'tafsir' ? 'Tafsir Ibn Kathir' : 'Reflections'}</span>
+                        <span className="font-bold text-neutral-800 dark:text-neutral-200 text-sm uppercase tracking-wide">{activeSheet === 'tafsir' ? 'AI Tafsir & Reflection' : 'Reflections'}</span>
                         <div className="w-10"></div>
                      </div>
                      
                      <div className="flex-1 overflow-y-auto no-scrollbar">
                         {activeSheet === 'tafsir' ? (
                            <div className="space-y-4 p-1">
-                              <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-xl border border-neutral-100 dark:border-neutral-700">
-                                 <h4 className="font-bold text-neutral-800 dark:text-neutral-200 mb-2">Interpretation of Ayah {activeAyahData.numberInSurah}</h4>
-                                 <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                                    {t('quran_tafsir_placeholder')}
-                                 </p>
-                              </div>
-                              <div className="space-y-2 opacity-50 px-2">
-                                 <div className="h-2 bg-neutral-100 dark:bg-neutral-700 rounded w-full"></div>
-                                 <div className="h-2 bg-neutral-100 dark:bg-neutral-700 rounded w-5/6"></div>
-                                 <div className="h-2 bg-neutral-100 dark:bg-neutral-700 rounded w-4/6"></div>
-                              </div>
+                              {loadingTafsir ? (
+                                 <div className="flex flex-col items-center justify-center py-10 text-neutral-400 space-y-3">
+                                    <Loader2 size={32} className="animate-spin text-brand-forest" />
+                                    <p className="text-xs animate-pulse">Generating spiritual insights...</p>
+                                 </div>
+                              ) : (
+                                 <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-xl border border-neutral-100 dark:border-neutral-700">
+                                    <h4 className="font-bold text-neutral-800 dark:text-neutral-200 mb-2">Reflection on Ayah {activeAyahData.numberInSurah}</h4>
+                                    <div className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-wrap font-serif">
+                                       {tafsirContent}
+                                    </div>
+                                 </div>
+                              )}
                            </div>
                         ) : (
                            <div className="h-full flex flex-col">

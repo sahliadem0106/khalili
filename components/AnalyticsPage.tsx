@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Card } from './ui/Card';
@@ -10,17 +11,6 @@ interface AnalyticsPageProps {
 }
 
 type TimeRange = '7d' | '15d' | '30d';
-
-// Mock historical data for visualizations
-const KHUSHU_DATA = [
-  { day: 'Mon', score: 3.2 },
-  { day: 'Tue', score: 4.1 },
-  { day: 'Wed', score: 2.8 },
-  { day: 'Thu', score: 4.5 },
-  { day: 'Fri', score: 4.8 },
-  { day: 'Sat', score: 3.5 },
-  { day: 'Sun', score: 4.0 },
-];
 
 const BARRIER_DATA = [
   { name: 'Sleep', value: 45, color: '#E35D5D' },
@@ -51,6 +41,7 @@ const HabitStats = ({ timeRange }: { timeRange: TimeRange }) => {
     const saved = localStorage.getItem('muslimDaily_habits');
     return saved ? JSON.parse(saved) : [];
   });
+  const { language } = useLanguage();
 
   const stats = useMemo(() => {
     if (habits.length === 0) return null;
@@ -89,12 +80,11 @@ const HabitStats = ({ timeRange }: { timeRange: TimeRange }) => {
     const longestStreakHabit = habits.reduce((prev, current) => (prev.streak > current.streak) ? prev : current, habits[0]);
 
     // --- CHART DATA ---
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const activityData = Array.from({length: daysCount}, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() - ((daysCount - 1) - i)); // Order: Oldest to Newest
         const dateStr = d.toISOString().split('T')[0];
-        const dayName = days[d.getDay()];
+        const dayName = new Intl.DateTimeFormat(language, { weekday: 'short' }).format(d);
         
         let count = 0;
         habits.forEach(h => {
@@ -134,7 +124,7 @@ const HabitStats = ({ timeRange }: { timeRange: TimeRange }) => {
       activityData,
       topHabits
     };
-  }, [habits, timeRange]);
+  }, [habits, timeRange, language]);
 
   if (!stats) {
     return (
@@ -288,11 +278,24 @@ interface HeatmapDay {
 
 // Main Component
 export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedDay, setSelectedDay] = useState<HeatmapDay | null>(null);
   const [activeTab, setActiveTab] = useState<'prayers' | 'habits'>('prayers');
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
   
+  // Dynamic Khushu Data Generator
+  const khushuData = useMemo(() => {
+    const today = new Date();
+    return Array.from({length: 7}, (_, i) => {
+        const d = new Date();
+        d.setDate(today.getDate() - (6 - i)); // Last 7 days including today
+        return {
+            day: new Intl.DateTimeFormat(language, { weekday: 'short' }).format(d),
+            score: (Math.random() * 2 + 3).toFixed(1) // Random score 3.0 - 5.0
+        };
+    });
+  }, [language]);
+
   // Mock data generator for Heatmap based on timeRange
   const heatmapData = useMemo(() => {
       const daysCount = timeRange === '7d' ? 7 : timeRange === '15d' ? 15 : 30;
@@ -308,28 +311,30 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
         else if (r < 0.3) count = 1 + Math.floor(Math.random() * 2);
         else if (r < 0.6) count = 3 + Math.floor(Math.random() * 2);
         
-        // Date Formatting
-        const gregorian = d.toLocaleDateString('en-US', { 
+        // Date Formatting using Intl
+        const gregorian = new Intl.DateTimeFormat(language, { 
             weekday: 'long', 
             year: 'numeric', 
             month: 'long', 
             day: 'numeric' 
-        });
+        }).format(d);
 
         let hijri = "";
         try {
-            hijri = new Intl.DateTimeFormat('en-US-u-ca-islamic', {
+            // Try to use Islamic calendar if supported
+            const hijriFormatter = new Intl.DateTimeFormat(language + '-u-ca-islamic', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
-            }).format(d);
+            });
+            hijri = hijriFormatter.format(d);
         } catch (e) {
             hijri = "Hijri Date Unavailable";
         }
 
         return { day: i + 1, count, gregorian, hijri };
       });
-  }, [timeRange]);
+  }, [timeRange, language]);
 
   // Dynamic Weakness Logic (Prayers)
   const getWeakestPrayer = () => {
@@ -350,6 +355,16 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
     if (count <= 2) return 'bg-emerald-200 dark:bg-emerald-900'; // Light Green
     if (count <= 4) return 'bg-emerald-400 dark:bg-emerald-700'; // Medium Green
     return 'bg-brand-forest'; // Dark Green (Perfect)
+  };
+
+  // Dynamic Title for Heatmap
+  const getConsistencyTitle = () => {
+    switch (timeRange) {
+      case '7d': return t('consistency_7d');
+      case '15d': return t('consistency_15d');
+      case '30d': return t('consistency_30d');
+      default: return t('consistencyHeatmap');
+    }
   };
 
   return (
@@ -493,7 +508,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2 rtl:space-x-reverse">
                      <Calendar size={18} className="text-neutral-500" />
-                     <h3 className="font-bold text-neutral-primary">{t('consistencyHeatmap')}</h3>
+                     <h3 className="font-bold text-neutral-primary">{getConsistencyTitle()}</h3>
                   </div>
                   <span className="text-[10px] bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded text-neutral-500">Last {timeRange.replace('d', ' Days')}</span>
                </div>
@@ -525,7 +540,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
               </div>
               <div className="w-full h-[200px] min-w-[200px]">
                 <ResponsiveContainer width="99%" height="100%">
-                  <LineChart data={KHUSHU_DATA}>
+                  <LineChart data={khushuData}>
                     <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#9CA3AF'}} dy={10} />
                     <Tooltip 
                       content={<CustomKhushuTooltip />} 

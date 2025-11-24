@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Plus, Check, X, Sprout, Flame, Trash2, 
   ChevronRight, Shield, Leaf, Loader2,
@@ -28,25 +28,10 @@ const INITIAL_HABITS: Habit[] = [
   }
 ];
 
-const BADGES = [
-  { id: 'b1', label: 'Bismillah', desc: 'Started 1st Habit', icon: '🌱', locked: false },
-  { id: 'b2', label: 'Istiqamah', desc: '7 Day Streak', icon: '🔥', locked: true },
-  { id: 'b3', label: 'Nafs Tamer', desc: 'Quit a bad habit', icon: '🛡️', locked: true },
-  { id: 'b4', label: 'Fajr Warrior', desc: 'Log before sunrise', icon: '🌅', locked: true },
-];
-
 const RESOURCES = [
   { id: 1, type: 'video', title: 'Atomic Habits from an Islamic Perspective', duration: '12 min', author: 'Muhammad Al-Shareef' },
   { id: 2, type: 'video', title: 'How to Break Bad Habits (Tazkiyah)', duration: '8 min', author: 'Yasir Qadhi' },
   { id: 3, type: 'article', title: 'The 40-Day Rule in Spirituality', readTime: '5 min read', author: 'Yaqeen Institute' },
-];
-
-const FEELING_TAGS = [
-  { id: 'grateful', label: 'Grateful', icon: '🤲' },
-  { id: 'tired', label: 'Tired', icon: '😴' },
-  { id: 'rushed', label: 'Rushed', icon: '🏃' },
-  { id: 'focused', label: 'Focused', icon: '👁️' },
-  { id: 'struggling', label: 'Struggling', icon: '🏔️' },
 ];
 
 export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
@@ -71,19 +56,36 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
   const [newHabitType, setNewHabitType] = useState<HabitType>('build');
   const [newHabitNiyyah, setNewHabitNiyyah] = useState('');
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const FEELING_TAGS = useMemo(() => [
+    { id: 'grateful', label: t('feel_grateful_habit'), icon: '🤲' },
+    { id: 'tired', label: t('feel_tired_habit'), icon: '😴' },
+    { id: 'rushed', label: t('feel_rushed_habit'), icon: '🏃' },
+    { id: 'focused', label: t('feel_focused_habit'), icon: '👁️' },
+    { id: 'struggling', label: t('feel_struggling_habit'), icon: '🏔️' },
+  ], [t]);
 
   useEffect(() => {
     localStorage.setItem('muslimDaily_habits', JSON.stringify(habits));
   }, [habits]);
 
-  // Determine unlocked badges dynamically
-  const unlockedBadges = BADGES.map(b => {
-    if (b.id === 'b1') return { ...b, locked: habits.length === 0 };
-    if (b.id === 'b2') return { ...b, locked: !habits.some(h => h.streak >= 7) };
-    if (b.id === 'b3') return { ...b, locked: !habits.some(h => h.type === 'quit' && h.totalDays > 0) };
-    return b;
-  });
+  // Dynamic Badges with Translations
+  const unlockedBadges = useMemo(() => {
+    const badgeList = [
+      { id: 'b1', label: t('badge_bismillah'), desc: t('badge_bismillah_desc'), icon: '🌱', locked: false },
+      { id: 'b2', label: t('badge_istiqamah'), desc: t('badge_istiqamah_desc'), icon: '🔥', locked: true },
+      { id: 'b3', label: t('badge_nafs_tamer'), desc: t('badge_nafs_tamer_desc'), icon: '🛡️', locked: true },
+      { id: 'b4', label: t('badge_fajr_warrior'), desc: t('badge_fajr_warrior_desc'), icon: '🌅', locked: true },
+    ];
+
+    return badgeList.map(b => {
+      if (b.id === 'b1') return { ...b, locked: habits.length === 0 };
+      if (b.id === 'b2') return { ...b, locked: !habits.some(h => h.streak >= 7) };
+      if (b.id === 'b3') return { ...b, locked: !habits.some(h => h.type === 'quit' && h.totalDays > 0) };
+      return b;
+    });
+  }, [habits, t]);
 
   const addHabit = () => {
     if (!newHabitTitle || !newHabitNiyyah) return;
@@ -106,7 +108,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
   };
 
   const deleteHabit = (id: string) => {
-    if (confirm('Are you sure you want to delete this habit?')) {
+    if (confirm(t('habit_delete_confirm'))) {
       setHabits(habits.filter(h => h.id !== id));
       setView('dashboard');
     }
@@ -137,11 +139,12 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
     // Combine tags into reflection for AI context
     const fullReflection = `[Feelings: ${selectedTags.join(', ')}] ${reflection}`;
 
-    // 1. Get AI Advice
+    // 1. Get AI Advice with Language Context
     const advice = await getHabitAdvice(
       selectedHabit, 
       fullReflection, 
-      logStatus === 'success'
+      logStatus === 'success',
+      language
     );
     
     setAiAdvice(advice);
@@ -185,57 +188,57 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
     <div className="space-y-6 animate-in slide-in-from-bottom duration-300">
       <div className="flex items-center mb-4">
         <button onClick={() => setView('dashboard')} className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-full me-3">
-          <ChevronRight className="rotate-180" size={20} />
+          <ChevronRight className="rotate-180 rtl:rotate-0" size={20} />
         </button>
-        <h2 className="text-xl font-bold text-neutral-primary">Plant a New Habit</h2>
+        <h2 className="text-xl font-bold text-neutral-primary">{t('habit_new_title')}</h2>
       </div>
 
       <Card>
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">Habit Type</label>
+            <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">{t('habit_title')}</label>
             <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl">
               <button 
                 onClick={() => setNewHabitType('build')}
                 className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center ${newHabitType === 'build' ? 'bg-neutral-card shadow text-brand-forest' : 'text-neutral-400'}`}
               >
-                <Leaf size={16} className="me-2" /> Build
+                <Leaf size={16} className="me-2" /> {t('habit_build')}
               </button>
               <button 
                 onClick={() => setNewHabitType('quit')}
                 className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center ${newHabitType === 'quit' ? 'bg-neutral-card shadow text-red-500' : 'text-neutral-400'}`}
               >
-                <Shield size={16} className="me-2" /> Quit
+                <Shield size={16} className="me-2" /> {t('habit_quit')}
               </button>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">Habit Name</label>
+            <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">{t('habit_name')}</label>
             <input 
               type="text" 
               value={newHabitTitle}
               onChange={(e) => setNewHabitTitle(e.target.value)}
-              placeholder={newHabitType === 'build' ? "e.g., Read 2 pages of Quran" : "e.g., Smoking"}
+              placeholder={newHabitType === 'build' ? t('habit_name_placeholder_build') : t('habit_name_placeholder_quit')}
               className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-card focus:ring-2 focus:ring-brand-teal outline-none text-neutral-primary"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">
-              Your Niyyah (Intention)
-              <span className="block text-[10px] font-normal normal-case text-neutral-400 mt-1">"Actions are judged by intentions." Why are you doing this for Allah?</span>
+              {t('habit_niyyah')}
+              <span className="block text-[10px] font-normal normal-case text-neutral-400 mt-1">{t('habit_niyyah_help')}</span>
             </label>
             <textarea 
               value={newHabitNiyyah}
               onChange={(e) => setNewHabitNiyyah(e.target.value)}
-              placeholder="e.g., To preserve the health Allah gave me..."
+              placeholder={t('habit_niyyah_placeholder')}
               className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-card focus:ring-2 focus:ring-brand-teal outline-none h-24 resize-none text-neutral-primary"
             />
           </div>
 
           <Button fullWidth onClick={addHabit} disabled={!newHabitTitle || !newHabitNiyyah}>
-            Start Journey
+            {t('habit_start')}
           </Button>
         </div>
       </Card>
@@ -245,18 +248,18 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
   const renderDashboard = () => (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Top Tab Bar */}
-      <div className="flex bg-neutral-200 dark:bg-neutral-800 p-1 rounded-xl mb-4">
+      <div id="habit-tabs" className="flex bg-neutral-200 dark:bg-neutral-800 p-1 rounded-xl mb-4">
          <button 
            onClick={() => setActiveTab('tracker')}
            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === 'tracker' ? 'bg-neutral-card shadow text-brand-forest' : 'text-neutral-500'}`}
          >
-           My Habits
+           {t('habit_my_habits')}
          </button>
          <button 
            onClick={() => setActiveTab('journey')}
            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === 'journey' ? 'bg-neutral-card shadow text-brand-forest' : 'text-neutral-500'}`}
          >
-           The Journey
+           {t('habit_journey')}
          </button>
       </div>
 
@@ -316,7 +319,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
           </div>
 
           {/* Habit List */}
-          <div className="space-y-3">
+          <div id="habit-list" className="space-y-3">
             {habits.map(habit => {
               const doneToday = isTodayLogged(habit);
               return (
@@ -347,18 +350,18 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
                         onClick={() => initiateLog(habit, 'success')}
                         className="flex-1 bg-neutral-100 dark:bg-neutral-700 hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-700 dark:hover:text-green-400 text-neutral-600 dark:text-neutral-300 py-2 rounded-xl text-xs font-bold flex items-center justify-center transition-colors"
                       >
-                        <Check size={16} className="me-1" /> {habit.type === 'build' ? 'Done' : 'Avoided'}
+                        <Check size={16} className="me-1" /> {habit.type === 'build' ? t('habit_done') : t('habit_avoided')}
                       </button>
                       <button 
                         onClick={() => initiateLog(habit, 'fail')}
                         className="flex-1 bg-neutral-100 dark:bg-neutral-700 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-700 dark:hover:text-red-400 text-neutral-600 dark:text-neutral-300 py-2 rounded-xl text-xs font-bold flex items-center justify-center transition-colors"
                       >
-                        <X size={16} className="me-1" /> {habit.type === 'build' ? 'Missed' : 'Slipped'}
+                        <X size={16} className="me-1" /> {habit.type === 'build' ? t('habit_missed') : t('habit_slipped')}
                       </button>
                     </div>
                   ) : (
                     <div className="bg-brand-forest/10 text-brand-forest py-2 rounded-xl text-xs font-bold flex items-center justify-center">
-                       <Check size={16} className="me-1" /> Recorded for Today
+                       <Check size={16} className="me-1" /> {t('habit_recorded')}
                     </div>
                   )}
                 </div>
@@ -368,7 +371,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
             {habits.length === 0 && (
               <div className="text-center py-10 text-neutral-400">
                 <Sprout size={48} className="mx-auto mb-3 opacity-20" />
-                <p>No habits planted yet.</p>
+                <p>{t('habit_empty')}</p>
               </div>
             )}
           </div>
@@ -479,8 +482,8 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
                    Spiritual Prescription
                 </h3>
 
-                <div className="prose prose-amber dark:prose-invert prose-p:font-serif prose-p:text-lg prose-p:leading-loose text-neutral-800 dark:text-neutral-100 mx-auto text-left">
-                   <div className="whitespace-pre-wrap">{aiAdvice}</div>
+                <div className="prose prose-amber dark:prose-invert prose-p:font-serif prose-p:text-lg prose-p:leading-loose text-neutral-800 dark:text-neutral-100 mx-auto text-left whitespace-pre-wrap">
+                   {aiAdvice}
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-amber-200 dark:border-neutral-700">
@@ -512,15 +515,16 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
                <div className="flex items-center">
                   {onBack && (
                     <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 me-2">
-                      <ChevronRight className="rotate-180 text-neutral-600 dark:text-neutral-300" size={24} />
+                      <ChevronRight className="rotate-180 rtl:rotate-0 text-neutral-600 dark:text-neutral-300" size={24} />
                     </button>
                   )}
                   <div>
-                    <h2 className="text-2xl font-bold text-neutral-primary">The Habit Engine</h2>
-                    <p className="text-xs text-neutral-muted">Istiqamah (Steadfastness)</p>
+                    <h2 className="text-2xl font-bold text-neutral-primary">{t('habit_title')}</h2>
+                    <p className="text-xs text-neutral-muted">{t('habit_subtitle')}</p>
                   </div>
                </div>
                <button 
+                 id="habit-add-btn"
                  onClick={() => setView('add')} 
                  className="w-10 h-10 bg-brand-forest text-white rounded-full flex items-center justify-center shadow-lg hover:bg-brand-teal transition-colors"
                >
@@ -538,7 +542,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
          <div className="space-y-6 animate-in slide-in-from-right">
             <div className="flex items-center justify-between mb-4">
                <button onClick={() => setView('dashboard')} className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-full">
-                  <ChevronRight className="rotate-180 text-neutral-600 dark:text-neutral-300" size={20} />
+                  <ChevronRight className="rotate-180 rtl:rotate-0 text-neutral-600 dark:text-neutral-300" size={20} />
                </button>
                <button onClick={() => deleteHabit(selectedHabit.id)} className="text-red-400 p-2">
                   <Trash2 size={20} />
@@ -552,15 +556,15 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
                <div className="flex space-x-4 mb-6 border-b border-neutral-100 dark:border-neutral-700 pb-6">
                   <div className="text-center flex-1">
                      <span className="block text-2xl font-bold text-brand-forest">{selectedHabit.streak}</span>
-                     <span className="text-[10px] uppercase text-neutral-400">Current Streak</span>
+                     <span className="text-[10px] uppercase text-neutral-400">{t('habit_streak')}</span>
                   </div>
                   <div className="text-center flex-1 border-s border-neutral-100 dark:border-neutral-700">
                      <span className="block text-2xl font-bold text-neutral-700 dark:text-neutral-300">{selectedHabit.totalDays}</span>
-                     <span className="text-[10px] uppercase text-neutral-400">Total Days</span>
+                     <span className="text-[10px] uppercase text-neutral-400">{t('habit_total_days')}</span>
                   </div>
                </div>
 
-               <h3 className="font-bold text-sm mb-3 text-neutral-primary">Recent Journal</h3>
+               <h3 className="font-bold text-sm mb-3 text-neutral-primary">{t('habit_recent_journal')}</h3>
                <div className="space-y-3">
                   {selectedHabit.logs.slice().reverse().slice(0, 5).map((log, i) => (
                      <div key={i} className="bg-neutral-50 dark:bg-neutral-800 p-3 rounded-xl text-sm">
@@ -577,7 +581,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
                         )}
                      </div>
                   ))}
-                  {selectedHabit.logs.length === 0 && <p className="text-xs text-neutral-400 text-center py-4">No logs yet.</p>}
+                  {selectedHabit.logs.length === 0 && <p className="text-xs text-neutral-400 text-center py-4">{t('habit_no_logs')}</p>}
                </div>
             </Card>
          </div>
