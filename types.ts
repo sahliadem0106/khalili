@@ -7,6 +7,34 @@ export type Language = 'en' | 'ar';
 export type BarrierType = 'sleep' | 'work' | 'forgetfulness' | 'travel' | 'procrastination' | 'none';
 export type HeartCondition = 'grateful' | 'anxious' | 'distracted' | 'peaceful' | 'sad' | 'neutral';
 
+// --- THEME TYPES ---
+export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeColor = 'forest' | 'blue' | 'rose' | 'violet' | 'amber';
+
+export interface ThemeConfig {
+  mode: ThemeMode;
+  color: ThemeColor;
+}
+
+// --- PRAYER SETTINGS TYPES ---
+export type Madhab = 'Standard' | 'Hanafi';
+export type CalculationMethod = 'MuslimWorldLeague' | 'Egyptian' | 'Karachi' | 'UmmAlQura' | 'Dubai' | 'MoonsightingCommittee' | 'NorthAmerica' | 'Kuwait' | 'Qatar' | 'Singapore' | 'Turkey' | 'Tehran' | 'Other';
+
+export interface PrayerOffsets {
+  fajr: number;
+  sunrise: number;
+  dhuhr: number;
+  asr: number;
+  maghrib: number;
+  isha: number;
+}
+
+export interface PrayerSettings {
+  method: CalculationMethod;
+  madhab: Madhab;
+  offsets: PrayerOffsets;
+}
+
 export interface Prayer {
   id: string;
   name: string;
@@ -32,7 +60,7 @@ export interface QadaStats {
   madeUp: number;
 }
 
-export type ActionId = 'quran' | 'qibla' | 'dua' | 'tasbih' | 'zakat' | 'qada' | 'reminder' | 'settings' | 'lectures' | 'goals' | 'partners';
+export type ActionId = 'quran' | 'qibla' | 'dua' | 'tasbih' | 'zakat' | 'qada' | 'reminder' | 'settings' | 'lectures' | 'goals' | 'partners' | 'habits';
 
 export interface NavItem {
   id: string;
@@ -148,12 +176,45 @@ export interface RakibGroup {
   currentUserRole: PartnerRole;
 }
 
-// ENUMS (VALUES)
-export enum PrayerStatus {
-  Upcoming = 'upcoming',
-  Jamaah = 'jamaah',
-  Home = 'home',
-  Late = 'late',
-  Missed = 'missed',
-  QadaDone = 'qada_done',
+// --- HABIT ENGINE TYPES ---
+
+export type HabitType = 'build' | 'quit';
+
+export interface HabitLog {
+  date: string; // ISO date string
+  completed: boolean;
+  reflection?: string;
+  aiAdvice?: string; // Cached advice
 }
+
+export interface Habit {
+  id: string;
+  title: string;
+  type: HabitType;
+  niyyah: string; // The spiritual intention behind the habit
+  startDate: string;
+  streak: number;
+  totalDays: number;
+  logs: HabitLog[];
+  reminderTime?: string;
+}
+
+// --- MURSHID CHAT TYPES ---
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'model';
+  text: string;
+  timestamp: Date;
+}
+
+// CONSTANTS AS ENUMS (Safer for Runtime)
+export const PrayerStatus = {
+  Upcoming: 'upcoming',
+  Jamaah: 'jamaah',
+  Home: 'home',
+  Late: 'late',
+  Missed: 'missed',
+  QadaDone: 'qada_done',
+} as const;
+
+export type PrayerStatus = typeof PrayerStatus[keyof typeof PrayerStatus];

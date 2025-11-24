@@ -15,11 +15,11 @@ export const HeartStateWidget: React.FC<HeartStateWidgetProps> = ({ currentState
   const { t } = useLanguage();
 
   const STATES: { id: HeartCondition; label: string; icon: React.ElementType; color: string }[] = [
-    { id: 'peaceful', label: t('feel_peaceful'), icon: Sun, color: 'text-orange-400 bg-orange-50' },
-    { id: 'grateful', label: t('feel_grateful'), icon: Heart, color: 'text-rose-500 bg-rose-50' },
-    { id: 'anxious', label: t('feel_anxious'), icon: Zap, color: 'text-yellow-600 bg-yellow-50' },
-    { id: 'distracted', label: t('feel_distracted'), icon: Coffee, color: 'text-slate-500 bg-slate-50' },
-    { id: 'sad', label: t('feel_sad'), icon: CloudRain, color: 'text-blue-400 bg-blue-50' },
+    { id: 'peaceful', label: t('feel_peaceful'), icon: Sun, color: 'text-orange-400 bg-orange-50 dark:bg-orange-900/20' },
+    { id: 'grateful', label: t('feel_grateful'), icon: Heart, color: 'text-rose-500 bg-rose-50 dark:bg-rose-900/20' },
+    { id: 'anxious', label: t('feel_anxious'), icon: Zap, color: 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20' },
+    { id: 'distracted', label: t('feel_distracted'), icon: Coffee, color: 'text-slate-500 bg-slate-50 dark:bg-slate-800' },
+    { id: 'sad', label: t('feel_sad'), icon: CloudRain, color: 'text-blue-400 bg-blue-50 dark:bg-blue-900/20' },
   ];
   
   // Calculate Spiritual Heart Health Score (0-100%)
@@ -83,9 +83,9 @@ export const HeartStateWidget: React.FC<HeartStateWidgetProps> = ({ currentState
       </div>
 
       {/* Weekly Trend Mini-Indicator */}
-      <div className="flex items-center space-x-2 rtl:space-x-reverse mb-6 bg-neutral-50 p-2 rounded-lg border border-neutral-100/50">
+      <div className="flex items-center space-x-2 rtl:space-x-reverse mb-6 bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-neutral-100/50 dark:border-neutral-700">
          <TrendingUp size={14} className="text-brand-forest rtl:flip-x" />
-         <span className="text-xs text-neutral-600">
+         <span className="text-xs text-neutral-600 dark:text-neutral-400">
            Your heart state is <strong>improving</strong> (+5% vs last week)
          </span>
       </div>
@@ -104,13 +104,13 @@ export const HeartStateWidget: React.FC<HeartStateWidgetProps> = ({ currentState
                 onClick={() => onSelect(state.id)}
                 className={`
                   flex flex-col items-center justify-center min-w-[60px] p-2 rounded-xl transition-all duration-300
-                  ${isSelected ? 'bg-brand-forest shadow-md scale-105' : 'bg-white border border-neutral-line hover:bg-neutral-50'}
+                  ${isSelected ? 'bg-brand-forest shadow-md scale-105' : 'bg-neutral-card border border-neutral-line hover:bg-neutral-50 dark:hover:bg-neutral-800'}
                 `}
               >
                 <div className={`mb-1 ${isSelected ? 'text-white' : state.color.split(' ')[0]}`}>
                   <state.icon size={20} strokeWidth={isSelected ? 2.5 : 2} />
                 </div>
-                <span className={`text-[10px] font-medium ${isSelected ? 'text-white' : 'text-neutral-500'}`}>
+                <span className={`text-[10px] font-medium ${isSelected ? 'text-white' : 'text-neutral-500 dark:text-neutral-400'}`}>
                   {state.label}
                 </span>
               </button>

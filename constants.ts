@@ -1,4 +1,5 @@
-import { PrayerStatus } from './types';
+
+import { PrayerStatus, PrayerSettings } from './types';
 import type { Prayer, User, QadaStats, PrayerPartner, RakibGroup, Surah, Ayah } from './types';
 
 // Image Assets (High quality Unsplash IDs)
@@ -17,6 +18,19 @@ export const MOCK_USER: User = {
   location: "Sampang, Indonesia",
   hijriDate: "9 Dhu al-Hijjah, 1445 AH",
   avatar: IMAGES.avatar,
+};
+
+export const DEFAULT_PRAYER_SETTINGS: PrayerSettings = {
+  method: 'MuslimWorldLeague', // Default safe standard
+  madhab: 'Standard', // Standard (Shafi/Maliki/Hanbali) is safer default than Hanafi globally
+  offsets: {
+    fajr: 0,
+    sunrise: 0,
+    dhuhr: 0,
+    asr: 0,
+    maghrib: 0,
+    isha: 0
+  }
 };
 
 export const INITIAL_PRAYERS: Prayer[] = [
@@ -48,7 +62,7 @@ export const STATUS_COLORS = {
   [PrayerStatus.Late]: 'bg-status-late text-white',
   [PrayerStatus.Missed]: 'bg-status-missed text-white',
   [PrayerStatus.QadaDone]: 'bg-status-qada text-white',
-  [PrayerStatus.Upcoming]: 'bg-neutral-100 text-neutral-500',
+  [PrayerStatus.Upcoming]: 'bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400',
 };
 
 export const STATUS_LABELS = {

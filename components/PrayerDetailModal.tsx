@@ -73,8 +73,8 @@ export const PrayerDetailModal: React.FC<PrayerDetailModalProps> = ({ prayer, is
     onClose();
   };
 
-  const isCompleted = [PrayerStatus.Jamaah, PrayerStatus.Home, PrayerStatus.Late, PrayerStatus.QadaDone].includes(status);
-  const isMissedOrLate = [PrayerStatus.Missed, PrayerStatus.Late].includes(status);
+  const isCompleted = ([PrayerStatus.Jamaah, PrayerStatus.Home, PrayerStatus.Late, PrayerStatus.QadaDone] as PrayerStatus[]).includes(status);
+  const isMissedOrLate = ([PrayerStatus.Missed, PrayerStatus.Late] as PrayerStatus[]).includes(status);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">

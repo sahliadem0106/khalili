@@ -1,10 +1,13 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Search, ArrowLeft, ChevronRight, ChevronLeft, Bookmark, PlayCircle, Book, PenTool, List, Share2, Settings, X, Menu, Copy, Check, RotateCcw, Sparkles } from 'lucide-react';
+import { Search, ArrowLeft, ChevronRight, ChevronLeft, Bookmark, PlayCircle, Book, PenTool, List, Share2, Settings, X, Menu, Copy, Check, RotateCcw, Sparkles, FileQuestion } from 'lucide-react';
 import { MOCK_SURAHS } from '../constants';
-import { MUSHAF_DATA } from '../data/quran-data';
+import QURAN_FULL_DATA from '../data/quran-full';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from './ui/Button';
+
+// Alias the full data to MUSHAF_DATA for compatibility
+const MUSHAF_DATA = QURAN_FULL_DATA;
 
 // Standard Madani Mushaf Juz Start Pages (1-30)
 const JUZ_START_PAGES = [
@@ -16,10 +19,10 @@ const JUZ_START_PAGES = [
 // Styled Number Marker Component
 const AyahMarker = ({ number }: { number: number }) => (
   <span className="inline-flex items-center justify-center w-8 h-8 mx-1 align-middle relative select-none font-sans">
-    <svg viewBox="0 0 40 40" className="w-full h-full text-brand-forest/30 fill-current absolute inset-0">
+    <svg viewBox="0 0 40 40" className="w-full h-full text-brand-forest/30 dark:text-brand-mint/30 fill-current absolute inset-0">
        <path d="M20,5 A15,15 0 1,0 20,35 A15,15 0 1,0 20,5 Z M20,1 A19,19 0 1,1 20,39 A19,19 0 1,1 20,1 Z" fillRule="evenodd" />
     </svg>
-    <span className="text-[10px] font-bold text-brand-forest relative z-10 mt-1">{number}</span>
+    <span className="text-[10px] font-bold text-brand-forest dark:text-brand-mint relative z-10 mt-1">{number}</span>
   </span>
 );
 
@@ -27,26 +30,26 @@ const AyahMarker = ({ number }: { number: number }) => (
 const SurahHeader = ({ nameArabic, nameEnglish, number }: { nameArabic: string, nameEnglish: string, number: number }) => (
   <div 
     id={`surah-header-${number}`}
-    className="w-full my-10 relative py-6 border-y-2 border-double border-amber-400/40 bg-[#fdf6e3] rounded-xl shadow-sm select-none scroll-mt-24" 
+    className="w-full my-10 relative py-6 border-y-2 border-double border-amber-400/40 bg-[#fdf6e3] dark:bg-neutral-800 rounded-xl shadow-sm select-none scroll-mt-24" 
     dir="ltr"
   >
      <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]" />
      <div className="relative z-10 flex flex-col items-center justify-center space-y-2">
         {/* Decorative frame */}
-        <div className="flex items-center space-x-3 text-amber-600/60">
+        <div className="flex items-center space-x-3 text-amber-600/60 dark:text-amber-400/60">
            <span className="h-px w-12 bg-current"></span>
            <span className="text-[10px] font-bold tracking-widest uppercase">Surah {number}</span>
            <span className="h-px w-12 bg-current"></span>
         </div>
-        <h1 className="text-4xl text-brand-forest font-bold drop-shadow-sm font-quran mb-1">{nameArabic}</h1>
-        <span className="text-sm text-neutral-500 font-medium tracking-wide">{nameEnglish}</span>
+        <h1 className="text-4xl text-brand-forest dark:text-brand-mint font-bold drop-shadow-sm font-quran mb-1">{nameArabic}</h1>
+        <span className="text-sm text-neutral-500 dark:text-neutral-400 font-medium tracking-wide">{nameEnglish}</span>
      </div>
   </div>
 );
 
 // Bismillah Component
 const Bismillah = () => (
-  <div className="my-8 text-2xl md:text-3xl text-neutral-600 font-quran text-center select-none w-full" dir="rtl">
+  <div className="my-8 text-2xl md:text-3xl text-neutral-600 dark:text-neutral-300 font-quran text-center select-none w-full" dir="rtl">
      بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
   </div>
 );
@@ -171,7 +174,11 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
   };
 
   const goToPage = (pageNum: number) => {
-    if (pageNum >= 1 && pageNum <= 604) {
+    // Ensure page is within bounds of loaded data
+    const availablePages = Object.keys(MUSHAF_DATA).map(Number);
+    const maxPage = Math.max(...availablePages);
+    
+    if (pageNum >= 1 && pageNum <= maxPage) {
       setCurrentPage(pageNum);
       setMode('mushaf');
       setIsNavOpen(false);
@@ -257,6 +264,24 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
     return bookmarks.has(`ayah:${page}:${ayah}`);
   };
 
+  // Memoized Filtered Lists
+  const filteredSurahs = useMemo(() => {
+     return MOCK_SURAHS.filter(s => 
+        s.englishName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        s.name.includes(searchQuery) ||
+        s.number.toString() === searchQuery
+     );
+  }, [searchQuery]);
+
+  const filteredJuzs = useMemo(() => {
+     return JUZ_START_PAGES.map((startPage, index) => {
+        const juzNum = index + 1;
+        return { juzNum, startPage };
+     }).filter(item => 
+        !searchQuery || `juz ${item.juzNum}`.includes(searchQuery.toLowerCase())
+     );
+  }, [searchQuery]);
+
   // --- VIEW 1: INDEX (List) ---
   if (mode === 'list') {
     return (
@@ -279,7 +304,7 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                <button 
                  id="quran-resume-btn"
                  onClick={() => goToPage(currentPage)}
-                 className="bg-white text-brand-forest border border-brand-forest px-3 py-1.5 rounded-full text-xs font-bold flex items-center shadow-sm hover:bg-brand-mint transition-colors"
+                 className="bg-neutral-card text-brand-forest border border-brand-forest px-3 py-1.5 rounded-full text-xs font-bold flex items-center shadow-sm hover:bg-brand-mint transition-colors"
                >
                   <RotateCcw size={14} className="me-1" /> Pg {currentPage}
                </button>
@@ -295,22 +320,22 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('quran_search')}
-            className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-3.5 rounded-xl bg-white border-none shadow-sm focus:ring-2 focus:ring-brand-teal focus:outline-none text-sm"
+            className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-3.5 rounded-xl bg-neutral-card border-none shadow-sm focus:ring-2 focus:ring-brand-teal focus:outline-none text-sm text-neutral-primary"
           />
         </div>
 
         {/* Tabs */}
         <div className="px-4" id="quran-list-tabs">
-           <div className="flex p-1 bg-white rounded-xl shadow-sm border border-neutral-100">
+           <div className="flex p-1 bg-neutral-card rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-700">
               <button 
                  onClick={() => setListTab('surah')}
-                 className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${listTab === 'surah' ? 'bg-brand-forest text-white shadow' : 'text-neutral-500 hover:bg-neutral-50'}`}
+                 className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${listTab === 'surah' ? 'bg-brand-forest text-white shadow' : 'text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800'}`}
               >
                  {t('quran')}
               </button>
               <button 
                  onClick={() => setListTab('juz')}
-                 className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${listTab === 'juz' ? 'bg-brand-forest text-white shadow' : 'text-neutral-500 hover:bg-neutral-50'}`}
+                 className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${listTab === 'juz' ? 'bg-brand-forest text-white shadow' : 'text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800'}`}
               >
                  {t('quran_juz')}
               </button>
@@ -320,67 +345,83 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
         {/* List Content */}
         <div className="space-y-2 px-4 pb-8">
           {listTab === 'surah' ? (
-             MOCK_SURAHS.filter(s => 
-                s.englishName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                s.name.includes(searchQuery) ||
-                s.number.toString() === searchQuery
-             ).map((surah) => (
-               <div 
-                 key={surah.number}
-                 onClick={() => goToSurah(surah.number)}
-                 className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-sm flex items-center justify-between cursor-pointer hover:border-brand-mint active:scale-[0.99] transition-all group"
-               >
-                  <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                     <div className="w-10 h-10 bg-neutral-50 rounded-lg flex items-center justify-center relative rotate-45 border border-neutral-200 group-hover:border-brand-forest group-hover:bg-brand-forest group-hover:text-white transition-colors">
-                        <span className="font-bold text-sm -rotate-45">{surah.number}</span>
-                     </div>
-                     <div>
-                        <h3 className="font-bold text-neutral-primary text-sm">{surah.englishName}</h3>
-                        <p className="text-xs text-neutral-muted">{surah.englishNameTranslation}</p>
-                     </div>
+             filteredSurahs.length > 0 ? (
+               filteredSurahs.map((surah, index) => (
+                 <div 
+                   key={surah.number}
+                   id={index === 0 ? 'quran-surah-list-first' : undefined}
+                   onClick={() => goToSurah(surah.number)}
+                   className="bg-neutral-card p-4 rounded-2xl border border-neutral-100 dark:border-neutral-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-brand-mint dark:hover:border-brand-forest active:scale-[0.99] transition-all group"
+                 >
+                    <div className="flex items-center space-x-4 rtl:space-x-reverse">
+                       <div className="w-10 h-10 bg-neutral-50 dark:bg-neutral-800 rounded-lg flex items-center justify-center relative rotate-45 border border-neutral-200 dark:border-neutral-700 group-hover:border-brand-forest group-hover:bg-brand-forest group-hover:text-white transition-colors">
+                          <span className="font-bold text-sm -rotate-45 dark:text-neutral-300 group-hover:text-white">{surah.number}</span>
+                       </div>
+                       <div>
+                          <h3 className="font-bold text-neutral-primary text-sm">{surah.englishName}</h3>
+                          <p className="text-xs text-neutral-muted">{surah.englishNameTranslation}</p>
+                       </div>
+                    </div>
+                    <div className="text-end">
+                       <p className="font-quran font-bold text-xl text-neutral-700 dark:text-neutral-300 group-hover:text-brand-forest dark:group-hover:text-brand-mint transition-colors">{surah.name}</p>
+                       <div className="flex items-center justify-end space-x-1 rtl:space-x-reverse mt-1">
+                          <span className={`w-1.5 h-1.5 rounded-full ${surah.revelationType === 'Meccan' ? 'bg-orange-400' : 'bg-brand-teal'}`}></span>
+                          <p className="text-[10px] text-neutral-400 font-medium uppercase">
+                             {surah.revelationType}
+                          </p>
+                       </div>
+                    </div>
+                 </div>
+               ))
+             ) : (
+               // Empty State for Surah
+               <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-3 text-neutral-400">
+                     <FileQuestion size={24} />
                   </div>
-                  <div className="text-end">
-                     <p className="font-quran font-bold text-xl text-neutral-700 group-hover:text-brand-forest transition-colors">{surah.name}</p>
-                     <div className="flex items-center justify-end space-x-1 rtl:space-x-reverse mt-1">
-                        <span className={`w-1.5 h-1.5 rounded-full ${surah.revelationType === 'Meccan' ? 'bg-orange-400' : 'bg-brand-teal'}`}></span>
-                        <p className="text-[10px] text-neutral-400 font-medium uppercase">
-                           {surah.revelationType}
-                        </p>
-                     </div>
-                  </div>
+                  <p className="text-neutral-500 font-medium text-sm">{t('quran_no_results').replace('{query}', searchQuery)}</p>
+                  <button onClick={() => setSearchQuery('')} className="mt-2 text-brand-forest text-xs font-bold hover:underline">
+                     {t('dua_clear')}
+                  </button>
                </div>
-             ))
+             )
           ) : (
              // Juz List
-             JUZ_START_PAGES.map((startPage, index) => {
-                const juzNum = index + 1;
-                // Basic calculation for Hizb based on Juz
-                const startHizb = (juzNum - 1) * 2 + 1;
-                const endHizb = startHizb + 1;
-                
-                if (searchQuery && !`juz ${juzNum}`.includes(searchQuery.toLowerCase())) return null;
-                
-                return (
-                   <div 
-                     key={juzNum}
-                     onClick={() => goToJuz(juzNum)}
-                     className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-sm flex items-center justify-between cursor-pointer hover:border-brand-mint active:scale-[0.99] transition-all group"
-                   >
-                      <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                         <div className="w-12 h-12 rounded-full bg-neutral-50 text-brand-forest flex items-center justify-center font-bold font-mono text-sm border-2 border-transparent group-hover:border-brand-forest group-hover:bg-brand-mint transition-all">
-                            {juzNum}
-                         </div>
-                         <div>
-                            <span className="font-bold text-neutral-primary block text-sm">{t('quran_juz')} {juzNum}</span>
-                            <span className="text-xs text-neutral-400 font-medium">Hizb {startHizb} - {endHizb}</span>
-                         </div>
-                      </div>
-                      <div className="text-end">
-                         <span className="text-[10px] text-neutral-400 font-mono bg-neutral-50 px-2 py-1 rounded group-hover:bg-white">Page {startPage}</span>
-                      </div>
-                   </div>
-                );
-             })
+             filteredJuzs.length > 0 ? (
+               filteredJuzs.map(({ juzNum, startPage }) => {
+                  const startHizb = (juzNum - 1) * 2 + 1;
+                  const endHizb = startHizb + 1;
+                  
+                  return (
+                     <div 
+                       key={juzNum}
+                       onClick={() => goToJuz(juzNum)}
+                       className="bg-neutral-card p-4 rounded-2xl border border-neutral-100 dark:border-neutral-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-brand-mint dark:hover:border-brand-forest active:scale-[0.99] transition-all group"
+                     >
+                        <div className="flex items-center space-x-4 rtl:space-x-reverse">
+                           <div className="w-12 h-12 rounded-full bg-neutral-50 dark:bg-neutral-800 text-brand-forest dark:text-brand-mint flex items-center justify-center font-bold font-mono text-sm border-2 border-transparent group-hover:border-brand-forest group-hover:bg-brand-mint transition-all">
+                              {juzNum}
+                           </div>
+                           <div>
+                              <span className="font-bold text-neutral-primary block text-sm">{t('quran_juz')} {juzNum}</span>
+                              <span className="text-xs text-neutral-400 font-medium">Hizb {startHizb} - {endHizb}</span>
+                           </div>
+                        </div>
+                        <div className="text-end">
+                           <span className="text-[10px] text-neutral-400 font-mono bg-neutral-50 dark:bg-neutral-800 px-2 py-1 rounded group-hover:bg-white dark:group-hover:bg-neutral-900">Page {startPage}</span>
+                        </div>
+                     </div>
+                  );
+               })
+             ) : (
+               // Empty State for Juz
+               <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-3 text-neutral-400">
+                     <FileQuestion size={24} />
+                  </div>
+                  <p className="text-neutral-500 font-medium text-sm">{t('quran_no_results').replace('{query}', searchQuery)}</p>
+               </div>
+             )
           )}
         </div>
       </div>
@@ -389,21 +430,21 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
 
   // --- VIEW 2: MUSHAF (Page View) ---
   return (
-    <div className="fixed inset-0 z-50 bg-[#fffcf5] flex flex-col animate-in slide-in-from-right duration-300">
+    <div className="fixed inset-0 z-50 bg-[#fffcf5] dark:bg-[#1f1f1f] flex flex-col animate-in slide-in-from-right duration-300">
       
       {/* 1. HEADER */}
-      <div className="bg-[#fffcf5]/95 backdrop-blur-sm z-30 border-b border-amber-100/50 px-4 py-2 shadow-sm flex justify-between items-center">
+      <div className="bg-[#fffcf5]/95 dark:bg-[#1f1f1f]/95 backdrop-blur-sm z-30 border-b border-amber-100/50 dark:border-neutral-700 px-4 py-2 shadow-sm flex justify-between items-center">
          <div className="flex items-center">
-            <button onClick={() => setMode('list')} className="p-2 -ml-2 rtl:ml-0 rtl:-mr-2 rounded-full hover:bg-amber-100 text-neutral-600">
+            <button onClick={() => setMode('list')} className="p-2 -ml-2 rtl:ml-0 rtl:-mr-2 rounded-full hover:bg-amber-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
                <BackIcon size={24} />
             </button>
-            <button onClick={() => setIsNavOpen(true)} className="p-2 rounded-full hover:bg-amber-100 text-neutral-600 ms-1">
+            <button onClick={() => setIsNavOpen(true)} className="p-2 rounded-full hover:bg-amber-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 ms-1">
                <Menu size={24} />
             </button>
          </div>
          
          <div className="text-center cursor-pointer" onClick={() => setIsNavOpen(true)}>
-            <span className="font-sans font-bold text-sm text-neutral-800 block">
+            <span className="font-sans font-bold text-sm text-neutral-800 dark:text-neutral-200 block">
                {currentSurahName}
             </span>
             <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-medium">
@@ -414,7 +455,7 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
          <div className="flex space-x-1 rtl:space-x-reverse w-[80px] justify-end">
             <button 
                onClick={togglePageBookmark}
-               className={`p-2 rounded-full hover:bg-amber-100 transition-colors ${bookmarks.has(`page:${currentPage}`) ? 'text-brand-forest' : 'text-neutral-400'}`}
+               className={`p-2 rounded-full hover:bg-amber-100 dark:hover:bg-neutral-800 transition-colors ${bookmarks.has(`page:${currentPage}`) ? 'text-brand-forest dark:text-brand-mint' : 'text-neutral-400'}`}
             >
                <Bookmark size={20} className={bookmarks.has(`page:${currentPage}`) ? 'fill-current' : ''} />
             </button>
@@ -450,7 +491,7 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
 
                   <div className="text-center font-quran">
                      <div 
-                        className="text-right leading-[4rem] md:leading-[5rem] text-3xl md:text-4xl text-neutral-800 quran-justify" 
+                        className="text-right leading-[4rem] md:leading-[5rem] text-3xl md:text-4xl text-neutral-800 dark:text-neutral-200 quran-justify" 
                         dir="rtl"
                      >
                         {page.ayahs.map((ayah) => {
@@ -485,7 +526,7 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                                     }}
                                     className={`
                                        inline px-1 rounded-lg cursor-pointer transition-colors duration-200 relative
-                                       ${selectedAyahNum === ayah.numberInSurah && selectedPage === page.pageNumber ? 'bg-brand-mint/60 text-brand-forest' : 'hover:bg-amber-50'}
+                                       ${selectedAyahNum === ayah.numberInSurah && selectedPage === page.pageNumber ? 'bg-brand-mint/60 dark:bg-brand-forest/60 text-brand-forest dark:text-brand-mint' : 'hover:bg-amber-50 dark:hover:bg-neutral-700'}
                                     `}
                                  >
                                     {/* Tiny visual marker if ayah is bookmarked */}
@@ -506,7 +547,7 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
             ))}
 
             <div className="text-center py-12 text-neutral-400">
-               <div className="w-12 h-12 border-4 border-neutral-200 border-t-brand-forest rounded-full animate-spin mx-auto mb-4"></div>
+               <div className="w-12 h-12 border-4 border-neutral-200 dark:border-neutral-700 border-t-brand-forest rounded-full animate-spin mx-auto mb-4"></div>
                <p className="text-xs">End of Loaded Content</p>
             </div>
          </div>
@@ -516,23 +557,23 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
       {isNavOpen && (
          <div className="fixed inset-0 z-[60] flex justify-end">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in" onClick={() => setIsNavOpen(false)}></div>
-            <div className="relative w-4/5 max-w-sm bg-white h-full shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col">
-               <div className="p-5 border-b border-neutral-100 bg-neutral-50">
+            <div className="relative w-4/5 max-w-sm bg-neutral-card h-full shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col">
+               <div className="p-5 border-b border-neutral-100 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800">
                   <div className="flex justify-between items-center mb-4">
                      <h3 className="font-bold text-lg text-neutral-primary">Navigation</h3>
                      <button onClick={() => setIsNavOpen(false)}><X size={24} className="text-neutral-400" /></button>
                   </div>
                   {/* Drawer Tabs */}
-                  <div className="flex p-1 bg-white rounded-xl shadow-sm border border-neutral-200">
+                  <div className="flex p-1 bg-neutral-card rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700">
                      <button 
                         onClick={() => setNavTab('surah')}
-                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${navTab === 'surah' ? 'bg-brand-forest text-white shadow' : 'text-neutral-500 hover:bg-neutral-50'}`}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${navTab === 'surah' ? 'bg-brand-forest text-white shadow' : 'text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800'}`}
                      >
                         Surah
                      </button>
                      <button 
                         onClick={() => setNavTab('juz')}
-                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${navTab === 'juz' ? 'bg-brand-forest text-white shadow' : 'text-neutral-500 hover:bg-neutral-50'}`}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${navTab === 'juz' ? 'bg-brand-forest text-white shadow' : 'text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800'}`}
                      >
                         Juz
                      </button>
@@ -546,13 +587,13 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                            <button 
                               key={s.number}
                               onClick={() => goToSurah(s.number)}
-                              className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-neutral-50 border border-transparent hover:border-neutral-200 text-left transition-colors"
+                              className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700 text-left transition-colors"
                            >
                               <div className="flex items-center">
                                  <span className="w-6 text-xs font-bold text-neutral-400">{s.number}</span>
-                                 <span className="font-bold text-neutral-700">{s.englishName}</span>
+                                 <span className="font-bold text-neutral-700 dark:text-neutral-300">{s.englishName}</span>
                               </div>
-                              <span className="font-quran text-brand-forest text-lg">{s.name}</span>
+                              <span className="font-quran text-brand-forest dark:text-brand-mint text-lg">{s.name}</span>
                            </button>
                         ))}
                      </div>
@@ -565,14 +606,14 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                               <button
                                  key={juzNum}
                                  onClick={() => goToJuz(juzNum)}
-                                 className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-neutral-50 border border-transparent hover:border-neutral-200 text-left transition-colors group"
+                                 className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700 text-left transition-colors group"
                               >
                                  <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                                    <div className="w-8 h-8 rounded-full bg-brand-mint text-brand-forest flex items-center justify-center font-bold text-xs">
+                                    <div className="w-8 h-8 rounded-full bg-brand-mint dark:bg-brand-forest/20 text-brand-forest dark:text-brand-mint flex items-center justify-center font-bold text-xs">
                                        {juzNum}
                                     </div>
                                     <div>
-                                       <span className="font-bold text-neutral-700 text-sm">Juz {juzNum}</span>
+                                       <span className="font-bold text-neutral-700 dark:text-neutral-300 text-sm">Juz {juzNum}</span>
                                        <span className="text-[10px] text-neutral-400 block">Hizb {startHizb}-{startHizb+1}</span>
                                     </div>
                                  </div>
@@ -594,16 +635,16 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
             onClick={() => setShowAyahMenu(false)}
          >
             <div 
-               className="bg-white w-full max-w-md rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300" 
+               className="bg-neutral-card w-full max-w-md rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300" 
                onClick={e => e.stopPropagation()}
             >
                
                {!activeSheet ? (
                   <>
                      {/* Menu Header */}
-                     <div className="flex items-center justify-between mb-6 border-b border-neutral-100 pb-4">
+                     <div className="flex items-center justify-between mb-6 border-b border-neutral-100 dark:border-neutral-700 pb-4">
                         <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                           <span className="bg-brand-forest text-white w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold font-mono shadow-lg shadow-brand-forest/30 border-2 border-white">
+                           <span className="bg-brand-forest text-white w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold font-mono shadow-lg shadow-brand-forest/30 border-2 border-white dark:border-neutral-700">
                               {activeAyahData.numberInSurah}
                            </span>
                            <div>
@@ -611,15 +652,15 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                               <p className="text-xs text-neutral-400 font-medium">Page {selectedPage} • Juz {activeAyahData.juz}</p>
                            </div>
                         </div>
-                        <button onClick={() => setShowAyahMenu(false)} className="p-2 rounded-full bg-neutral-50 text-neutral-400 hover:bg-neutral-100">
+                        <button onClick={() => setShowAyahMenu(false)} className="p-2 rounded-full bg-neutral-50 dark:bg-neutral-800 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700">
                            <X size={20} />
                         </button>
                      </div>
 
                      {/* Ayah Preview */}
-                     <div className="bg-amber-50/50 p-5 rounded-2xl border border-amber-100 mb-6 max-h-40 overflow-y-auto no-scrollbar">
-                        <p className="font-quran text-2xl text-right mb-3 leading-loose text-neutral-800" dir="rtl">{activeAyahData.text}</p>
-                        <p className="text-sm text-neutral-600 leading-relaxed">{activeAyahData.translation}</p>
+                     <div className="bg-amber-50/50 dark:bg-neutral-800 p-5 rounded-2xl border border-amber-100 dark:border-neutral-700 mb-6 max-h-40 overflow-y-auto no-scrollbar">
+                        <p className="font-quran text-2xl text-right mb-3 leading-loose text-neutral-800 dark:text-neutral-200" dir="rtl">{activeAyahData.text}</p>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">{activeAyahData.translation}</p>
                      </div>
 
                      {/* Rich Quick Actions Grid */}
@@ -663,33 +704,33 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                ) : (
                   /* Sub-Sheet: Tafsir or Notes */
                   <div className="h-[50vh] flex flex-col">
-                     <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-3">
+                     <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-700 pb-3 mb-3">
                         <button onClick={() => setActiveSheet(null)} className="flex items-center text-sm font-bold text-neutral-500 hover:text-brand-forest">
                            <BackIcon size={18} className="me-1" /> {t('back')}
                         </button>
-                        <span className="font-bold text-neutral-800 text-sm uppercase tracking-wide">{activeSheet === 'tafsir' ? 'Tafsir Ibn Kathir' : 'Reflections'}</span>
+                        <span className="font-bold text-neutral-800 dark:text-neutral-200 text-sm uppercase tracking-wide">{activeSheet === 'tafsir' ? 'Tafsir Ibn Kathir' : 'Reflections'}</span>
                         <div className="w-10"></div>
                      </div>
                      
                      <div className="flex-1 overflow-y-auto no-scrollbar">
                         {activeSheet === 'tafsir' ? (
                            <div className="space-y-4 p-1">
-                              <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-100">
-                                 <h4 className="font-bold text-neutral-800 mb-2">Interpretation of Ayah {activeAyahData.numberInSurah}</h4>
-                                 <p className="text-sm text-neutral-600 leading-relaxed">
+                              <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-xl border border-neutral-100 dark:border-neutral-700">
+                                 <h4 className="font-bold text-neutral-800 dark:text-neutral-200 mb-2">Interpretation of Ayah {activeAyahData.numberInSurah}</h4>
+                                 <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
                                     {t('quran_tafsir_placeholder')}
                                  </p>
                               </div>
                               <div className="space-y-2 opacity-50 px-2">
-                                 <div className="h-2 bg-neutral-100 rounded w-full"></div>
-                                 <div className="h-2 bg-neutral-100 rounded w-5/6"></div>
-                                 <div className="h-2 bg-neutral-100 rounded w-4/6"></div>
+                                 <div className="h-2 bg-neutral-100 dark:bg-neutral-700 rounded w-full"></div>
+                                 <div className="h-2 bg-neutral-100 dark:bg-neutral-700 rounded w-5/6"></div>
+                                 <div className="h-2 bg-neutral-100 dark:bg-neutral-700 rounded w-4/6"></div>
                               </div>
                            </div>
                         ) : (
                            <div className="h-full flex flex-col">
                               <textarea 
-                                 className="flex-1 w-full p-4 rounded-xl bg-neutral-50 border-none resize-none text-sm focus:ring-2 focus:ring-brand-teal/20 outline-none"
+                                 className="flex-1 w-full p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-200 border-none resize-none text-sm focus:ring-2 focus:ring-brand-teal/20 outline-none"
                                  placeholder={t('quran_notes_placeholder')}
                                  autoFocus
                               />
@@ -709,15 +750,15 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
 
 // Helper Component
 const ActionButton = ({ icon: Icon, label, onClick, active = false, color = "brand" }: { icon: any, label: string, onClick: () => void, active?: boolean, color?: "brand" | "rose" }) => {
-   const activeBg = color === "rose" ? "bg-rose-100 text-rose-600" : "bg-brand-mint text-brand-forest";
-   const inactiveBg = "bg-neutral-50 text-neutral-600";
+   const activeBg = color === "rose" ? "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400" : "bg-brand-mint text-brand-forest dark:bg-brand-forest/20 dark:text-brand-mint";
+   const inactiveBg = "bg-neutral-50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400";
    
    return (
       <button onClick={onClick} className="flex flex-col items-center gap-2 group w-full">
-         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-sm group-active:scale-95 ${active ? activeBg : inactiveBg} ${!active && 'group-hover:bg-neutral-100'}`}>
+         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-sm group-active:scale-95 ${active ? activeBg : inactiveBg} ${!active && 'group-hover:bg-neutral-100 dark:group-hover:bg-neutral-700'}`}>
             <Icon size={22} strokeWidth={active ? 2.5 : 1.5} className={active ? "fill-current" : ""} />
          </div>
-         <span className={`text-[10px] font-bold tracking-wide ${active ? (color === 'rose' ? 'text-rose-600' : 'text-brand-forest') : 'text-neutral-500'}`}>{label}</span>
+         <span className={`text-[10px] font-bold tracking-wide ${active ? (color === 'rose' ? 'text-rose-600 dark:text-rose-400' : 'text-brand-forest dark:text-brand-mint') : 'text-neutral-500'}`}>{label}</span>
       </button>
    );
 };

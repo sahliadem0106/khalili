@@ -1,11 +1,12 @@
 
 import React, { useState, useMemo } from 'react';
-import { Search, ArrowLeft, Share2, Copy, Bookmark, Heart, ChevronRight, Sparkles, ChevronLeft } from 'lucide-react';
+import { Search, ArrowLeft, Share2, Copy, Bookmark, Heart, ChevronRight, Sparkles, ChevronLeft, Send, Loader2, RefreshCw } from 'lucide-react';
 import { DUA_DATA } from '../duas';
 import { Dua } from '../types';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { useLanguage } from '../contexts/LanguageContext';
+import { GoogleGenAI, Type } from "@google/genai";
 
 // --- HELPER: Gradient Generator ---
 const getCategoryGradient = (category: string) => {
@@ -52,9 +53,15 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
+  
+  // AI State
+  const [isAiMode, setIsAiMode] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiResult, setAiResult] = useState<(Dua & { advice?: string }) | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const { t, dir } = useLanguage();
   
-  const ArrowIcon = dir === 'rtl' ? ChevronRight : ArrowLeft; // Back is usually ArrowLeft in LTR, but in app header context arrow directions vary. Let's stick to simple logic: arrow points back. In RTL back is right.
   const BackIcon = dir === 'rtl' ? ChevronRight : ArrowLeft; 
   const ForwardIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
@@ -106,6 +113,53 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
     }, 50);
   };
 
+  const handleAiGenerate = async () => {
+    if (!aiPrompt.trim()) return;
+    
+    setIsGenerating(true);
+    setAiResult(null);
+
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `You are a comforting Islamic spiritual companion. A user comes to you with this situation/feeling: "${aiPrompt}". 
+        Please provide:
+        1. A highly relevant, authentic Dua (Supplication) from the Quran or Sunnah in Arabic.
+        2. The Transliteration.
+        3. The English Translation.
+        4. The Source (e.g. Surah Name: Verse, or Hadith Book).
+        5. A brief, comforting spiritual advice or reflection specific to their situation (max 25 words).
+        
+        Return ONLY JSON in this format.`,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              arabic: { type: Type.STRING },
+              transliteration: { type: Type.STRING },
+              translation: { type: Type.STRING },
+              source: { type: Type.STRING },
+              advice: { type: Type.STRING },
+              title: { type: Type.STRING, description: "A short title for the Dua" },
+              category: { type: Type.STRING, description: "The general category of this Dua" }
+            }
+          }
+        }
+      });
+
+      if (response.text) {
+        setAiResult(JSON.parse(response.text));
+      }
+    } catch (error) {
+      console.error("AI Generation failed", error);
+      alert("Sorry, I couldn't generate a Dua right now. Please check your connection.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // --- RENDER ---
 
   return (
@@ -115,7 +169,7 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
       <div className="bg-white sticky top-0 z-20 border-b border-neutral-line px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            {activeCategory && !isSearching ? (
+            {activeCategory && !isSearching && !isAiMode ? (
                <button onClick={() => setActiveCategory(null)} className="p-2 -ml-2 rtl:ml-0 rtl:-mr-2 rounded-full hover:bg-neutral-100">
                   <BackIcon size={20} className="text-neutral-600" />
                </button>
@@ -123,44 +177,139 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
                onBack && <button onClick={onBack} className="p-2 -ml-2 rtl:ml-0 rtl:-mr-2 rounded-full hover:bg-neutral-100"><BackIcon size={20} /></button>
             )}
             <h2 className="text-xl font-bold text-neutral-primary truncate">
-              {isSearching ? t('dua_search_results') : (activeCategory || 'Hisnul Muslim')}
+              {isAiMode ? 'AI Companion' : (isSearching ? t('dua_search_results') : (activeCategory || 'Hisnul Muslim'))}
             </h2>
           </div>
           
-          {onHelp && (
+          <div className="flex items-center space-x-2 rtl:space-x-reverse">
              <button 
-               onClick={handleHelpClick} 
-               className="flex items-center space-x-1.5 rtl:space-x-reverse bg-gradient-to-r from-brand-forest to-brand-teal text-white px-3 py-1.5 rounded-full shadow-md hover:shadow-lg transform transition-all active:scale-95"
+               onClick={() => {
+                 setIsAiMode(!isAiMode);
+                 setActiveCategory(null);
+                 setSearchQuery('');
+               }} 
+               className={`flex items-center justify-center w-9 h-9 rounded-full shadow-sm transition-all active:scale-95 ${isAiMode ? 'bg-brand-forest text-white' : 'bg-white text-brand-forest border border-neutral-200'}`}
              >
-                <Sparkles size={14} className="fill-current" />
-                <span className="text-xs font-bold">{t('dua_guide')}</span>
+                <Sparkles size={16} className={isAiMode ? "fill-current" : ""} />
              </button>
-          )}
+             {onHelp && !isAiMode && (
+               <button onClick={handleHelpClick} className="p-2 rounded-full bg-neutral-100 text-neutral-600">
+                  <span className="sr-only">{t('dua_guide')}</span>
+                  <span className="text-xs font-bold">?</span>
+               </button>
+             )}
+          </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative" id="dua-search">
-          <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
-          <input 
-            type="text" 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t('dua_search_placeholder')}
-            className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-2.5 rounded-xl bg-neutral-100 border-none focus:ring-2 focus:ring-brand-teal focus:bg-white transition-all text-sm"
-          />
-          {searchQuery && (
-             <button onClick={() => setSearchQuery('')} className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-neutral-500 bg-white px-2 py-0.5 rounded-md shadow-sm">
-               {t('dua_clear')}
-             </button>
-          )}
-        </div>
+        {/* Search Bar (Hidden in AI Mode) */}
+        {!isAiMode && (
+          <div className="relative" id="dua-search">
+            <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('dua_search_placeholder')}
+              className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-2.5 rounded-xl bg-neutral-100 border-none focus:ring-2 focus:ring-brand-teal focus:bg-white transition-all text-sm"
+            />
+            {searchQuery && (
+               <button onClick={() => setSearchQuery('')} className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-neutral-500 bg-white px-2 py-0.5 rounded-md shadow-sm">
+                 {t('dua_clear')}
+               </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* MAIN CONTENT AREA */}
       <div className="p-4">
         
+        {/* VIEW 0: AI COMPANION MODE */}
+        {isAiMode && (
+          <div className="animate-in fade-in slide-in-from-top-4 duration-300 space-y-6">
+             <Card className="bg-gradient-to-br from-brand-forest to-brand-teal text-white border-none shadow-lg overflow-hidden relative">
+                <div className="absolute top-0 right-0 p-10 opacity-10">
+                   <Sparkles size={100} />
+                </div>
+                <div className="relative z-10">
+                   <h3 className="font-bold text-lg mb-2 flex items-center"><Sparkles size={18} className="me-2 fill-current" /> Spiritual Guide</h3>
+                   <p className="text-brand-mint text-sm mb-4 opacity-90">
+                      Describe how you are feeling or what you are facing, and I will find a Dua from the Quran or Sunnah specifically for you.
+                   </p>
+                   
+                   <div className="relative">
+                      <textarea 
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                        placeholder="e.g., I am feeling anxious about my exam..." 
+                        className="w-full rounded-xl bg-white/10 border border-white/20 placeholder:text-white/50 text-white p-4 text-sm focus:outline-none focus:bg-white/20 focus:border-white/40 transition-all resize-none h-24"
+                      />
+                      <button 
+                        onClick={handleAiGenerate}
+                        disabled={!aiPrompt.trim() || isGenerating}
+                        className="absolute bottom-3 right-3 rtl:right-auto rtl:left-3 bg-white text-brand-forest p-2 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all hover:bg-brand-mint"
+                      >
+                         {isGenerating ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                      </button>
+                   </div>
+                </div>
+             </Card>
+
+             {aiResult && (
+                <div className="animate-in slide-in-from-bottom-4 duration-500">
+                   <div className="flex items-center justify-between mb-2 px-1">
+                      <h4 className="font-bold text-neutral-primary text-sm uppercase tracking-wider">Recommended Dua</h4>
+                      <button onClick={() => setAiResult(null)} className="text-xs text-neutral-400 flex items-center hover:text-brand-forest">
+                         <RefreshCw size={12} className="me-1" /> Clear
+                      </button>
+                   </div>
+                   <Card className="overflow-hidden border border-brand-mint shadow-md">
+                      <div className="bg-brand-mint/30 px-4 py-3 border-b border-brand-mint/50 flex justify-between items-center">
+                         <span className="text-xs font-bold text-brand-forest uppercase tracking-wide">
+                            {aiResult.title || "Supplication"}
+                         </span>
+                         <div className="flex space-x-1 rtl:space-x-reverse">
+                            <button onClick={() => copyToClipboard(`${aiResult.arabic}\n\n${aiResult.translation}`)} className="p-1.5 text-brand-forest/70 hover:text-brand-forest transition-colors bg-white rounded-md shadow-sm">
+                               <Copy size={14} />
+                            </button>
+                         </div>
+                      </div>
+
+                      <div className="p-5">
+                         <p className="text-2xl sm:text-3xl font-arabic text-right leading-loose text-neutral-primary mb-6" dir="rtl">
+                            {aiResult.arabic}
+                         </p>
+                         <p className="text-sm text-brand-teal font-medium italic mb-3 font-serif leading-relaxed">
+                            {aiResult.transliteration}
+                         </p>
+                         <p className="text-sm text-neutral-600 leading-relaxed mb-4">
+                            {aiResult.translation}
+                         </p>
+                         
+                         {/* Advice Section */}
+                         {aiResult.advice && (
+                            <div className="bg-amber-50 p-3 rounded-lg border border-amber-100 mb-4">
+                               <p className="text-xs text-amber-800 italic">
+                                  <span className="font-bold not-italic text-amber-600 block text-[10px] uppercase mb-1">Reflection</span>
+                                  "{aiResult.advice}"
+                               </p>
+                            </div>
+                         )}
+
+                         <div className="pt-4 border-t border-neutral-line border-dashed">
+                            <p className="text-[10px] text-neutral-400 font-medium uppercase tracking-wide">
+                               Source: <span className="text-neutral-500">{aiResult.source}</span>
+                            </p>
+                         </div>
+                      </div>
+                   </Card>
+                </div>
+             )}
+          </div>
+        )}
+
         {/* VIEW 1: CATEGORY GRID */}
-        {!activeCategory && !isSearching && (
+        {!activeCategory && !isSearching && !isAiMode && (
           <div className="grid grid-cols-2 gap-3">
             {categories.map((category, idx) => (
               <button
@@ -192,7 +341,7 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
         )}
 
         {/* VIEW 2: DUA LIST (Category or Search) */}
-        {(activeCategory || isSearching) && (
+        {(activeCategory || isSearching) && !isAiMode && (
           <div className="space-y-4">
              {filteredDuas.length === 0 ? (
                 <div className="text-center py-10 text-neutral-400">

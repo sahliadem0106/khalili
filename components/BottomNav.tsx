@@ -16,7 +16,7 @@ export const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) 
   ];
 
   return (
-    <div id="bottom-nav" className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-line shadow-nav pb-safe-area z-40">
+    <div id="bottom-nav" className="fixed bottom-0 left-0 right-0 bg-neutral-card border-t border-neutral-line shadow-nav pb-safe-area z-40">
       <div className="flex justify-around items-center h-16 px-1">
         {NAV_ITEMS.map((item) => (
           <button 
@@ -25,7 +25,7 @@ export const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) 
             className={`
               flex flex-col items-center justify-center min-w-[3.5rem] py-1
               transition-colors duration-200 cursor-pointer
-              ${activeTab === item.id ? 'text-brand-forest' : 'text-neutral-400 hover:text-neutral-600'}
+              ${activeTab === item.id ? 'text-brand-forest' : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300'}
             `}
           >
             <item.icon 
@@ -40,7 +40,7 @@ export const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) 
         ))}
       </div>
       {/* Safe Area Spacer for iOS home indicator */}
-      <div className="h-5 w-full bg-white"></div>
+      <div className="h-5 w-full bg-neutral-card"></div>
     </div>
   );
 };

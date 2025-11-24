@@ -198,6 +198,7 @@ export const translations = {
     quran_play: "Play Audio",
     quran_notes_placeholder: "Add your reflections on this verse...",
     quran_tafsir_placeholder: "Tafsir Ibn Kathir content would be loaded here for this Ayah...",
+    quran_no_results: "No Surahs found matching '{query}'",
 
     // Tour
     tour_skip: "Skip",
@@ -247,6 +248,8 @@ export const translations = {
     tour_quran_search_content: "Quickly find any Surah by name or number.",
     tour_quran_tabs_title: "Browse Modes",
     tour_quran_tabs_content: "Switch between Surah list and Juz/Hizb index.",
+    tour_quran_item_title: "Read Surah",
+    tour_quran_item_content: "Tap any Surah to open the Mushaf view. You can also tap a Juz to jump to a specific part.",
 
     // Splash
     splash_slogan: "Ascend Together",
@@ -452,6 +455,7 @@ export const translations = {
     quran_play: "تشغيل الصوت",
     quran_notes_placeholder: "أضف خواطرك حول هذه الآية...",
     quran_tafsir_placeholder: "سيتم تحميل تفسير ابن كثير لهذه الآية هنا...",
+    quran_no_results: "لا توجد سور مطابقة لـ '{query}'",
 
     // Tour
     tour_skip: "تخطي",
@@ -501,6 +505,8 @@ export const translations = {
     tour_quran_search_content: "اعثر بسرعة على أي سورة بالاسم أو الرقم.",
     tour_quran_tabs_title: "أوضاع التصفح",
     tour_quran_tabs_content: "تنقل بين قائمة السور وفهرس الأجزاء/الأحزاب.",
+    tour_quran_item_title: "قراءة السورة",
+    tour_quran_item_content: "اضغط على أي سورة لفتح المصحف. يمكنك أيضاً الضغط على الجزء للانتقال.",
 
     // Splash
     splash_slogan: "نرتقي معاً",

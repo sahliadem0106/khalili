@@ -16,13 +16,17 @@ import { HeartStateWidget } from './components/HeartStateWidget';
 import { PrayerDetailModal } from './components/PrayerDetailModal';
 import { RakibSystem } from './components/RakibSystem';
 import { DuaPage } from './components/DuaPage';
-import { QuranReader } from './components/QuranReader'; // Import the new component
+import { QuranReader } from './components/QuranReader'; 
+import { HabitTracker } from './components/HabitTracker';
 import { GuidedTour, TourStep } from './components/GuidedTour';
 import { SplashScreen } from './components/SplashScreen';
+import { MurshidChat } from './components/MurshidChat'; // New Import
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { ThemeProvider } from './contexts/ThemeContext'; // Import ThemeProvider
 import { MOCK_USER, INITIAL_PRAYERS, MOCK_QADA } from './constants';
 import { Prayer, PrayerStatus, ActionId, HeartCondition } from './types';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Loader2, MessageCircle } from 'lucide-react';
+import { fetchPrayerTimes } from './services/prayerService';
 
 const AppContent: React.FC = () => {
   // State management
@@ -32,10 +36,12 @@ const AppContent: React.FC = () => {
   });
   
   const [user, setUser] = useState(MOCK_USER);
+  const [loadingLocation, setLoadingLocation] = useState(false);
   
   // UI State
   const [isTasbihOpen, setIsTasbihOpen] = useState(false);
   const [isQiblaOpen, setIsQiblaOpen] = useState(false);
+  const [isMurshidOpen, setIsMurshidOpen] = useState(false); // Chat State
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [isTourOpen, setIsTourOpen] = useState(false);
@@ -51,6 +57,50 @@ const AppContent: React.FC = () => {
 
   // References for scrolling
   const qadaRef = useRef<HTMLDivElement>(null);
+
+  // Initialize Real Data
+  useEffect(() => {
+    const initData = async () => {
+      // Check if we have fresh data for today
+      const lastFetchDate = localStorage.getItem('muslimDaily_lastFetchDate');
+      const todayStr = new Date().toDateString();
+
+      if (lastFetchDate !== todayStr) {
+        setLoadingLocation(true);
+        // Default Coordinates (Mecca) if geolocation fails
+        let lat = 21.4225;
+        let long = 39.8262;
+
+        if (navigator.geolocation) {
+          try {
+            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+            });
+            lat = position.coords.latitude;
+            long = position.coords.longitude;
+          } catch (e) {
+            console.log("Geolocation failed, using default.");
+          }
+        }
+
+        const data = await fetchPrayerTimes(lat, long);
+        if (data) {
+          // Merge new times with existing status if possible, or reset status
+          // For simplicity, we reset status if it's a new day, but in a real app we'd check DB
+          setPrayers(data.prayers);
+          setUser(prev => ({
+             ...prev,
+             hijriDate: data.hijriDate,
+             location: data.locationName // Ideally reverse geocode this
+          }));
+          localStorage.setItem('muslimDaily_lastFetchDate', todayStr);
+        }
+        setLoadingLocation(false);
+      }
+    };
+
+    initData();
+  }, []);
 
   // Persistence
   useEffect(() => {
@@ -77,6 +127,9 @@ const AppContent: React.FC = () => {
       case 'dua':
         setActiveTab('dua');
         break;
+      case 'habits':
+        setActiveTab('habits');
+        break;
       case 'partners':
         setActiveTab('partners');
         break;
@@ -94,7 +147,7 @@ const AppContent: React.FC = () => {
       case 'goals':
         setActiveTab('stats');
         break;
-      case 'lectures': // Renamed from 'quran' in QuickActions initially to lectures, but now we have a real Quran tab
+      case 'lectures': 
         setActiveTab('quran'); 
         break;
       default:
@@ -118,24 +171,22 @@ const AppContent: React.FC = () => {
     const distanceX = touchStartRef.current.x - touchEndRef.current.x;
     const distanceY = touchStartRef.current.y - touchEndRef.current.y;
     const isHorizontal = Math.abs(distanceX) > Math.abs(distanceY);
-    const minDistance = 50; // Minimum swipe distance in px
+    const minDistance = 50; 
 
     if (isHorizontal && Math.abs(distanceX) > minDistance) {
       const currentIndex = MAIN_TABS.indexOf(activeTab);
-      if (currentIndex === -1) return; // Don't swipe if on a sub-page like 'dua'
+      if (currentIndex === -1) return; 
 
       const isLeftSwipe = distanceX > 0;
       const isRightSwipe = distanceX < 0;
 
       if (dir === 'rtl') {
-         // RTL Logic: Swipe Right (negative X) -> Next, Swipe Left (positive X) -> Prev
          if (isRightSwipe && currentIndex < MAIN_TABS.length - 1) {
             setActiveTab(MAIN_TABS[currentIndex + 1]);
          } else if (isLeftSwipe && currentIndex > 0) {
             setActiveTab(MAIN_TABS[currentIndex - 1]);
          }
       } else {
-         // LTR Logic: Swipe Left (positive X) -> Next, Swipe Right (negative X) -> Prev
          if (isLeftSwipe && currentIndex < MAIN_TABS.length - 1) {
             setActiveTab(MAIN_TABS[currentIndex + 1]);
          } else if (isRightSwipe && currentIndex > 0) {
@@ -152,6 +203,7 @@ const AppContent: React.FC = () => {
          { targetId: 'app-header', title: t('tour_home_profile_title'), content: t('tour_home_profile_content') },
          { targetId: 'hero-section', title: t('tour_home_hero_title'), content: t('tour_home_hero_content') },
          { targetId: 'next-prayer-card', title: t('tour_home_next_title'), content: t('tour_home_next_content') },
+         { targetId: 'murshid-fab', title: 'Al-Murshid', content: 'Tap here to chat with your AI spiritual companion for guidance and reflection.' },
          { targetId: 'quick-actions', title: t('tour_home_quick_title'), content: t('tour_home_quick_content') },
          { targetId: 'prayer-list', title: t('tour_home_list_title'), content: t('tour_home_list_content') },
          { targetId: 'bottom-nav', title: t('tour_home_nav_title'), content: t('tour_home_nav_content') },
@@ -179,6 +231,7 @@ const AppContent: React.FC = () => {
        'quran': [
           { targetId: 'quran-list-search', title: t('tour_quran_search_title'), content: t('tour_quran_search_content') },
           { targetId: 'quran-list-tabs', title: t('tour_quran_tabs_title'), content: t('tour_quran_tabs_content') },
+          { targetId: 'quran-surah-list-first', title: t('tour_quran_item_title'), content: t('tour_quran_item_content') },
        ]
      };
      return tours[activeTab] || [];
@@ -194,6 +247,8 @@ const AppContent: React.FC = () => {
         return <QuranReader onHelp={() => setIsTourOpen(true)} />;
       case 'partners':
         return <RakibSystem />;
+      case 'habits':
+        return <HabitTracker onBack={() => setActiveTab('home')} />;
       case 'lectures':
         return <LecturesPage />;
       case 'profile':
@@ -205,11 +260,20 @@ const AppContent: React.FC = () => {
         return (
           <div className="animate-in fade-in duration-500">
             <Hero />
-            <PrayerCard 
-              nextPrayerName={nextPrayer.name}
-              nextPrayerTime={nextPrayer.time}
-              currentTimeStr="14:42" 
-            />
+            
+            {loadingLocation ? (
+               <div className="mb-6 p-6 bg-white rounded-2xl shadow-sm flex flex-col items-center justify-center text-neutral-400 space-y-3 border border-neutral-100">
+                  <Loader2 className="animate-spin text-brand-forest" size={32} />
+                  <p className="text-xs font-medium">Calibrating location & prayer times...</p>
+               </div>
+            ) : (
+               <PrayerCard 
+                 nextPrayerName={nextPrayer.name}
+                 nextPrayerTime={nextPrayer.time}
+                 currentTimeStr="--" 
+               />
+            )}
+
             <HeartStateWidget 
               currentState={user.currentHeartState}
               onSelect={handleHeartStateSelect}
@@ -239,7 +303,7 @@ const AppContent: React.FC = () => {
       {/* Splash Screen Layer */}
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
-      <div className="max-w-md mx-auto bg-neutral-body min-h-screen relative shadow-2xl shadow-black/5 overflow-hidden">
+      <div className="max-w-md mx-auto bg-neutral-body min-h-screen relative shadow-2xl shadow-black/5 overflow-hidden transition-colors duration-300">
         
         {/* Conditional Header: We hide the main header for specific immersive pages like Quran/Dua */}
         <div className="px-5 pt-safe-top space-y-1">
@@ -252,10 +316,26 @@ const AppContent: React.FC = () => {
           </main>
         </div>
 
+        {/* Floating Murshid Action Button */}
+        {!['quran'].includes(activeTab) && (
+          <button
+            id="murshid-fab"
+            onClick={() => setIsMurshidOpen(true)}
+            className="fixed bottom-24 right-5 rtl:right-auto rtl:left-5 w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full shadow-xl flex items-center justify-center text-white z-40 animate-in zoom-in duration-300 hover:scale-110 active:scale-95 transition-all group border-4 border-neutral-body"
+          >
+            <MessageCircle size={28} className="fill-current" />
+            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+            </span>
+          </button>
+        )}
+
         <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
         
         <TasbihModal isOpen={isTasbihOpen} onClose={() => setIsTasbihOpen(false)} />
         <QiblaFinder isOpen={isQiblaOpen} onClose={() => setIsQiblaOpen(false)} />
+        <MurshidChat isOpen={isMurshidOpen} onClose={() => setIsMurshidOpen(false)} user={user} prayers={prayers} />
         
         <PrayerDetailModal 
           isOpen={!!selectedPrayer} 
@@ -278,7 +358,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <LanguageProvider>
-      <AppContent />
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </LanguageProvider>
   );
 };

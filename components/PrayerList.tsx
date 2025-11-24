@@ -48,24 +48,24 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
         <div 
           key={prayer.id}
           onClick={() => onPrayerClick(prayer)}
-          className="bg-white rounded-2xl shadow-sm border border-transparent hover:border-brand-mint cursor-pointer transition-all duration-300 active:scale-[0.99]"
+          className="bg-neutral-card rounded-2xl shadow-sm border border-transparent hover:border-brand-mint dark:hover:border-brand-forest/30 cursor-pointer transition-all duration-300 active:scale-[0.99]"
         >
           <div className="p-4 flex items-center justify-between">
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              <div className={`w-1.5 h-10 rounded-full transition-colors duration-300 ${prayer.status === PrayerStatus.Missed ? 'bg-status-missed' : (prayer.status === PrayerStatus.Upcoming ? 'bg-neutral-200' : 'bg-brand-forest')}`}></div>
+              <div className={`w-1.5 h-10 rounded-full transition-colors duration-300 ${prayer.status === PrayerStatus.Missed ? 'bg-status-missed' : (prayer.status === PrayerStatus.Upcoming ? 'bg-neutral-200 dark:bg-neutral-700' : 'bg-brand-forest')}`}></div>
               <div>
                 <div className="flex items-center space-x-2 rtl:space-x-reverse">
                   <span className="font-semibold text-neutral-primary">{language === 'ar' ? prayer.arabicName : prayer.name}</span>
                   <span className="text-xs text-neutral-muted font-arabic">{language === 'ar' ? prayer.name : prayer.arabicName}</span>
                 </div>
-                <span className="text-xs text-neutral-500 font-mono">{prayer.time}</span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-400 font-mono">{prayer.time}</span>
               </div>
             </div>
 
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
               {/* Metadata Icons */}
               {prayer.khushuRating && prayer.khushuRating > 0 && (
-                <div className="flex items-center space-x-0.5 rtl:space-x-reverse text-yellow-500 bg-yellow-50 px-1.5 py-0.5 rounded-md">
+                <div className="flex items-center space-x-0.5 rtl:space-x-reverse text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 px-1.5 py-0.5 rounded-md">
                   <Star size={10} className="fill-current" />
                   <span className="text-[10px] font-bold">{prayer.khushuRating}</span>
                 </div>
