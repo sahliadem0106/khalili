@@ -65,15 +65,6 @@ export const STATUS_COLORS = {
   [PrayerStatus.Upcoming]: 'bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400',
 };
 
-export const STATUS_LABELS = {
-  [PrayerStatus.Jamaah]: 'Jamaah',
-  [PrayerStatus.Home]: 'Home',
-  [PrayerStatus.Late]: 'Late',
-  [PrayerStatus.Missed]: 'Missed',
-  [PrayerStatus.QadaDone]: 'Made Up',
-  [PrayerStatus.Upcoming]: 'Upcoming',
-};
-
 // --- FULL SURAH LIST ---
 
 export const MOCK_SURAHS: Surah[] = [
@@ -129,7 +120,7 @@ export const MOCK_SURAHS: Surah[] = [
   { number: 50, name: "سُورَةُ ق", englishName: "Qaf", englishNameTranslation: "The Letter 'Qaf'", numberOfAyahs: 45, revelationType: "Meccan" },
   { number: 51, name: "سُورَةُ الذَّارِيَاتِ", englishName: "Adh-Dhariyat", englishNameTranslation: "The Winnowing Winds", numberOfAyahs: 60, revelationType: "Meccan" },
   { number: 52, name: "سُورَةُ الطُّورِ", englishName: "At-Tur", englishNameTranslation: "The Mount", numberOfAyahs: 49, revelationType: "Meccan" },
-  { number: 53, name: "سُورَةُ النَّجْمِ", englishName: "An-Najm", englishNameTranslation: "The Star", numberOfAyahs: 62, revelationType: "Meccan" },
+  { number: 53, name: "سُورَةُ النَّجْمِ", englishName: "An-N বিশ্র", englishNameTranslation: "The Star", numberOfAyahs: 62, revelationType: "Meccan" },
   { number: 54, name: "سُورَةُ القَمَرِ", englishName: "Al-Qamar", englishNameTranslation: "The Moon", numberOfAyahs: 55, revelationType: "Meccan" },
   { number: 55, name: "سُورَةُ الرَّحْمَن", englishName: "Ar-Rahman", englishNameTranslation: "The Beneficent", numberOfAyahs: 78, revelationType: "Medinan" },
   { number: 56, name: "سُورَةُ الوَاقِعَةِ", englishName: "Al-Waqi'ah", englishNameTranslation: "The Inevitable", numberOfAyahs: 96, revelationType: "Meccan" },

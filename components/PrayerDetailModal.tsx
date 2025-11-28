@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Star, AlertTriangle, CheckCircle2, Clock, Home, Users } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Prayer, PrayerStatus, BarrierType } from '../types';
-import { STATUS_COLORS, STATUS_LABELS } from '../constants';
+import { STATUS_COLORS } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface PrayerDetailModalProps {

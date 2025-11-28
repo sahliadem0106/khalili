@@ -75,7 +75,7 @@ const ElegantMarkdown = memo(({ text, isUser }: { text: string, isUser: boolean 
 const Typewriter = ({ text, onTypingEnd }: { text: string, onTypingEnd?: () => void }) => {
   const [displayedText, setDisplayedText] = useState('');
   const indexRef = useRef(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // We monitor 'text' prop changes (streaming updates)
   useEffect(() => {

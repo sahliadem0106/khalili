@@ -341,7 +341,7 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
     return (
       <div className="space-y-4 animate-in fade-in duration-300 pb-24 bg-neutral-body min-h-screen">
         <div className="flex items-center justify-between px-4 pt-6">
-           <h2 className="text-2xl font-bold text-neutral-primary">{t('quran')}</h2>
+           <h2 className="text-2xl font-bold text-neutral-primary">{t('nav_quran')}</h2>
            <div className="flex items-center space-x-2 rtl:space-x-reverse">
              {/* Help Button */}
              {onHelp && (
@@ -385,7 +385,7 @@ export const QuranReader: React.FC<QuranReaderProps> = ({ onHelp }) => {
                  onClick={() => setListTab('surah')}
                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${listTab === 'surah' ? 'bg-brand-forest text-white shadow' : 'text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800'}`}
               >
-                 {t('quran')}
+                 {t('nav_quran')}
               </button>
               <button 
                  onClick={() => setListTab('juz')}

@@ -2,7 +2,7 @@
 import type { ElementType } from 'react';
 
 // TYPES
-export type Language = 'en' | 'ar';
+export type Language = 'en' | 'ar' | 'fr' | 'id' | 'ur' | 'tr' | 'ru' | 'bn' | 'de' | 'zh';
 
 export type BarrierType = 'sleep' | 'work' | 'forgetfulness' | 'travel' | 'procrastination' | 'none';
 export type HeartCondition = 'grateful' | 'anxious' | 'distracted' | 'peaceful' | 'sad' | 'neutral';
@@ -14,6 +14,15 @@ export type ThemeColor = 'forest' | 'blue' | 'rose' | 'violet' | 'amber';
 export interface ThemeConfig {
   mode: ThemeMode;
   color: ThemeColor;
+}
+
+// --- BACKEND & SUBSCRIPTION TYPES ---
+export type SubscriptionTier = 'free' | 'sahib' | 'mukhlis';
+
+export interface UserProfile {
+  id: string;
+  tier: SubscriptionTier;
+  wisdom_tokens: number;
 }
 
 // --- PRAYER SETTINGS TYPES ---
@@ -53,6 +62,8 @@ export interface User {
   hijriDate: string;
   avatar: string;
   currentHeartState?: HeartCondition;
+  email?: string; // Added for auth
+  isAnonymous?: boolean; // Track guest state
 }
 
 export interface QadaStats {

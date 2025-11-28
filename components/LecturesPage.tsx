@@ -46,9 +46,9 @@ export const LecturesPage: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between mb-4">
-         <h2 className="text-2xl font-bold text-neutral-primary">{t('knowledge')}</h2>
+         <h2 className="text-2xl font-bold text-neutral-primary">{t('lectures_title')}</h2>
          <div className="bg-white px-3 py-1 rounded-full text-xs font-medium shadow-sm border border-neutral-line">
-            {t('allCategories')}
+            {t('lectures_all')}
          </div>
       </div>
 
@@ -60,7 +60,7 @@ export const LecturesPage: React.FC = () => {
            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
          />
          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-5 flex flex-col justify-end">
-            <span className="bg-brand-forest text-white text-xs px-2 py-1 rounded-md self-start mb-2">{t('featuredSeries')}</span>
+            <span className="bg-brand-forest text-white text-xs px-2 py-1 rounded-md self-start mb-2">{t('lectures_featured')}</span>
             <h3 className="text-white font-bold text-xl mb-1">Tafseer of Juz Amma</h3>
             <p className="text-white/80 text-sm flex items-center">
                <PlayCircle size={14} className="me-1.5" /> 12 Episodes

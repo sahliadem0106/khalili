@@ -59,11 +59,11 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
   const { t, language } = useLanguage();
 
   const FEELING_TAGS = useMemo(() => [
-    { id: 'grateful', label: t('feel_grateful_habit'), icon: '🤲' },
-    { id: 'tired', label: t('feel_tired_habit'), icon: '😴' },
-    { id: 'rushed', label: t('feel_rushed_habit'), icon: '🏃' },
-    { id: 'focused', label: t('feel_focused_habit'), icon: '👁️' },
-    { id: 'struggling', label: t('feel_struggling_habit'), icon: '🏔️' },
+    { id: 'grateful', label: t('feel_habit_grateful'), icon: '🤲' },
+    { id: 'tired', label: t('feel_habit_tired'), icon: '😴' },
+    { id: 'rushed', label: t('feel_habit_rushed'), icon: '🏃' },
+    { id: 'focused', label: t('feel_habit_focused'), icon: '👁️' },
+    { id: 'struggling', label: t('feel_habit_struggling'), icon: '🏔️' },
   ], [t]);
 
   useEffect(() => {
@@ -196,19 +196,19 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
       <Card>
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">{t('habit_title')}</label>
+            <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">{t('habit_name')}</label>
             <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl">
               <button 
                 onClick={() => setNewHabitType('build')}
                 className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center ${newHabitType === 'build' ? 'bg-neutral-card shadow text-brand-forest' : 'text-neutral-400'}`}
               >
-                <Leaf size={16} className="me-2" /> {t('habit_build')}
+                <Leaf size={16} className="me-2" /> {t('habit_type_build')}
               </button>
               <button 
                 onClick={() => setNewHabitType('quit')}
                 className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center ${newHabitType === 'quit' ? 'bg-neutral-card shadow text-red-500' : 'text-neutral-400'}`}
               >
-                <Shield size={16} className="me-2" /> {t('habit_quit')}
+                <Shield size={16} className="me-2" /> {t('habit_type_quit')}
               </button>
             </div>
           </div>
@@ -253,13 +253,13 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({ onBack }) => {
            onClick={() => setActiveTab('tracker')}
            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === 'tracker' ? 'bg-neutral-card shadow text-brand-forest' : 'text-neutral-500'}`}
          >
-           {t('habit_my_habits')}
+           {t('habit_tab_tracker')}
          </button>
          <button 
            onClick={() => setActiveTab('journey')}
            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === 'journey' ? 'bg-neutral-card shadow text-brand-forest' : 'text-neutral-500'}`}
          >
-           {t('habit_journey')}
+           {t('habit_tab_journey')}
          </button>
       </div>
 

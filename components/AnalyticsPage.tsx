@@ -363,7 +363,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
       case '7d': return t('consistency_7d');
       case '15d': return t('consistency_15d');
       case '30d': return t('consistency_30d');
-      default: return t('consistencyHeatmap');
+      default: return t('dailyPerformance');
     }
   };
 
