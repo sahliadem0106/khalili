@@ -18,7 +18,8 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     return (saved as Language) || 'en';
   });
 
-  const dir = language === 'ar' ? 'rtl' : 'ltr';
+  // RTL languages: Arabic and Urdu
+  const dir = (language === 'ar' || language === 'ur') ? 'rtl' : 'ltr';
 
   useEffect(() => {
     localStorage.setItem('muslimDaily_lang', language);

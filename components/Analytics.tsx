@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BarChart, Bar, ResponsiveContainer, XAxis, Cell } from 'recharts';
 import { Card } from './ui/Card';
@@ -18,13 +17,8 @@ export const Analytics: React.FC = () => {
         </div>
       </div>
 
-      {/* 
-         Use width 99% instead of 100% to prevent a specific Recharts resize loop bug 
-         where container width might be initially 0 or -1 in flex layouts.
-         Also enforce min-height.
-      */}
-      <div className="w-full h-32 min-h-[128px]">
-        <ResponsiveContainer width="99%" height="100%">
+      <div className="h-32 w-full">
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={WEEKLY_STATS_DATA}>
             <XAxis 
               dataKey="day" 

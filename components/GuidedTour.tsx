@@ -22,7 +22,7 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, steps, onClose }
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [isReady, setIsReady] = useState(false);
   const { t, dir } = useLanguage();
-  
+
   const NextIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
   const PrevIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
 
@@ -38,7 +38,7 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, steps, onClose }
       // Unlock body scroll
       document.body.style.overflow = '';
     }
-    
+
     // Cleanup on unmount
     return () => {
       document.body.style.overflow = '';
@@ -57,13 +57,13 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, steps, onClose }
       if (element) {
         // Scroll into view first
         element.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
-        
+
         // Then get rect
         const rect = element.getBoundingClientRect();
         setTargetRect(rect);
       } else {
         console.warn(`Tour target #${step.targetId} not found`);
-        setTargetRect(null); 
+        setTargetRect(null);
       }
     };
 
@@ -107,83 +107,88 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, steps, onClose }
 
     // Default to below, switch to above if not enough space below AND more space above
     if (spaceBelow < tooltipHeight && spaceAbove > spaceBelow) {
-       // Place above
-       tooltipStyle = {
-         bottom: (window.innerHeight - targetRect.top) + 12,
-         left: Math.max(16, Math.min(targetRect.left + (targetRect.width / 2) - 150, window.innerWidth - 316)),
-       };
-       arrowClass = "-bottom-2 left-1/2 -translate-x-1/2 border-t-white border-b-transparent";
+      // Place above
+      tooltipStyle = {
+        bottom: (window.innerHeight - targetRect.top) + 12,
+        left: Math.max(16, Math.min(targetRect.left + (targetRect.width / 2) - 150, window.innerWidth - 316)),
+      };
+      arrowClass = "-bottom-2 left-1/2 -translate-x-1/2 border-t-white border-b-transparent";
     } else {
-       // Place below
-       tooltipStyle = {
-         top: targetRect.bottom + 12,
-         left: Math.max(16, Math.min(targetRect.left + (targetRect.width / 2) - 150, window.innerWidth - 316)),
-       };
-       arrowClass = "-top-2 left-1/2 -translate-x-1/2 border-b-white border-t-transparent";
+      // Place below
+      tooltipStyle = {
+        top: targetRect.bottom + 12,
+        left: Math.max(16, Math.min(targetRect.left + (targetRect.width / 2) - 150, window.innerWidth - 316)),
+      };
+      arrowClass = "-top-2 left-1/2 -translate-x-1/2 border-b-white border-t-transparent";
     }
   }
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] animate-in fade-in duration-300">
-      
-      {/* Spotlight Overlay */}
+
+      {/* Spotlight Overlay with softer, cream-tinted dark */}
       {targetRect && (
-        <div 
+        <div
           className="absolute inset-0 transition-all duration-500 ease-in-out"
           style={{
             // The box-shadow trick to dim everything except the target
-            boxShadow: `0 0 0 9999px rgba(0, 0, 0, 0.75)`,
+            // Using a very dark teal/green instead of pure black for Royal Nature feel
+            boxShadow: `0 0 0 9999px rgba(2, 44, 34, 0.85)`,
             borderRadius: '16px',
             top: targetRect.top - 4,
             left: targetRect.left - 4,
             width: targetRect.width + 8,
             height: targetRect.height + 8,
+
+            // Add a soft glow ring
+            outline: '2px solid rgba(217, 119, 6, 0.5)',
+            outlineOffset: '4px'
           }}
         />
       )}
-      
+
       {/* Clickable backdrop */}
       <div className="absolute inset-0 pointer-events-auto" onClick={(e) => e.stopPropagation()} />
 
-      {/* Tooltip Card */}
+      {/* Tooltip Card - Royal Nature Style */}
       {targetRect && (
-        <div 
-          className="absolute w-[300px] bg-white rounded-2xl shadow-2xl p-5 transition-all duration-500 ease-in-out z-[10000]"
+        <div
+          className="absolute w-[300px] bg-white rounded-2xl p-5 transition-all duration-500 ease-in-out z-[10000] shadow-2xl border border-brand-primary/10"
           style={tooltipStyle}
         >
           {/* Arrow */}
-          <div className={`absolute w-4 h-4 border-8 border-x-transparent ${arrowClass}`} />
+          <div className={`absolute w-4 h-4 border-8 border-x-transparent ${arrowClass.replace('brand-surface', 'white').replace('border-t-white', 'border-t-white').replace('border-b-white', 'border-b-white')}`} />
 
           <div className="flex justify-between items-start mb-3">
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
-               <span className="bg-brand-forest text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                 {currentStep + 1} / {steps.length}
-               </span>
-               <h3 className="font-bold text-neutral-primary text-sm">{step.title}</h3>
+              <span className="bg-brand-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                {currentStep + 1} / {steps.length}
+              </span>
+              <h3 className="font-bold text-brand-forest text-sm">{step.title}</h3>
             </div>
-            <button onClick={onClose} className="text-neutral-400 hover:text-neutral-600">
+            <button onClick={onClose} className="text-neutral-400 hover:text-brand-primary transition-colors">
               <X size={16} />
             </button>
           </div>
-          
-          <p className="text-xs text-neutral-muted mb-5 leading-relaxed">
+
+          <p className="text-xs text-neutral-600 mb-5 leading-relaxed">
             {step.content}
           </p>
 
           <div className="flex justify-between items-center">
-            <button 
-               onClick={handlePrev} 
-               disabled={currentStep === 0}
-               className={`text-neutral-400 hover:text-brand-forest transition-colors ${currentStep === 0 ? 'opacity-0 cursor-default' : 'opacity-100'}`}
+            <button
+              onClick={handlePrev}
+              disabled={currentStep === 0}
+              className={`text-neutral-400 hover:text-brand-primary transition-colors ${currentStep === 0 ? 'opacity-0 cursor-default' : 'opacity-100'}`}
             >
-               <PrevIcon size={20} />
+              <PrevIcon size={20} />
             </button>
-            
+
             <div className="flex space-x-2 rtl:space-x-reverse">
-              <button onClick={onClose} className="text-xs font-medium text-neutral-400 hover:text-neutral-600 px-3 py-2">
+              <button onClick={onClose} className="text-xs font-medium text-neutral-500 hover:text-brand-primary px-3 py-2 transition-colors">
                 {t('tour_skip')}
               </button>
-              <Button size="sm" onClick={handleNext} className="px-4 h-8 text-xs">
+              <Button size="sm" onClick={handleNext} className="px-4 h-8 text-xs bg-brand-primary hover:bg-brand-primary/90 text-white shadow-lg shadow-brand-primary/20">
                 {isLast ? t('tour_finish') : t('tour_next')} {isLast ? null : <NextIcon size={14} className="ms-1" />}
               </Button>
             </div>

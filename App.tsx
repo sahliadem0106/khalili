@@ -1,7 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Header } from './components/Header';
-import { Hero } from './components/Hero';
 import { PrayerCard } from './components/PrayerCard';
 import { QuickActions } from './components/QuickActions';
 import { PrayerList } from './components/PrayerList';
@@ -12,254 +11,417 @@ import { QiblaFinder } from './components/QiblaFinder';
 import { QadaTracker } from './components/QadaTracker';
 import { LecturesPage } from './components/LecturesPage';
 import { ProfilePage } from './components/ProfilePage';
-import { HeartStateWidget } from './components/HeartStateWidget';
+import { DailyDuaWidget } from './components/DailyDuaWidget';
 import { PrayerDetailModal } from './components/PrayerDetailModal';
 import { RakibSystem } from './components/RakibSystem';
 import { DuaPage } from './components/DuaPage';
-import { QuranReader } from './components/QuranReader'; 
-import { HabitTracker } from './components/HabitTracker';
+import { QuranReader } from './components/QuranReader';
 import { GuidedTour, TourStep } from './components/GuidedTour';
-import { SplashScreen } from './components/SplashScreen';
-import { MurshidChat } from './components/MurshidChat';
-import { ZakatCalculator } from './components/ZakatCalculator';
+
+import { NotificationPermission } from './components/NotificationPermission';
+import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
+import { onboardingService } from './services/OnboardingService';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
-import { ThemeProvider } from './contexts/ThemeContext'; 
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { INITIAL_PRAYERS, MOCK_QADA, MOCK_USER } from './constants';
-import { Prayer, ActionId } from './types';
-import { MessageCircle, ChevronLeft } from 'lucide-react';
-import { fetchPrayerTimes } from './services/prayerService';
+import { MOCK_USER, INITIAL_PRAYERS, MOCK_QADA } from './constants';
+import { Prayer, PrayerStatus, ActionId, HeartCondition } from './types';
+import { Sparkles } from 'lucide-react';
+import { App as CapacitorApp } from '@capacitor/app';
+import { InviteService, InviteType } from './services/InviteService';
+import { FamilyService } from './services/FamilyService';
+import { SuhbaService } from './services/SuhbaService';
+import { PartnerService } from './services/PartnerService';
+import { useAuth } from './hooks/useAuth';
+import { AdhanProvider, useAdhan } from './contexts/AdhanContext';
+import { AdhanManager } from './components/AdhanManager';
+import { AdhanOverlay } from './components/AdhanOverlay';
+import { usePrayerTimes } from './hooks/usePrayerTimes';
+import { useNotificationListener } from './hooks/useNotificationListener';
 
 const AppContent: React.FC = () => {
-  // Get Auth State
-  const { user: authUser } = useAuth();
-  const { t, dir } = useLanguage();
-
-  // Data State
+  console.error('[App] AppContent Rendering');
+  // State management
   const [prayers, setPrayers] = useState<Prayer[]>(() => {
     const saved = localStorage.getItem('muslimDaily_prayers');
     return saved ? JSON.parse(saved) : INITIAL_PRAYERS;
   });
-  
-  const [localUser, setLocalUser] = useState(authUser || MOCK_USER);
-  const [qadaStats, setQadaStats] = useState(MOCK_QADA); // In real app, fetch from DB
+
+  const [user, setUser] = useState(MOCK_USER);
 
   // UI State
-  const [activeTab, setActiveTab] = useState('home');
-  const [showSplash, setShowSplash] = useState(true);
-  const [loadingLocation, setLoadingLocation] = useState(false);
-
-  // Modals & Overlays
   const [isTasbihOpen, setIsTasbihOpen] = useState(false);
   const [isQiblaOpen, setIsQiblaOpen] = useState(false);
-  const [isMurshidOpen, setIsMurshidOpen] = useState(false); 
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null);
-  const [isPrayerDetailOpen, setIsPrayerDetailOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
   const [isTourOpen, setIsTourOpen] = useState(false);
 
-  // Feature Views (Full Screen Overlays)
-  const [activeFeature, setActiveFeature] = useState<ActionId | null>(null);
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(() => !onboardingService.isOnboardingComplete());
 
-  // Tour Config
-  const tourSteps: TourStep[] = [
-    { targetId: 'app-header', title: t('tour_home_profile_title'), content: t('tour_home_profile_content') },
-    { targetId: 'hero-section', title: t('tour_home_hero_title'), content: t('tour_home_hero_content') },
-    { targetId: 'next-prayer-card', title: t('tour_home_next_title'), content: t('tour_home_next_content') },
-    { targetId: 'quick-actions', title: t('tour_home_quick_title'), content: t('tour_home_quick_content') },
-    { targetId: 'prayer-list', title: t('tour_home_list_title'), content: t('tour_home_list_content') },
-    { targetId: 'bottom-nav', title: t('tour_home_nav_title'), content: t('tour_home_nav_content') },
-  ];
+  const { isAuthenticated, user: authUser } = useAuth();
+  const { state: adhanState, dismissAdhan, triggerTestAdhan } = useAdhan();
 
-  // Sync Auth User with Local User
+  // Listen for real-time partner/family/suhba notifications
+  const { notifications: inAppNotifications, unreadCount: notificationCount } = useNotificationListener();
+
+  console.error('[App] AppContent useAdhan hook result:', {
+    hasTrigger: !!triggerTestAdhan,
+    adhanStateOfType: typeof adhanState,
+    state: adhanState
+  });
+
+  // Handler for Adhan reminder
+  const handleAdhanRemind = (target: 'partner' | 'family' | 'circle') => {
+    console.log(`[App] Remind ${target} about prayer`);
+    // TODO: Integrate with PartnerService, FamilyService, or SuhbaService
+    alert(`Reminder sent to ${target}!`);
+    dismissAdhan();
+  };
+
+  // Prayer times data for PrayerCard
+  const prayerData = usePrayerTimes();
+
+  // Listen for test adhan event from ProfilePage
   useEffect(() => {
-    if (authUser) {
-      setLocalUser(prev => ({
-        ...prev,
-        ...authUser,
-        // Keep local heart state if not in authUser
-        currentHeartState: authUser.currentHeartState || prev.currentHeartState
-      }));
+    const handleTestAdhan = () => {
+      triggerTestAdhan();
+    };
+    window.addEventListener('testAdhan', handleTestAdhan);
+    return () => window.removeEventListener('testAdhan', handleTestAdhan);
+  }, [triggerTestAdhan]);
+
+  // Trigger onboarding after first-time authentication
+  useEffect(() => {
+    if (isAuthenticated && !onboardingService.isOnboardingComplete()) {
+      setShowOnboarding(true);
     }
-  }, [authUser]);
+  }, [isAuthenticated]);
 
-  // Initialize Real Data (Prayer Times)
+  const { t, dir } = useLanguage();
+
+  // Swipe Navigation Refs
+  const touchStartRef = useRef<{ x: number, y: number } | null>(null);
+  const touchEndRef = useRef<{ x: number, y: number } | null>(null);
+  // Added 'quran' to the main tabs
+  const MAIN_TABS = ['home', 'partners', 'quran', 'lectures', 'stats', 'profile'];
+
+  // References for scrolling
+  const qadaRef = useRef<HTMLDivElement>(null);
+
+  // Persistence
   useEffect(() => {
-    const initData = async () => {
-      const lastFetchDate = localStorage.getItem('muslimDaily_lastFetchDate');
-      const todayStr = new Date().toDateString();
+    localStorage.setItem('muslimDaily_prayers', JSON.stringify(prayers));
+  }, [prayers]);
 
-      // Simple check to avoid refetching if already done today (can be improved)
-      if (lastFetchDate !== todayStr || prayers === INITIAL_PRAYERS) {
-        setLoadingLocation(true);
-        let lat = 21.4225; // Mecca default
-        let long = 39.8262;
+  // Deep Link Handler for Native App
+  useEffect(() => {
+    const handleDeepLink = async (url: string) => {
+      try {
+        const parsedUrl = new URL(url);
+        // Check if it's a join link: /join/{type}/{code}
+        if (parsedUrl.pathname.startsWith('/join/')) {
+          const parts = parsedUrl.pathname.split('/');
+          const type = parts[2] as InviteType;
+          const code = parts[3];
 
-        if (navigator.geolocation) {
-          try {
-            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+          if (type && code) {
+            // Store pending invite
+            InviteService.savePendingInvite({
+              type,
+              code,
+              timestamp: Date.now()
             });
-            lat = position.coords.latitude;
-            long = position.coords.longitude;
-          } catch (e) {
-            console.log("Geolocation failed/denied, using default.");
+            // Navigate to partners tab
+            setActiveTab('partners');
           }
         }
-
-        const data = await fetchPrayerTimes(lat, long);
-        if (data) {
-          setPrayers(data.prayers);
-          setLocalUser(prev => ({ 
-             ...prev, 
-             location: data.locationName === 'Local Coordinates' ? 'My Location' : data.locationName,
-             hijriDate: data.hijriDate 
-          }));
-          localStorage.setItem('muslimDaily_prayers', JSON.stringify(data.prayers));
-          localStorage.setItem('muslimDaily_lastFetchDate', todayStr);
-        }
-        setLoadingLocation(false);
+      } catch (e) {
+        console.error('Failed to handle deep link:', e);
       }
     };
 
-    initData();
+    // Listen for app URL open events
+    CapacitorApp.addListener('appUrlOpen', (event) => {
+      handleDeepLink(event.url);
+    });
+
+    // Check for pending invite on app load
+    const pendingInvite = InviteService.getPendingInvite();
+    if (pendingInvite) {
+      setActiveTab('partners');
+    }
+
+    return () => {
+      CapacitorApp.removeAllListeners();
+    };
   }, []);
 
-  const handleTabChange = (id: string) => {
-    setActiveTab(id);
-    setActiveFeature(null);
+  // Handlers
+  const updatePrayer = (id: string, updates: Partial<Prayer>) => {
+    setPrayers(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
   };
 
-  const handleActionClick = (id: ActionId) => {
-    if (id === 'tasbih') setIsTasbihOpen(true);
-    else if (id === 'qibla') setIsQiblaOpen(true);
-    else if (id === 'settings') handleTabChange('profile');
-    else if (id === 'lectures') handleTabChange('lectures');
-    else if (id === 'partners') handleTabChange('partners');
-    else if (id === 'quran') handleTabChange('quran');
-    else setActiveFeature(id); // dua, zakat, habits, qada, goals
+  const handleHeartStateSelect = (state: HeartCondition) => {
+    setUser({ ...user, currentHeartState: state });
   };
 
-  // Render content based on active feature or tab
-  const renderMainContent = () => {
-    // 1. Feature Overlays
-    if (activeFeature === 'dua') return <DuaPage onBack={() => setActiveFeature(null)} onHelp={() => setIsTourOpen(true)} />;
-    if (activeFeature === 'habits') return <HabitTracker onBack={() => setActiveFeature(null)} />;
-    if (activeFeature === 'zakat') {
-       return (
-          <div className="pb-20 px-4 pt-6">
-             <div className="flex items-center mb-4">
-               <button onClick={() => setActiveFeature(null)} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800">
-                 <ChevronLeft className="rtl:rotate-180 text-neutral-600 dark:text-neutral-300" size={24} />
-               </button>
-               <span className="font-bold text-lg ms-2">{t('back')}</span>
-             </div>
-             <ZakatCalculator />
-          </div>
-       );
+  const handleQuickAction = (id: ActionId) => {
+    switch (id) {
+      case 'tasbih':
+        setIsTasbihOpen(true);
+        break;
+      case 'qibla':
+        setIsQiblaOpen(true);
+        break;
+      case 'dua':
+        setActiveTab('dua');
+        break;
+      case 'partners':
+        setActiveTab('partners');
+        break;
+      case 'qada':
+        if (activeTab === 'home') {
+          qadaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          setActiveTab('home');
+          setTimeout(() => qadaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        }
+        break;
+      case 'settings':
+        setActiveTab('profile');
+        break;
+      case 'goals':
+        setActiveTab('stats');
+        break;
+      case 'lectures': // Renamed from 'quran' in QuickActions initially to lectures, but now we have a real Quran tab
+        setActiveTab('quran');
+        break;
+      default:
+        console.log(`Action ${id} clicked`);
     }
-    if (activeFeature === 'qada') {
-        return (
-           <div className="pb-20 px-4 pt-6">
-              <div className="flex items-center mb-6">
-                <button onClick={() => setActiveFeature(null)} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800">
-                  <ChevronLeft className="rtl:rotate-180 text-neutral-600 dark:text-neutral-300" size={24} />
-                </button>
-                <h2 className="text-2xl font-bold text-neutral-primary ms-2">{t('action_qada')}</h2>
-              </div>
-              <QadaTracker stats={qadaStats} />
-           </div>
-        );
-    }
+  };
 
-    // 2. Main Tabs
+  // Swipe Handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchEndRef.current = null;
+    touchStartRef.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    touchEndRef.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStartRef.current || !touchEndRef.current) return;
+
+    const distanceX = touchStartRef.current.x - touchEndRef.current.x;
+    const distanceY = touchStartRef.current.y - touchEndRef.current.y;
+    const isHorizontal = Math.abs(distanceX) > Math.abs(distanceY);
+    const minDistance = 50; // Minimum swipe distance in px
+
+    if (isHorizontal && Math.abs(distanceX) > minDistance) {
+      const currentIndex = MAIN_TABS.indexOf(activeTab);
+      if (currentIndex === -1) return; // Don't swipe if on a sub-page like 'dua'
+
+      const isLeftSwipe = distanceX > 0;
+      const isRightSwipe = distanceX < 0;
+
+      if (dir === 'rtl') {
+        // RTL Logic: Swipe Right (negative X) -> Next, Swipe Left (positive X) -> Prev
+        if (isRightSwipe && currentIndex < MAIN_TABS.length - 1) {
+          setActiveTab(MAIN_TABS[currentIndex + 1]);
+        } else if (isLeftSwipe && currentIndex > 0) {
+          setActiveTab(MAIN_TABS[currentIndex - 1]);
+        }
+      } else {
+        // LTR Logic: Swipe Left (positive X) -> Next, Swipe Right (negative X) -> Prev
+        if (isLeftSwipe && currentIndex < MAIN_TABS.length - 1) {
+          setActiveTab(MAIN_TABS[currentIndex + 1]);
+        } else if (isRightSwipe && currentIndex > 0) {
+          setActiveTab(MAIN_TABS[currentIndex - 1]);
+        }
+      }
+    }
+  };
+
+  // TOUR CONFIGURATION
+  const currentTourSteps: TourStep[] = useMemo(() => {
+    const tours: Record<string, TourStep[]> = {
+      'home': [
+        { targetId: 'app-header', title: t('tour_home_profile_title'), content: t('tour_home_profile_content') },
+        { targetId: 'hero-section', title: t('tour_home_hero_title'), content: t('tour_home_hero_content') },
+        { targetId: 'next-prayer-card', title: t('tour_home_next_title'), content: t('tour_home_next_content') },
+        { targetId: 'quick-actions', title: t('tour_home_quick_title'), content: t('tour_home_quick_content') },
+        { targetId: 'prayer-list', title: t('tour_home_list_title'), content: t('tour_home_list_content') },
+        { targetId: 'bottom-nav', title: t('tour_home_nav_title'), content: t('tour_home_nav_content') },
+      ],
+      'dua': [
+        { targetId: 'dua-search', title: t('tour_dua_search_title'), content: t('tour_dua_search_content') },
+        { targetId: 'dua-category-first', title: t('tour_dua_cat_title'), content: t('tour_dua_cat_content') },
+      ],
+      'partners': [
+        { targetId: 'partner-add-btn', title: t('tour_partners_add_title'), content: t('tour_partners_add_content') },
+        { targetId: 'partner-groups', title: t('tour_partners_group_title'), content: t('tour_partners_group_content') },
+      ],
+      'stats': [
+        { targetId: 'analytics-streak', title: t('tour_stats_streak_title'), content: t('tour_stats_streak_content') },
+        { targetId: 'analytics-weakness', title: t('tour_stats_insights_title'), content: t('tour_stats_insights_content') },
+      ],
+      'lectures': [
+        { targetId: 'lectures-featured', title: t('tour_lectures_featured_title'), content: t('tour_lectures_featured_content') },
+        { targetId: 'lecture-card-first', title: t('tour_lectures_lib_title'), content: t('tour_lectures_lib_content') },
+      ],
+      'profile': [
+        { targetId: 'profile-user-card', title: t('tour_profile_id_title'), content: t('tour_profile_id_content') },
+        { targetId: 'profile-settings-first', title: t('tour_profile_settings_title'), content: t('tour_profile_settings_content') },
+      ]
+    };
+    return tours[activeTab] || [];
+  }, [activeTab, t]);
+
+  // Manual test wrapper
+  const handleManualTest = () => {
+    console.error('[App] Manual Test Triggered. Hook result:', {
+      hasTrigger: !!triggerTestAdhan,
+      triggerType: typeof triggerTestAdhan,
+      //state: adhanState
+    });
+
+    if (typeof triggerTestAdhan === 'function') {
+      try {
+        triggerTestAdhan();
+      } catch (err) {
+        console.error('[App] Error calling triggerTestAdhan:', err);
+      }
+    } else {
+      console.error('[App] CRITICAL: triggerTestAdhan is NOT a function!', triggerTestAdhan);
+    }
+  };
+
+  const nextPrayer = prayers.find(p => p.isNext) || prayers[0];
+
+  const renderContent = () => {
     switch (activeTab) {
+      case 'dua':
+        return <DuaPage onBack={() => setActiveTab('home')} onHelp={() => setIsTourOpen(true)} />;
+      case 'quran':
+        return <QuranReader />;
+      case 'partners':
+        return <RakibSystem />;
+      case 'lectures':
+        return <LecturesPage />;
+      case 'profile':
+        return <ProfilePage user={user} onTestAdhan={handleManualTest} />;
+      case 'stats':
+        return <AnalyticsPage prayers={prayers} />;
       case 'home':
+      default:
         return (
-          <div className="px-4 animate-in fade-in">
-            <Header user={localUser} onHelpClick={() => setIsTourOpen(true)} />
-            <Hero />
-            <PrayerCard 
-               nextPrayerName={prayers.find(p => p.isNext)?.name || "Fajr"} 
-               nextPrayerTime={prayers.find(p => p.isNext)?.time || "05:00"} 
-               currentTimeStr="" 
+          <div className="animate-in fade-in duration-500">
+            <PrayerCard prayerData={prayerData} />
+            <DailyDuaWidget />
+            <QuickActions onActionClick={handleQuickAction} />
+            <PrayerList
+              prayers={prayers}
+              onPrayerClick={(p) => setSelectedPrayer(p)}
             />
-            <QuickActions onActionClick={handleActionClick} />
-            <HeartStateWidget 
-               currentState={localUser.currentHeartState} 
-               onSelect={(state) => setLocalUser({...localUser, currentHeartState: state})}
-               prayers={prayers}
-            />
-            <PrayerList 
-               prayers={prayers} 
-               onPrayerClick={(p) => { setSelectedPrayer(p); setIsPrayerDetailOpen(true); }} 
-            />
+            <div ref={qadaRef}>
+              <QadaTracker stats={MOCK_QADA} />
+            </div>
           </div>
         );
-      case 'partners': return <div className="px-4 pt-4"><RakibSystem /></div>;
-      case 'quran': return <QuranReader onHelp={() => setIsTourOpen(true)} />;
-      case 'lectures': return <div className="px-4 pt-4"><LecturesPage /></div>;
-      case 'stats': return <div className="px-4 pt-4"><AnalyticsPage prayers={prayers} /></div>;
-      case 'profile': return <div className="px-4 pt-4"><ProfilePage user={localUser} /></div>;
-      default: return null;
     }
   };
-
-  if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
-  }
 
   return (
-    <div className={`min-h-screen bg-neutral-body text-neutral-primary font-sans ${dir === 'rtl' ? 'rtl' : 'ltr'}`}>
-      
-      {/* Global Overlays */}
-      <TasbihModal isOpen={isTasbihOpen} onClose={() => setIsTasbihOpen(false)} />
-      <QiblaFinder isOpen={isQiblaOpen} onClose={() => setIsQiblaOpen(false)} />
-      <MurshidChat isOpen={isMurshidOpen} onClose={() => setIsMurshidOpen(false)} user={localUser} prayers={prayers} />
-      <GuidedTour isOpen={isTourOpen} steps={tourSteps} onClose={() => setIsTourOpen(false)} />
-      
-      <PrayerDetailModal 
-         prayer={selectedPrayer}
-         isOpen={isPrayerDetailOpen}
-         onClose={() => setIsPrayerDetailOpen(false)}
-         onSave={(id, updates) => {
-            setPrayers(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
-            // Also update persistent store if needed
-         }}
+    <div
+      className="min-h-screen bg-neutral-body text-neutral-primary font-sans pb-20"
+      dir={dir}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Splash Screen Layer */}
+      {/* Onboarding Flow for first-time users */}
+      {showOnboarding && (
+        <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
+      )}
+
+      {/* Adhan Overlay - Full screen prayer alert */}
+      <AdhanManager />
+      {/* Debug Logging */}
+      {(() => {
+        useEffect(() => {
+          console.error('[App] adhanState changed EFFECT:', adhanState);
+        }, [adhanState]);
+        return null;
+      })()}
+      <AdhanOverlay
+        isOpen={adhanState.isActive}
+        prayerName={adhanState.prayerName}
+        prayerNameAr={adhanState.prayerNameAr}
+        onClose={dismissAdhan}
+        onRemind={handleAdhanRemind}
       />
 
-      {/* Main Scrollable Content */}
-      <div className={`pb-24 ${activeFeature ? '' : ''}`}>
-        {renderMainContent()}
+      <div className="max-w-md mx-auto bg-neutral-body min-h-screen relative shadow-2xl shadow-black/5 overflow-hidden">
+
+        {/* Conditional Header: We hide the main header for specific immersive pages like Quran/Dua */}
+        <div className="px-5 pt-safe-top space-y-1">
+          {!['dua', 'quran'].includes(activeTab) && (
+            <Header user={user} />
+          )}
+
+          <main className={['dua', 'quran'].includes(activeTab) ? 'pt-0 -mx-5' : 'pt-2 pb-10'}>
+            {renderContent()}
+          </main>
+        </div>
+
+        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+        {/* Global Floating Help Button - Hidden on Reader pages to avoid clutter */}
+        {activeTab !== 'quran' && (
+          <button
+            onClick={() => setIsTourOpen(true)}
+            className="fixed bottom-24 right-5 z-40 w-12 h-12 rounded-full bg-gradient-to-br from-brand-forest to-brand-teal text-white shadow-lg shadow-brand-forest/40 flex items-center justify-center animate-pulse active:scale-90 transition-transform rtl:right-auto rtl:left-5"
+            aria-label="Start Tour"
+          >
+            <Sparkles size={22} className="fill-white/20" />
+          </button>
+        )}
+
+        <TasbihModal isOpen={isTasbihOpen} onClose={() => setIsTasbihOpen(false)} />
+        <QiblaFinder isOpen={isQiblaOpen} onClose={() => setIsQiblaOpen(false)} />
+
+        <PrayerDetailModal
+          isOpen={!!selectedPrayer}
+          prayer={selectedPrayer}
+          onClose={() => setSelectedPrayer(null)}
+          onSave={updatePrayer}
+        />
+
+        <GuidedTour
+          isOpen={isTourOpen}
+          steps={currentTourSteps}
+          onClose={() => setIsTourOpen(false)}
+        />
+
+        {/* Notification Permission Prompt */}
+        {showNotificationPrompt && (
+          <NotificationPermission onComplete={() => setShowNotificationPrompt(false)} />
+        )}
+
       </div>
-
-      {/* Navigation Bar (Hidden in full-screen features) */}
-      {!activeFeature && (
-         <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
-      )}
-
-      {/* Floating Chat Button (Hidden in features/chat) */}
-      {!activeFeature && !isMurshidOpen && activeTab === 'home' && (
-        <button 
-          onClick={() => setIsMurshidOpen(true)}
-          className="fixed bottom-24 right-4 rtl:right-auto rtl:left-4 w-14 h-14 bg-brand-forest text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-30"
-        >
-          <MessageCircle size={28} />
-        </button>
-      )}
-
     </div>
   );
 };
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <LanguageProvider>
-          <AppContent />
-        </LanguageProvider>
-      </ThemeProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <AdhanProvider>
+        <AppContent />
+      </AdhanProvider>
+    </LanguageProvider>
   );
 };
 

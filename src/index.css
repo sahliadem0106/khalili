@@ -1,0 +1,319 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* =====================================================
+       ROYAL NATURE PALETTE - RGB Channels for Opacity Support
+       =====================================================
+       
+       HOW TO USE: These CSS variables are used with Tailwind's opacity syntax:
+       - bg-brand-primary     → Uses --color-primary
+       - text-brand-secondary → Uses --color-secondary
+       
+       Example usage in JSX:
+       - <button className="bg-brand-primary text-white">Submit</button>
+       - <span className="text-brand-secondary">Subtitle text</span>
+    */
+
+    /* ----- CORE BRAND COLORS ----- */
+
+    /* Primary: Main brand emerald green
+       USED IN: Prayer card accents, buttons, active states, streaks
+       EXAMPLE: "Log Prayer" button, prayer status bars, nav icons */
+    --color-primary: 4 120 87;
+    /* Emerald 700 - #047857 */
+
+    /* Primary Dark: Deeper green for hover/pressed states
+       USED IN: Button hover states, gradients
+       EXAMPLE: "Log Prayer" button on hover */
+    --color-primary-dark: 6 78 59;
+    /* Emerald 900 - #064E3B */
+
+    /* Secondary: Golden amber for accents
+       USED IN: Streaks, highlights, badges, stars, special emphasis
+       EXAMPLE: Flame icon for streaks, daily reminder label */
+    --color-secondary: 217 119 6;
+    /* Amber 600 - #D97706 */
+
+    /* Secondary Dark: Deeper amber
+       USED IN: Hover states on amber elements */
+    --color-secondary-dark: 180 83 9;
+    /* Amber 700 - #B45309 */
+
+    /* ----- BACKGROUND COLORS ----- */
+
+    /* App Background: Cream/ivory for main app
+       USED IN: Main page background
+       EXAMPLE: The whole app body background */
+    --bg-app: 255 255 240;
+    /* Ivory - #FFFFF0 */
+
+    /* Surface: White cards and panels
+       USED IN: All cards, modals, panels
+       EXAMPLE: Prayer card, analytics cards, settings panels */
+    --bg-surface: 255 255 255;
+    /* Pure White - #FFFFFF */
+
+    /* Subtle: Light gray for input fields, secondary surfaces
+       USED IN: Input backgrounds, inactive tabs
+       EXAMPLE: Search input background, form fields */
+    --bg-subtle: 248 250 252;
+    /* Slate 50 - #F8FAFC */
+
+    /* ----- TEXT COLORS ----- */
+
+    /* Primary Text: Dark green for main readable text
+       USED IN: All main headings, body text, important labels
+       EXAMPLE: Prayer names, section titles, buttons */
+    --text-primary: 2 44 34;
+    /* Emerald 950 - #022C22 */
+
+    /* Secondary Text: Medium green for subtitles
+       USED IN: Subtitles, secondary labels
+       EXAMPLE: Prayer times, streak counts */
+    --text-secondary: 6 95 70;
+    /* Emerald 800 - #065F46 */
+
+    /* Muted Text: Gray for less important text
+       USED IN: Placeholders, hints, timestamps
+       EXAMPLE: "Select location", disabled text */
+    --text-muted: 100 116 139;
+    /* Slate 500 - #64748B */
+
+    /* Inverse Text: White text on dark backgrounds
+       USED IN: Button text on colored backgrounds
+       EXAMPLE: "Log Prayer" button text */
+    --text-inverse: 255 255 255;
+    /* White - #FFFFFF */
+
+    /* ----- BORDER COLORS ----- */
+
+    /* Subtle Border: Light gray for card borders
+       USED IN: Card edges, dividers
+       EXAMPLE: Prayer card border, horizontal rules */
+    --border-subtle: 226 232 240;
+    /* Slate 200 - #E2E8F0 */
+
+    /* Highlight Border: Green tint for active/focus states
+       USED IN: Focus rings, active card borders
+       EXAMPLE: Selected prayer, focused input */
+    --border-highlight: 167 243 208;
+    /* Emerald 200 - #A7F3D0 */
+  }
+
+  /* Dark Mode */
+  .dark {
+    /* Shadow Dark Backgrounds (Neutral Gray/Black) */
+    --bg-app: 10 10 10;
+    /* Neutral 950 */
+    --bg-surface: 23 23 23;
+    /* Neutral 900 */
+    --bg-subtle: 38 38 38;
+    /* Neutral 800 */
+
+    /* Text Colors (White & Light Green) */
+    --text-primary: 255 255 255;
+    /* Pure White */
+    --text-secondary: 110 231 183;
+    /* Emerald 300 (Light Green) */
+    --text-muted: 156 163 175;
+    /* Gray 400 */
+    --text-inverse: 10 10 10;
+    /* Dark Text for inverse backgrounds */
+
+    /* Borders */
+    --border-subtle: 64 64 64;
+    /* Neutral 700 */
+    --border-highlight: 110 231 183;
+    /* Emerald 300 */
+
+    /* Global Glow for White Text */
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.2);
+  }
+}
+
+body {
+  background-color: rgb(var(--bg-app));
+  color: rgb(var(--text-primary));
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(4, 120, 87, 0.2);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(4, 120, 87, 0.4);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Quran Text Justification */
+.quran-justify {
+  text-align: justify;
+  text-align-last: center;
+  -moz-text-align-last: center;
+}
+
+/* Safe Areas */
+.pb-safe-area {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+@layer components {
+  /* --- PREMIUM COMPONENT SYSTEM --- */
+
+  /* 1. BUTTONS */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply bg-brand-primary text-white shadow-primary hover:bg-brand-primary-dark hover:shadow-primary-lg;
+  }
+
+  .btn-secondary {
+    @apply bg-brand-surface text-brand-primary border border-brand-primary/20 hover:bg-brand-subtle;
+  }
+
+  .btn-ghost {
+    @apply text-brand-secondary hover:bg-brand-primary/5;
+  }
+
+  .btn-icon {
+    @apply p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors;
+  }
+
+  /* 2. CARDS */
+  .card-premium {
+    @apply bg-brand-surface rounded-2xl border border-brand-border/50 shadow-glass backdrop-blur-sm overflow-hidden;
+  }
+
+  /* 3. INPUTS */
+  .input-premium {
+    @apply w-full bg-brand-subtle border border-brand-border rounded-xl px-4 py-3 text-brand-primary placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all;
+  }
+
+  /* 4. TYPOGRAPHY UTILITIES */
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-secondary to-yellow-500;
+  }
+
+  /* 5. ANIMATION UTILITIES */
+  .animate-enter {
+    @apply animate-in fade-in zoom-in-95 duration-300 ease-out;
+  }
+
+  /* 6. 3D DEPTH & PREMIUM EFFECTS */
+  .card-3d {
+    @apply relative bg-white rounded-2xl border border-gray-100/50;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 10px 15px -3px rgba(0, 0, 0, 0.05),
+      0 20px 25px -5px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-3d:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.08),
+      0 20px 25px -5px rgba(0, 0, 0, 0.05),
+      0 25px 50px -12px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-elevated {
+    @apply bg-white rounded-2xl;
+    box-shadow:
+      0 1px 3px 0 rgba(0, 0, 0, 0.04),
+      0 4px 8px -2px rgba(0, 0, 0, 0.04),
+      0 12px 20px -4px rgba(0, 0, 0, 0.06);
+  }
+
+  .glass-premium {
+    @apply backdrop-blur-xl border border-white/20;
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(255, 255, 255, 0.75) 100%);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .depth-1 {
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  }
+
+  .depth-2 {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 6px 10px -2px rgba(0, 0, 0, 0.04);
+  }
+
+  .depth-3 {
+    box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.08), 0 12px 20px -4px rgba(0, 0, 0, 0.06);
+  }
+
+  .btn-3d {
+    @apply relative overflow-hidden;
+    box-shadow:
+      0 4px 0 rgba(0, 0, 0, 0.1),
+      0 6px 10px -2px rgba(0, 0, 0, 0.1);
+    transition: all 0.15s ease;
+  }
+
+  .btn-3d:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 2px 0 rgba(0, 0, 0, 0.1),
+      0 3px 5px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Smooth ring transition for Tasbih */
+  .tasbih-ring {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  .animate-gradient {
+    animation: gradient 3s ease infinite;
+    background-size: 200% auto;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}

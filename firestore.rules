@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // Prayer logs subcollection - Allow read for partners
+      match /prayerLogs/{logId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Broadcasts (for Suhba circle broadcasts)
+    match /broadcasts/{broadcastId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Partner profiles (for marketplace)
+    match /partnerProfiles/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Fallback partner_profiles collection (used in RequestsCenter)
+    match /partner_profiles/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Requests collection (for connection requests - duo, family, suhba)
+    match /requests/{requestId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Partnerships (duo partnerships)
+    match /partnerships/{partnershipId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Groups (Suhba circles & Family groups)
+    match /groups/{groupId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Invites (shareable invite links)
+    match /invites/{inviteId} {
+      allow read: if true; // Public read for invite landing pages
+      allow write: if request.auth != null;
+    }
+    
+    // Challenges (family challenges)
+    match /challenges/{challengeId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Social Share Requests
+    match /socialShareRequests/{requestId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Reflections/Journal entries
+    match /reflections/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      match /entries/{entryId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+  }
+}

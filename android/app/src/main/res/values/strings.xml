@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Khalil</string>
+    <string name="title_activity_main">Khalil</string>
+    <string name="package_name">com.khalil.app</string>
+    <string name="custom_url_scheme">com.khalil.app</string>
+    <!-- IMPORTANT: Replace with your Web Client ID from Firebase Console -> Authentication -> Sign-in method -> Google -->
+    <string name="server_client_id">1040674649278-jcausll9po5qlstkvc31n5o5dfocefb5.apps.googleusercontent.com</string>
+</resources>

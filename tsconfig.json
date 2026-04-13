@@ -1,4 +1,9 @@
 {
+  "include": [
+    "src",
+    "types.ts",
+    "components"
+  ],
   "compilerOptions": {
     "target": "ES2022",
     "experimentalDecorators": true,
@@ -24,6 +29,7 @@
       ]
     },
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "noEmit": true
   }
 }

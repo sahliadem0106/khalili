@@ -9,36 +9,37 @@ export const Hero: React.FC = () => {
   const ArrowIcon = dir === 'rtl' ? ArrowLeft : ArrowRight;
 
   return (
-    <div id="hero-section" className="relative overflow-hidden rounded-3xl bg-brand-forest text-white shadow-lg mb-6">
+    <div id="hero-section" className="relative overflow-hidden rounded-3xl bg-brand-primary text-white shadow-soft mb-6 mx-1">
       {/* Background Image with Gradient Overlay */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src={IMAGES.pattern} 
-          alt="Pattern" 
+        <img
+          src={IMAGES.pattern}
+          alt="Pattern"
           className="w-full h-full object-cover opacity-10 mix-blend-overlay"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-forest via-brand-teal to-brand-forest/90"></div>
-        
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-primary via-brand-secondary to-brand-secondary/90"></div>
+
         {/* Decorative Circle */}
-        <div className="absolute -top-10 -right-10 rtl:right-auto rtl:-left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="absolute -top-10 -right-10 rtl:right-auto rtl:-left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-10 -left-10 rtl:left-auto rtl:-right-10 w-32 h-32 bg-brand-accent/20 rounded-full blur-2xl"></div>
       </div>
 
       <div className="relative z-10 p-6 flex flex-col">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2 rtl:space-x-reverse bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-            <Moon size={14} className="text-yellow-300 fill-yellow-300" />
+          <div className="flex items-center space-x-2 rtl:space-x-reverse bg-white/20 backdrop-blur-md rounded-full px-3 py-1 border border-white/10">
+            <Moon size={14} className="text-brand-accent fill-brand-accent" />
             <span className="text-xs font-semibold tracking-wide uppercase">{t('appName')}</span>
           </div>
         </div>
 
-        <h1 className="text-2xl font-bold leading-tight mb-1">
+        <h1 className="text-3xl font-bold leading-tight mb-2 tracking-tight">
           {t('heroTitle')}
         </h1>
-        <p className="text-brand-mint text-sm mb-5 max-w-[70%]">
+        <p className="text-white/90 text-sm mb-6 max-w-[80%] font-medium">
           {t('heroSubtitle')}
         </p>
 
-        <button className="self-start group flex items-center space-x-2 rtl:space-x-reverse bg-white text-brand-forest px-5 py-2.5 rounded-full text-sm font-bold shadow-md active:scale-95 transition-transform">
+        <button className="self-start group flex items-center space-x-2 rtl:space-x-reverse bg-brand-accent text-brand-surface px-6 py-3 rounded-full text-sm font-bold shadow-lg hover:shadow-xl active:scale-95 transition-all">
           <span>{t('heroAction')}</span>
           <ArrowIcon size={16} className="group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
         </button>

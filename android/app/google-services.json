@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1040674649278",
+    "project_id": "khalili-v01",
+    "storage_bucket": "khalili-v01.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1040674649278:android:392e5221b35b929cbb1aef",
+        "android_client_info": {
+          "package_name": "com.khalil.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1040674649278-jcausll9po5qlstkvc31n5o5dfocefb5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnKO7JxmuLp4CVcseKJ7Txa1fQofAUZc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1040674649278-jcausll9po5qlstkvc31n5o5dfocefb5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

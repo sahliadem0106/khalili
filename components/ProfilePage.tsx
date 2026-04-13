@@ -1,274 +1,814 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from './ui/Button';
-import { User, PrayerSettings } from '../types';
-import { 
-  Settings, Bell, Moon, Globe, ChevronRight, LogOut, 
-  User as UserIcon, Clock, MapPin, Volume2, HelpCircle, 
-  FileText, Sliders, Sun, Monitor, ChevronLeft, Check, X, Speaker, LogIn, UserPlus, ShieldCheck
+import { User } from '../types'; // Verify types, might need to use AuthService UserProfile types or sync them
+import {
+  Settings, Bell, Moon, Globe, Shield, ChevronRight, LogOut,
+  User as UserIcon, Lock, Clock, MapPin, Volume2, Calendar,
+  Smartphone, HelpCircle, FileText, Palette, Radio, ChevronLeft,
+  X, Check, Cloud, Sparkles, Users, Mail, Key, Trophy, Hash, Tag,
+  AlertCircle,
+  CheckCircle,
+  ArrowLeft
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../contexts/ThemeContext';
-import { useAuth } from '../contexts/AuthContext';
-import { notificationService } from '../services/notificationService';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useSyncManager } from '../hooks/useSyncManager';
+import { AuthModal } from './AuthModal';
+import { SyncIndicator } from './SyncIndicator';
+import { DEFAULT_USER_SETTINGS } from '../services/AuthService';
+import { LocalisationSettings } from './settings/LocalisationSettings';
+import { BadgesSection } from './profile/BadgesSection';
 
 interface ProfilePageProps {
   user: User;
-  settings?: PrayerSettings;
-  onUpdateSettings?: (newSettings: PrayerSettings) => void;
+  onTestAdhan?: () => void;
+  onRequestOnboarding?: () => void;
 }
 
-export const ProfilePage: React.FC<ProfilePageProps> = ({ user, settings, onUpdateSettings }) => {
+type ViewState = 'main' | 'account' | 'security' | 'privacy' | 'notifications' | 'app' | 'support' | 'localisation' | 'achievements';
+
+export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onRequestOnboarding }) => {
+
   const { t, language, setLanguage, dir } = useLanguage();
-  const { theme, setThemeMode } = useTheme();
-  const { signInWithGoogle, signInAnonymously, signOut, session, loading } = useAuth();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(Notification.permission === 'granted');
-  
-  // UI Modals State
+  const { theme, setTheme } = useTheme();
+  const { isAuthenticated, user: firebaseUser, signOut, updateProfile, updateSettings, uploadAvatar } = useAuth();
+  const { syncState, forceSync } = useSyncManager();
+
+  const [activeView, setActiveView] = useState<ViewState>('main');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isLangModalOpen, setIsLangModalOpen] = useState(false);
-  
-  const ChevronIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
-  const LANGUAGES = [
-    { code: 'en', label: 'English', native: 'English' },
-    { code: 'ar', label: 'Arabic', native: 'العربية' },
-  ];
+  // --- SUB-COMPONENTS ---
 
-  const handleNotificationToggle = async () => {
-    if (notificationsEnabled) {
-      setNotificationsEnabled(false); 
-    } else {
-      const granted = await notificationService.requestPermission();
-      setNotificationsEnabled(granted);
+  // 1. ACCOUNT SETTINGS - Enhanced with nickname, age, about, hobbies
+  const AccountView = () => {
+    const [name, setName] = useState(user.name || firebaseUser?.displayName || '');
+    const [nickname, setNickname] = useState('');
+    const [age, setAge] = useState<number | ''>('');
+    const [about, setAbout] = useState('');
+    const [hobbies, setHobbies] = useState<string[]>([]);
+    const [newHobby, setNewHobby] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+
+    // Load existing profile data
+    useEffect(() => {
+      const loadProfile = async () => {
+        if (!firebaseUser?.uid) {
+          setIsLoading(false);
+          return;
+        }
+        try {
+          const { doc, getDoc } = await import('firebase/firestore');
+          const { db } = await import('../services/firebase');
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            setNickname(data.nickname || '');
+            setAge(data.age || '');
+            setAbout(data.bio || data.about || '');
+            setHobbies(data.hobbies || []);
+          }
+        } catch (error) {
+          console.error('Failed to load profile:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      loadProfile();
+    }, [firebaseUser?.uid]);
+
+    const handleAddHobby = () => {
+      if (newHobby.trim() && hobbies.length < 5) {
+        setHobbies([...hobbies, newHobby.trim()]);
+        setNewHobby('');
+      }
+    };
+
+    const handleRemoveHobby = (index: number) => {
+      setHobbies(hobbies.filter((_, i) => i !== index));
+    };
+
+    const handleSave = async () => {
+      setIsSaving(true);
+      try {
+        // Update Firebase Auth profile
+        await updateProfile({ displayName: name });
+
+        // Update Firestore with extended fields
+        if (firebaseUser?.uid) {
+          const { doc, updateDoc } = await import('firebase/firestore');
+          const { db } = await import('../services/firebase');
+          await updateDoc(doc(db, 'users', firebaseUser.uid), {
+            displayName: name,
+            nickname,
+            age: age || null,
+            bio: about,
+            about,
+            hobbies,
+            updatedAt: new Date().toISOString()
+          });
+        }
+        setActiveView('main');
+      } catch (error) {
+        console.error(error);
+        alert("Failed to update profile");
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
+
+
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      );
     }
+
+    return (
+      <div className="space-y-8 animate-in slide-in-from-right duration-300 px-1">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors">
+            <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600 dark:text-neutral-400" />
+          </button>
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Edit Profile</h2>
+        </div>
+
+        {/* Avatar Section */}
+        <div className="flex flex-col items-center">
+          <div className="relative group">
+            <div className={`w-32 h-32 rounded-full p-1 bg-gradient-to-br from-brand-primary to-brand-teal shadow-xl shadow-brand-primary/20 ${isLoading ? 'animate-pulse' : ''}`}>
+              <div className="w-full h-full rounded-full bg-white dark:bg-neutral-900 overflow-hidden relative">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-neutral-100 dark:bg-neutral-800 text-neutral-400">
+                    <UserIcon size={48} />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-5">
+          {/* Display Name */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Full Name</label>
+            <div className="relative group">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand-primary transition-colors">
+                <UserIcon size={20} />
+              </div>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400"
+                placeholder="Your full name"
+              />
+            </div>
+          </div>
+
+          {/* Nickname & Age Row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Nickname</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand-primary transition-colors">
+                  <Hash size={18} />
+                </div>
+                <input
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  className="w-full pl-11 pr-4 py-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400"
+                  placeholder="Ali"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Age</label>
+              <div className="relative group">
+                <input
+                  type="number"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value ? parseInt(e.target.value) : '')}
+                  className="w-full px-4 py-4 text-center bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400"
+                  placeholder="25"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Email (Read-only) */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Email Address</label>
+            <div className="relative opacity-70">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
+                <Mail size={20} />
+              </div>
+              <input
+                type="text"
+                value={firebaseUser?.email || ''}
+                readOnly
+                className="w-full pl-12 pr-4 py-4 bg-neutral-100 dark:bg-white/5 border border-transparent rounded-2xl text-neutral-500 dark:text-neutral-400 cursor-not-allowed"
+              />
+            </div>
+          </div>
+
+          {/* About Me */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">About Me</label>
+            <div className="relative group">
+              <div className="absolute left-4 top-5 text-neutral-400 group-focus-within:text-brand-primary transition-colors">
+                <FileText size={20} />
+              </div>
+              <textarea
+                value={about}
+                onChange={(e) => setAbout(e.target.value.slice(0, 200))}
+                rows={4}
+                className="w-full pl-12 pr-4 py-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all resize-none font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400 leading-relaxed"
+                placeholder="Share a bit about yourself..."
+              />
+              <div className="absolute bottom-3 right-4 text-[10px] font-medium text-neutral-400">
+                {about.length}/200
+              </div>
+            </div>
+          </div>
+
+          {/* Hobbies */}
+          <div className="space-y-3">
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">
+              Hobbies ({hobbies.length}/5)
+            </label>
+            <div className="p-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {hobbies.map((hobby, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-brand-surface shadow-sm text-brand-primary rounded-xl text-sm font-medium animate-in zoom-in duration-200"
+                  >
+                    <Tag size={12} />
+                    {hobby}
+                    <button
+                      onClick={() => handleRemoveHobby(index)}
+                      className="ml-1 hover:text-red-500 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  </span>
+                ))}
+                {hobbies.length === 0 && (
+                  <span className="text-sm text-neutral-400 italic py-1">No hobbies added yet</span>
+                )}
+              </div>
+
+              {hobbies.length < 5 && (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newHobby}
+                    onChange={(e) => setNewHobby(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddHobby()}
+                    className="flex-1 bg-transparent border-b-2 border-neutral-200 dark:border-neutral-700 focus:border-brand-primary py-2 px-1 outline-none transition-colors text-sm"
+                    placeholder="Type a hobby and press Enter..."
+                  />
+                  <button
+                    onClick={handleAddHobby}
+                    disabled={!newHobby.trim()}
+                    className="p-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 transition-all active:scale-95"
+                  >
+                    <Check size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="sticky bottom-0 pt-6 pb-2 bg-gradient-to-t from-white via-white to-transparent dark:from-brand-surface dark:via-brand-surface">
+          <Button
+            fullWidth
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-brand-primary text-white h-14 text-lg font-bold shadow-lg shadow-brand-primary/20 hover:shadow-brand-primary/30 transition-all active:scale-95"
+          >
+            {isSaving ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Saving...</span>
+              </div>
+            ) : 'Save Changes'}
+          </Button>
+        </div>
+      </div >
+    );
   };
 
-  const handleTestNotification = () => {
-    if (notificationsEnabled) {
-      notificationService.sendNotification(
-        "Test Adhan",
-        "Hayya 'alas-Salah (Come to Prayer)"
-      );
-      alert(t('notification_sent'));
-    } else {
-      alert("Please enable notifications first.");
-    }
+  // 2. SECURITY SETTINGS
+  const SecurityView = () => {
+    const [resetSent, setResetSent] = useState(false);
+
+    const handleReset = async () => {
+      // Password reset not supported in Google-only auth
+      alert("Password reset is managed by Google.");
+    };
+
+    return (
+      <div className="space-y-6 animate-in slide-in-from-right duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10">
+            <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600" />
+          </button>
+          <h2 className="text-xl font-bold text-neutral-900">Password & Security</h2>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-start gap-4">
+          <div className="p-3 bg-white rounded-full text-indigo-600 shadow-sm">
+            <Key size={24} />
+          </div>
+          <div>
+            <h3 className="font-bold text-indigo-900">Password Management</h3>
+            <p className="text-sm text-indigo-700/80 mt-1">We don't store your password directly. You can request a secure reset link.</p>
+          </div>
+        </div>
+
+        <div className="pt-4">
+          <Button fullWidth variant="outline" onClick={handleReset} disabled={resetSent} className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 h-14">
+            {resetSent ? 'Reset Link Sent to Email' : 'Send Password Reset Email'}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // 3. NOTIFICATIONS
+  const NotificationView = () => {
+    // We assume settings structure from AuthService DEFAULT_USER_SETTINGS
+    // If user.settings is missing, fallback to default
+    const userSettings = firebaseUser?.settings || DEFAULT_USER_SETTINGS;
+    const [enabled, setEnabled] = useState(userSettings.notificationsEnabled);
+    const [reminders, setReminders] = useState(userSettings.prayerReminders);
+
+    const toggleMain = async () => {
+      const newVal = !enabled;
+      setEnabled(newVal);
+      await updateSettings({ notificationsEnabled: newVal });
+    };
+
+    const togglePrayer = async (key: keyof typeof reminders) => {
+      const newReminders = { ...reminders, [key]: !reminders[key] };
+      setReminders(newReminders);
+      await updateSettings({ prayerReminders: newReminders });
+    };
+
+    return (
+      <div className="space-y-6 animate-in slide-in-from-right duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10">
+            <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600 dark:text-neutral-400" />
+          </button>
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Notifications</h2>
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-white dark:bg-brand-surface rounded-2xl border border-neutral-100 dark:border-white/5 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-brand-primary/10 text-brand-primary rounded-lg">
+              <Bell size={20} />
+            </div>
+            <div>
+              <p className="font-bold text-neutral-800 dark:text-white">Push Notifications</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Master switch for all alerts</p>
+            </div>
+          </div>
+          <div
+            onClick={toggleMain}
+            className={`w-12 h-7 rounded-full transition-colors relative cursor-pointer ${enabled ? 'bg-brand-primary' : 'bg-neutral-200 dark:bg-neutral-700'}`}
+          >
+            <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform ${enabled ? 'left-6' : 'left-1'}`}></div>
+          </div>
+        </div>
+
+        {/* Prayer Alerts - Always show but grey out when disabled */}
+        <div className={`space-y-3 ${!enabled ? 'opacity-50 pointer-events-none' : 'animate-in fade-in slide-in-from-top-2'}`}>
+          <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider ml-2">Prayer Alerts</h3>
+          {Object.entries(reminders).map(([key, val]) => (
+            <div key={key} className="flex items-center justify-between p-4 bg-white dark:bg-brand-surface rounded-xl border border-neutral-100 dark:border-white/5">
+              <span className="capitalize font-medium text-neutral-700 dark:text-neutral-200">{key}</span>
+              <div
+                onClick={() => enabled && togglePrayer(key as any)}
+                className={`w-10 h-6 rounded-full transition-colors relative ${enabled ? 'cursor-pointer' : 'cursor-not-allowed'} ${val ? 'bg-brand-forest' : 'bg-neutral-200 dark:bg-neutral-700'}`}
+              >
+                <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform ${val ? 'left-5' : 'left-1'}`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // 4. ACHIEVEMENTS VIEW
+  const AchievementsView = () => {
+    return (
+      <div className="space-y-6 animate-in slide-in-from-right duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10">
+            <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600 dark:text-neutral-400" />
+          </button>
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+            {t('my_achievements')}
+          </h2>
+        </div>
+
+        <div className="glass-panel p-6 min-h-[60vh]">
+          <BadgesSection />
+        </div>
+      </div>
+    );
+  };
+
+
+  // MAIN LIST VIEW (Existing Logic)
+  const MainView = () => {
+    // Helper to render theme switcher
+    const ThemeSwitcher = () => (
+      <div className="flex bg-neutral-100 dark:bg-black/20 p-1 rounded-xl">
+        <button
+          onClick={(e) => { e.stopPropagation(); setTheme('light'); }}
+          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all ${theme === 'light' ? 'bg-white text-brand-primary shadow-sm' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'}`}
+        >
+          {t('theme_light')}
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); setTheme('dark'); }}
+          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all ${theme === 'dark' ? 'bg-brand-surface dark:bg-white/10 text-brand-primary dark:text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'}`}
+        >
+          {t('theme_dark')}
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); setTheme('auto'); }}
+          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all ${theme === 'auto' ? 'bg-white dark:bg-white/10 text-brand-primary dark:text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'}`}
+        >
+          {t('theme_auto')}
+        </button>
+      </div>
+    );
+
+    const SETTINGS_SECTIONS = [
+      {
+        title: t('section_account'),
+        items: [
+          { icon: UserIcon, label: "Personal Information", sub: "Name, Email, Avatar", color: "text-blue-600 bg-blue-50", view: 'account' },
+        ]
+      },
+      {
+        title: "Achievements",
+        items: [
+          { icon: Trophy, label: "My Badges & Stats", sub: "View your progress", color: "text-amber-600 bg-amber-50", view: 'achievements' },
+        ]
+      },
+      {
+        title: t('section_prayer'),
+        items: [
+          { icon: MapPin, label: "Location Settings", sub: "View coordinates, refresh GPS", color: "text-red-600 bg-red-50", view: 'localisation' },
+        ]
+      },
+      {
+        title: t('section_notifications'),
+        items: [
+          { icon: Bell, label: "Push Notifications", sub: "Prayers, Reminders, Updates", color: "text-amber-600 bg-amber-50", view: 'notifications' },
+        ]
+      },
+      {
+        title: t('section_app'),
+        items: [
+          {
+            icon: Palette, // Changed from Globe to Palette for visual distinction if allowed, or keep Globe for language
+            label: "Appearance",
+            customRight: <div className="w-48"><ThemeSwitcher /></div>,
+            color: "text-purple-600 bg-purple-50",
+            action: () => { } // No-op, controlled by switcher
+          },
+          {
+            icon: Globe,
+            label: t('pref_language'),
+            sub: language === 'ar' ? 'العربية' : 'English',
+            color: "text-cyan-600 bg-cyan-50",
+            action: () => setIsLangModalOpen(true)
+          }
+        ]
+      }
+    ];
+
+    return (
+      <div className="space-y-6">
+        {/* Authenticated User Profile Header */}
+        {isAuthenticated && (
+          <div id="profile-user-card" className="flex items-center space-x-4 rtl:space-x-reverse p-5 glass-panel mt-4">
+            <div className="w-16 h-16 rounded-full relative flex-shrink-0">
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name || 'User'}
+                  className="w-full h-full rounded-full object-cover border-2 border-brand-primary/20"
+                />
+              ) : (
+                <div className="w-full h-full rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary text-xl font-bold">
+                  {(user.name || 'U').charAt(0)}
+                </div>
+              )}
+              <div className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 bg-brand-primary w-4 h-4 rounded-full border-2 border-brand-surface shadow-sm"></div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-bold text-neutral-900 dark:text-white truncate">{user.name || 'User'}</h2>
+              <p className="text-sm text-neutral-400 truncate">{firebaseUser?.email}</p>
+              <div className="mt-1">
+                <SyncIndicator
+                  status={syncState.status}
+                  isOnline={syncState.isOnline}
+                  pendingChanges={syncState.pendingChanges}
+                  onPress={forceSync}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Guest Banner - Solid Clean */}
+        {!isAuthenticated && (
+          <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-emerald-100 dark:border-neutral-700 p-5 flex flex-col sm:flex-row items-center justify-between gap-4 mt-2">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0">
+                <UserIcon size={24} />
+              </div>
+              <div className="text-center sm:text-start">
+                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                  {t('guest_mode')}
+                </h2>
+                <p className="text-neutral-500 dark:text-neutral-400 text-xs mt-0.5">
+                  {t('guest_mode_desc')}
+                </p>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 px-6 shadow-md border-0 min-w-[120px]"
+            >
+              {t('sign_in_btn')}
+            </Button>
+          </div>
+        )}
+
+
+
+        {/* Settings List */}
+        <div className="space-y-6">
+          {SETTINGS_SECTIONS.map((section, idx) => (
+            <div key={idx}>
+              <h3 className="text-xs font-bold text-brand-secondary uppercase tracking-wider ms-3 mb-2">{section.title}</h3>
+              <div className="glass-panel overflow-hidden">
+                {section.items.map((item, i) => (
+                  <div
+                    key={i}
+                    onClick={() => {
+                      if (item.action) item.action();
+                      // @ts-ignore
+                      else if (item.view) setActiveView(item.view);
+                    }}
+                    className="flex items-center justify-between p-4 border-b border-white/5 last:border-0 cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors group"
+                  >
+                    <div className="flex items-center space-x-4 rtl:space-x-reverse">
+                      <div className={`p-2.5 rounded-xl bg-opacity-10 ${item.color.replace('bg-', 'bg-').replace('50', '500/10')}`}>
+                        <item.icon size={18} className={item.color.split(' ')[0]} />
+                      </div>
+                      <div>
+                        <p className="font-medium text-neutral-900 dark:text-white text-sm group-hover:text-brand-primary transition-colors">
+                          {item.label}
+                        </p>
+                        {item.sub && <p className="text-xs text-neutral-500 dark:text-neutral-400">{item.sub}</p>}
+                      </div>
+                    </div>
+                    {/* @ts-ignore */}
+                    {item.customRight ? item.customRight : (
+                      <ChevronRight size={18} className="text-neutral-500 dark:text-neutral-500 group-hover:text-brand-primary rtl:rotate-180" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {isAuthenticated && (
+          <div className="pt-4 space-y-2">
+            <Button variant="outline" fullWidth onClick={() => signOut()} className="text-red-400 border-red-500/20 hover:bg-red-500/10">
+              <LogOut size={18} className="me-2" /> {t('signOut')}
+            </Button>
+
+            {/* Test Button: Reset Onboarding (for development) */}
+            <button
+              onClick={() => {
+                localStorage.removeItem('khalil_onboarding');
+                alert('Onboarding reset! Refresh the page to see onboarding again.');
+                window.location.reload();
+              }}
+              className="w-full py-2 text-xs text-gray-400 hover:text-gray-600 underline"
+            >
+              🧪 Reset Onboarding (Test)
+            </button>
+
+            {/* Test Button: Adhan Alert (for development) */}
+            <button
+              onClick={() => {
+                console.log('[ProfilePage] Test Adhan button clicked');
+                onTestAdhan?.();
+              }}
+              className="w-full py-2 text-xs text-gray-400 hover:text-gray-600 underline"
+            >
+              🔔 Test Adhan Alert
+            </button>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 pb-24">
-      
-      {/* 1. User Identity Card */}
-      <div id="profile-user-card" className="bg-neutral-card rounded-3xl p-6 shadow-sm border border-neutral-line text-center relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-brand-mint to-transparent opacity-50"></div>
-        
-        <div className="relative z-10">
-          <div className="w-24 h-24 mx-auto bg-neutral-card p-1.5 rounded-full shadow-md mb-3">
-            <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" />
-          </div>
-          
-          {/* Logged In State */}
-          {session ? (
-             <>
-                <h2 className="text-2xl font-bold text-neutral-primary mb-1">{user.name}</h2>
-                <div className="flex items-center justify-center text-sm text-neutral-muted mb-4">
-                  <MapPin size={14} className="me-1" /> {user.location}
-                </div>
-                <div className="flex justify-center space-x-3 rtl:space-x-reverse">
-                   <Button size="sm" variant="outline" className="h-9 text-xs">
-                      {t('edit')}
-                   </Button>
-                   <Button size="sm" variant="ghost" onClick={signOut} className="h-9 text-xs text-red-500 hover:bg-red-50 hover:text-red-600">
-                      <LogOut size={14} className="me-1" /> {t('signOut')}
-                   </Button>
-                </div>
-             </>
-          ) : (
-             /* Guest / Logged Out State */
-             <div className="mt-4 animate-in slide-in-from-bottom-2">
-                <h2 className="text-xl font-bold text-neutral-primary mb-1">Welcome, Guest</h2>
-                <p className="text-xs text-neutral-500 mb-6 max-w-[200px] mx-auto">Sign in to sync your progress, prayers, and habits across devices.</p>
-                
-                <div className="flex flex-col gap-3 justify-center px-2">
-                   {/* Professional Google Button */}
-                   <button 
-                      onClick={signInWithGoogle}
-                      disabled={loading}
-                      className="w-full bg-white dark:bg-neutral-800 text-neutral-700 dark:text-white border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700 font-medium py-2.5 px-4 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-95"
-                   >
-                      <svg className="w-5 h-5 me-3" viewBox="0 0 24 24">
-                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.84z" fill="#FBBC05" />
-                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                      </svg>
-                      Sign in with Google
-                   </button>
+    <div className="space-y-6 animate-in fade-in duration-500 pb-24 px-5 md:px-8 pt-4">
+      <AnimatePresence mode="wait">
+        {activeView === 'main' && (
+          <motion.div
+            key="main"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <MainView />
+          </motion.div>
+        )}
 
-                   <button 
-                      onClick={signInAnonymously}
-                      className="w-full text-xs font-bold text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 py-2"
-                   >
-                      Continue as Guest
-                   </button>
-                </div>
-             </div>
-          )}
-        </div>
+        {activeView === 'account' && (
+          <motion.div
+            key="account"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <AccountView />
+          </motion.div>
+        )}
 
-        {/* Mini Stats */}
-        <div className="grid grid-cols-3 gap-2 mt-6 border-t border-neutral-line pt-4">
-           <div className="text-center">
-              <span className="block text-lg font-bold text-brand-forest">84%</span>
-              <span className="text-[10px] text-neutral-muted uppercase tracking-wider">{t('profile_commitment')}</span>
-           </div>
-           <div className="text-center border-x border-neutral-line">
-              <span className="block text-lg font-bold text-brand-forest">12</span>
-              <span className="text-[10px] text-neutral-muted uppercase tracking-wider">{t('streakDesc')}</span>
-           </div>
-           <div className="text-center">
-              <span className="block text-lg font-bold text-brand-forest">3.8</span>
-              <span className="text-[10px] text-neutral-muted uppercase tracking-wider">{t('profile_avg_khushu')}</span>
-           </div>
-        </div>
-      </div>
+        {activeView === 'security' && (
+          <motion.div
+            key="security"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <SecurityView />
+          </motion.div>
+        )}
 
-      {/* 2. Settings Sections */}
-      <div className="space-y-4" id="profile-settings-first">
-        
-        {/* Appearance */}
-        <div>
-           <h3 className="text-xs font-bold text-neutral-muted uppercase tracking-wider mb-3 px-2">{t('pref_theme')}</h3>
-           <div className="bg-neutral-card rounded-2xl border border-neutral-line overflow-hidden p-1">
-              <div className="flex bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1">
-                 <button 
-                    onClick={() => setThemeMode('light')}
-                    className={`flex-1 flex items-center justify-center py-2.5 rounded-lg text-xs font-bold transition-all ${theme.mode === 'light' ? 'bg-white dark:bg-neutral-700 shadow text-brand-forest' : 'text-neutral-500 dark:text-neutral-400'}`}
-                 >
-                    <Sun size={16} className="me-2" /> Light
-                 </button>
-                 <button 
-                    onClick={() => setThemeMode('dark')}
-                    className={`flex-1 flex items-center justify-center py-2.5 rounded-lg text-xs font-bold transition-all ${theme.mode === 'dark' ? 'bg-white dark:bg-neutral-700 shadow text-brand-forest' : 'text-neutral-500 dark:text-neutral-400'}`}
-                 >
-                    <Moon size={16} className="me-2" /> Dark
-                 </button>
-                 <button 
-                    onClick={() => setThemeMode('system')}
-                    className={`flex-1 flex items-center justify-center py-2.5 rounded-lg text-xs font-bold transition-all ${theme.mode === 'system' ? 'bg-white dark:bg-neutral-700 shadow text-brand-forest' : 'text-neutral-500 dark:text-neutral-400'}`}
-                 >
-                    <Monitor size={16} className="me-2" /> System
-                 </button>
-              </div>
-           </div>
-        </div>
+        {activeView === 'notifications' && (
+          <motion.div
+            key="notifications"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <NotificationView />
+          </motion.div>
+        )}
 
-        {/* App Preferences */}
-        <div>
-           <h3 className="text-xs font-bold text-neutral-muted uppercase tracking-wider mb-3 px-2">{t('section_app')}</h3>
-           <div className="bg-neutral-card rounded-2xl border border-neutral-line overflow-hidden">
-              <SettingItem 
-                icon={Globe} 
-                label={t('pref_language')} 
-                value={LANGUAGES.find(l => l.code === language)?.native} 
-                onClick={() => setIsLangModalOpen(true)}
-                hasArrow
-              />
-           </div>
-        </div>
+        {activeView === 'achievements' && (
+          <motion.div
+            key="achievements"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <AchievementsView />
+          </motion.div>
+        )}
 
-        {/* Notifications */}
-        <div>
-           <h3 className="text-xs font-bold text-neutral-muted uppercase tracking-wider mb-3 px-2">{t('section_notifications')}</h3>
-           <div className="bg-neutral-card rounded-2xl border border-neutral-line overflow-hidden">
-              <SettingItem 
-                icon={Bell} 
-                label={t('adhan_notifications')} 
-                value={notificationsEnabled ? "On" : "Off"}
-                onClick={handleNotificationToggle}
-                hasArrow
-              />
-              <div className="h-px bg-neutral-line mx-14"></div>
-              <button onClick={handleTestNotification} className="w-full flex items-center justify-between p-4 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-start">
-                 <div className="flex items-center">
-                    <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 dark:text-neutral-400 me-3">
-                       <Speaker size={16} />
-                    </div>
-                    <span className="text-sm font-medium text-neutral-primary">{t('test_notification')}</span>
-                 </div>
-                 <div className="flex items-center">
-                    <span className="text-xs text-brand-forest font-bold">Test</span>
-                 </div>
-              </button>
-           </div>
-        </div>
+        {activeView === 'localisation' && (
+          <motion.div
+            key="localisation"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <LocalisationSettings onBack={() => setActiveView('main')} />
+          </motion.div>
+        )}
 
-        {/* Account & Support */}
-        <div>
-           <h3 className="text-xs font-bold text-neutral-muted uppercase tracking-wider mb-3 px-2">{t('section_support')}</h3>
-           <div className="bg-neutral-card rounded-2xl border border-neutral-line overflow-hidden">
-              <SettingItem 
-                icon={HelpCircle} 
-                label={t('help_guide')} 
-                onClick={() => {}}
-                hasArrow
-              />
-              <div className="h-px bg-neutral-line mx-14"></div>
-              <SettingItem 
-                icon={FileText} 
-                label={t('privacy_policy')} 
-                onClick={() => {}}
-                hasArrow
-              />
-           </div>
-        </div>
-
-      </div>
-
-      {/* --- MODALS --- */}
+        {/* Placeholder for others */}
+        {['privacy', 'app', 'support'].includes(activeView) && (
+          <motion.div
+            key="placeholder"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+            className="text-center py-20"
+          >
+            <p className="text-neutral-400">Section under construction</p>
+            <Button variant="ghost" onClick={() => setActiveView('main')} className="mt-4">Go Back</Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Language Modal */}
       {isLangModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
-           <div className="bg-neutral-card w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-6 animate-in slide-in-from-bottom border-t border-neutral-line">
-              <div className="flex justify-between items-center mb-4">
-                 <h3 className="font-bold text-lg text-neutral-primary">{t('pref_language')}</h3>
-                 <button onClick={() => setIsLangModalOpen(false)}><X size={20} className="text-neutral-400" /></button>
-              </div>
-              <div className="space-y-2">
-                 {LANGUAGES.map(lang => (
-                    <button 
-                      key={lang.code}
-                      onClick={() => {
-                         setLanguage(lang.code as any);
-                         setIsLangModalOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${language === lang.code ? 'border-brand-forest bg-brand-mint/20 text-brand-forest' : 'border-neutral-line hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-primary'}`}
-                    >
-                       <span className="font-bold">{lang.label}</span>
-                       <span className="text-sm opacity-70">{lang.native}</span>
-                       {language === lang.code && <Check size={18} />}
-                    </button>
-                 ))}
-              </div>
-           </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-3xl w-full max-w-xs m-4 relative animate-in zoom-in-95 max-h-[80vh] overflow-y-auto">
+            <h3 className="text-lg font-bold mb-4">{t('pref_language')}</h3>
+            <div className="space-y-2">
+              {/* English */}
+              <button onClick={() => { setLanguage('en'); setIsLangModalOpen(false); }} className="w-full text-left p-4 rounded-xl border border-neutral-100 hover:bg-neutral-50 flex justify-between items-center">
+                <div>
+                  <span className="font-medium">English</span>
+                  <span className="text-xs text-neutral-400 ml-2">🇬🇧</span>
+                </div>
+                {language === 'en' && <Check size={18} className="text-brand-primary" />}
+              </button>
+
+              {/* Arabic */}
+              <button onClick={() => { setLanguage('ar'); setIsLangModalOpen(false); }} className="w-full text-left p-4 rounded-xl border border-neutral-100 hover:bg-neutral-50 flex justify-between items-center dark:bg-brand-surface dark:border-brand-border/10 dark:hover:bg-white/5">
+                <div>
+                  <span className="font-medium dark:text-white">العربية</span>
+                  <span className="text-xs text-neutral-400 dark:text-neutral-500 ml-2">🇸🇦</span>
+                </div>
+                {language === 'ar' && <Check size={18} className="text-brand-primary" />}
+              </button>
+
+              {/* French */}
+              <button onClick={() => { setLanguage('fr'); setIsLangModalOpen(false); }} className="w-full text-left p-4 rounded-xl border border-neutral-100 hover:bg-neutral-50 flex justify-between items-center dark:bg-brand-surface dark:border-brand-border/10 dark:hover:bg-white/5">
+                <div>
+                  <span className="font-medium dark:text-white">Français</span>
+                  <span className="text-xs text-neutral-400 dark:text-neutral-500 ml-2">🇫🇷</span>
+                </div>
+                {language === 'fr' && <Check size={18} className="text-brand-primary" />}
+              </button>
+
+              {/* Turkish */}
+              <button onClick={() => { setLanguage('tr'); setIsLangModalOpen(false); }} className="w-full text-left p-4 rounded-xl border border-neutral-100 hover:bg-neutral-50 flex justify-between items-center dark:bg-brand-surface dark:border-brand-border/10 dark:hover:bg-white/5">
+                <div>
+                  <span className="font-medium dark:text-white">Türkçe</span>
+                  <span className="text-xs text-neutral-400 dark:text-neutral-500 ml-2">🇹🇷</span>
+                </div>
+                {language === 'tr' && <Check size={18} className="text-brand-primary" />}
+              </button>
+
+              {/* Urdu */}
+              <button onClick={() => { setLanguage('ur'); setIsLangModalOpen(false); }} className="w-full text-left p-4 rounded-xl border border-neutral-100 hover:bg-neutral-50 flex justify-between items-center dark:bg-brand-surface dark:border-brand-border/10 dark:hover:bg-white/5">
+                <div>
+                  <span className="font-medium dark:text-white">اردو</span>
+                  <span className="text-xs text-neutral-400 dark:text-neutral-500 ml-2">🇵🇰</span>
+                </div>
+                {language === 'ur' && <Check size={18} className="text-brand-primary" />}
+              </button>
+
+              {/* Indonesian */}
+              <button onClick={() => { setLanguage('id'); setIsLangModalOpen(false); }} className="w-full text-left p-4 rounded-xl border border-neutral-100 hover:bg-neutral-50 flex justify-between items-center dark:bg-brand-surface dark:border-brand-border/10 dark:hover:bg-white/5">
+                <div>
+                  <span className="font-medium dark:text-white">Bahasa Indonesia</span>
+                  <span className="text-xs text-neutral-400 dark:text-neutral-500 ml-2">🇮🇩</span>
+                </div>
+                {language === 'id' && <Check size={18} className="text-brand-primary" />}
+              </button>
+            </div>
+            <button onClick={() => setIsLangModalOpen(false)} className="absolute top-4 right-4 p-2 text-neutral-400"><X size={20} /></button>
+          </div>
         </div>
       )}
 
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={() => {
+          setIsAuthModalOpen(false);
+          // Trigger onboarding redirect for newly signed-up users
+          if (onRequestOnboarding) {
+            onRequestOnboarding();
+          }
+        }}
+      />
     </div>
   );
 };
-
-const SettingItem = ({ icon: Icon, label, value, onClick, hasArrow }: { icon: any, label: string, value?: string, onClick: () => void, hasArrow?: boolean }) => (
-  <button onClick={onClick} className="w-full flex items-center justify-between p-4 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-start">
-     <div className="flex items-center">
-        <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 dark:text-neutral-400 me-3">
-           <Icon size={16} />
-        </div>
-        <span className="text-sm font-medium text-neutral-primary">{label}</span>
-     </div>
-     <div className="flex items-center">
-        {value && <span className="text-xs text-neutral-400 me-2">{value}</span>}
-        {hasArrow && <div className="ltr:rotate-0 rtl:rotate-180"><ChevronLeft size={16} className="text-neutral-300 rtl:rotate-180" /></div>} 
-     </div>
-  </button>
-);

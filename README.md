@@ -1,106 +1,75 @@
+# khalili🌙
 
-# Khalili 🌙
+> A modern, mobile-first spiritual companion designed to help Muslims track prayers, build consistency, and find spiritual balance through data-driven insights and social accountability.
 
-> **Your AI-Powered Spiritual Companion** for the Modern Muslim.
 
-**Khalili** (My Close Friend) is a holistic Islamic lifestyle platform that bridges the gap between modern productivity tools and timeless spiritual wisdom. Unlike standard prayer apps, Khalili uses **Generative AI** to act as a spiritual mentor (*Murshid*), analyzing your habits, mood, and worship patterns to provide personalized, poetic, and actionable advice.
+## 📖 About The Project
 
-Built with **React**, **Tailwind CSS**, and the **Google Gemini API**.
+**khalili** is not just another prayer time app. It is a holistic dashboard designed to improve the *quality* (Khushu) of your worship, not just the quantity. By combining habit-tracking psychology with Islamic principles, it helps users identify barriers to prayer, track their spiritual heart state, and stay accountable with friends and family via the **Rakib System**.
 
----
+Built with **React** and **Tailwind CSS**, it features a beautiful, minimalist UI optimized for mobile devices.
 
-## ✨ Key Features
+##  Features (What We Did)
 
-### 🤖 Al-Murshid (AI Spiritual Companion)
-*   **Context-Aware Chat:** A floating FAB opens a full-screen chat with "Al-Murshid," a wise persona that knows your name, location, and current "Heart State."
-*   **Dynamic Advice:** The AI offers comfort using metaphors from nature and quotes from the Quran/Sunnah, tailored to your emotions.
-*   **Smart Duas:** Describe your feeling (e.g., "anxious about exams"), and the AI generates a specific Dua with translation and spiritual context.
+###  Prayer Management
+*   **Smart Dashboard:** Countdown to the next prayer with a visual "Heart State" widget.
+*   **Detailed Logging:** Track status (Jamaah, Home, Late, Missed, Qada).
+*   **Quality Metrics:** Rate your *Khushu* (focus) and journal reflections for every prayer.
+*   **Barrier Analysis:** Identify why you missed a prayer (Sleep, Work, Travel, etc.) to find patterns.
 
-### 🌿 The Habit Engine (Istiqamah Tracker)
-*   **Beyond Streaks:** Focuses on *Istiqamah* (steadfastness) and *Niyyah* (intention) rather than just checking boxes.
-*   **The Spiritual Doctor:** When you log a habit (success or failure), the AI analyzes your reflection.
-    *   *If you slipped:* It diagnoses the trigger (ego, environment, etc.) and prescribes a spiritual remedy.
-    *   *If you succeeded:* It reminds you to offer Shukr (gratitude).
-*   **Wisdom Cards:** Generates beautiful, shareable cards with poetic insights based on your daily logs.
+###  Digital Tasbih
+*   **Modes:** Single Dhikr or "Fatima Combo" (33/33/34).
+*   **Haptics:** Vibration feedback on count.
+*   **Visuals:** Beautiful progress ring animation.
+*   **Presets:** Common Adhkar included with Arabic script.
 
-### 📖 Immersive Quran Reader
-*   **Mushaf Mode:** A clean, scrolling reading experience mimicking a physical Mushaf.
-*   **Smart Navigation:** Jump between Surahs, Juz, or specific pages instantly.
-*   **Rich Menu:** Tap any Ayah to bookmark, copy, or access (placeholder) Tafsir and audio.
-*   **Visual Index:** Beautiful list view with revelation types (Meccan/Medinan) and juz markers.
+###  Rakib System (Social Accountability)
+*   **Partners:** Add friends to share your progress.
+*   **Privacy Control:** Choose what you share (Minimal, Standard, or Full).
+*   **Groups:** Create family or friend groups to compete on consistency streaks.
+*   **Reminders:** Send gentle "Nudges" to partners who haven't prayed yet.
 
-### 🕌 Prayer & Worship Dashboard
-*   **Precision Timing:** Calculates prayer times locally using the **Adhan.js** library (offline capable).
-*   **Heart State Widget:** A unique visual indicator of your spiritual health based on prayer timeliness and Khushu (focus) ratings.
-*   **Qada Tracker:** Keep track of missed prayers and your progress in making them up.
-*   **Qibla Finder:** Sensor-fused compass with visual calibration guides.
-*   **Digital Tasbih:** Haptic-feedback rosary with support for custom Dhikr sequences (Combos).
+###  Tools
+*   **Qibla Finder:** Visual compass with calibration UI.
+*   **Qada Tracker:** Track missed prayers and "make-up" progress.
+*   **Travel Mode:** Toggle for Safar (travel) rules.
+*   **Knowledge:** Video lecture interface for spiritual learning.
 
-### 📊 Deep Analytics
-*   **Khushu Trends:** Visual graphs showing the quality of your focus over time.
-*   **Barrier Analysis:** Pie charts identifying what stops you from praying (Sleep, Work, etc.).
-*   **Heatmaps:** GitHub-style consistency graphs for your prayers.
+###  Analytics
+*   **Weekly Consistency:** Bar charts showing prayer performance.
+*   **Trends:** Khushu quality over time.
+*   **Barrier Breakdown:** Pie charts showing your biggest obstacles to prayer.
 
-### 🤝 The Rakib System (Social)
-*   **Accountability:** Add friends and family to track progress together.
-*   **Privacy Controls:** Granular sharing levels (Minimal, Standard, Full).
-*   **Leaderboards:** Healthy competition based on consistency streaks.
+###  Settings & Profile
+*   **Comprehensive Configuration:** Setup prayer calculation methods, notifications, and appearance.
+*   **Clean UI:** Modern, categorized settings menu.
 
----
+##  Tech Stack
 
-## 🛠️ Tech Stack
-
-*   **Frontend Library:** React 18 (TypeScript)
-*   **Styling:** Tailwind CSS (with extensive custom config for Dark Mode & Typography)
-*   **AI Engine:** Google Gemini API (`gemini-2.5-flash`)
-*   **Prayer Math:** `adhan` (Astronomical calculations)
-*   **Charts:** Recharts
+*   **Frontend:** React 18 (TypeScript)
+*   **Styling:** Tailwind CSS
 *   **Icons:** Lucide React
-*   **Motion:** CSS Native Animations & Transitions
+*   **Charts:** Recharts
+*   **Build Tool:** Vite (assumed based on structure)
 
----
+##  Roadmap (What I am Going To Do)
 
-## 🚀 Getting Started
+The following features are planned for upcoming releases to move from "Prototype" to "Production":
 
-### Prerequisites
-*   Node.js (v16+)
-*   A Google Gemini API Key (for AI features)
+### Phase 1: Data & Backend
+- [ ] **Real-time Prayer Times:** Integrate `Aladhan API` for accurate global timings based on GPS.
+- [ ] **Authentication:** Implement Firebase/Supabase Auth for user accounts.
+- [ ] **Database:** Persist user data (prayers, settings, partners) to a cloud database.
 
-### Installation
+### Phase 2: Enhanced Experience
+- [ ] **Push Notifications:** Service workers for Adhan and reminders even when the app is closed.
+- [ ] **Geolocation:** Real GPS integration for the Qibla finder and automatic location detection.
+- [ ] **Quran Reader:** Full Mushaf integration with audio recitation.
 
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/yourusername/khalili.git
-    cd khalili
-    ```
+### Phase 3: Social & Gamification
+- [ ] **Real-time Rakib:** WebSocket integration for instant partner updates.
+- [ ] **Badges & Achievements:** Unlockable rewards for consistency (e.g., "Fajr Warrior").
+- [ ] **Widgets:** Home screen widgets for iOS and Android.
 
-2.  **Install Dependencies**
-    *(Note: This project uses direct ES modules via CDN for the prototype, but for local dev you might want a build step)*
-    ```bash
-    npm install
-    ```
-
-3.  **Environment Setup**
-    Create a `.env` file and add your API key:
-    ```env
-    API_KEY=your_google_gemini_api_key_here
-    ```
-
-4.  **Run**
-    ```bash
-    npm start
-    ```
-
----
-
-## 🎨 Design Philosophy
-
-Khalili follows a **"Deen + Design"** philosophy:
-1.  **Mobile First:** Designed for the thumb zone.
-2.  **Dark Mode:** Fully supported for late-night worship (Qiyam).
-3.  **Calm UI:** Uses nature-inspired colors (Forest Green, Mint, Amber, Rose) to induce tranquility.
-4.  **Accessibility:** RTL (Right-to-Left) support for Arabic users.
-
----
 
 *Made with ❤️ for the Ummah.*

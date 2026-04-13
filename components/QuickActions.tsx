@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BookOpen, Compass, Heart, List, RotateCcw, Settings, Share2, Sprout } from 'lucide-react';
+import { BookOpen, Compass, Heart, List, RotateCcw, Settings, GraduationCap, CheckSquare, PlayCircle } from 'lucide-react';
 import { QuickAction, ActionId } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -9,33 +9,41 @@ interface QuickActionsProps {
 }
 
 export const QuickActions: React.FC<QuickActionsProps> = ({ onActionClick }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const ACTIONS: QuickAction[] = [
-    { id: 'lectures', label: t('action_lectures'), icon: BookOpen, color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400' },
-    { id: 'qibla', label: t('action_qibla'), icon: Compass, color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400' },
-    { id: 'dua', label: t('action_dua'), icon: Heart, color: 'text-rose-600 bg-rose-50 dark:bg-rose-900/30 dark:text-rose-400' },
-    { id: 'tasbih', label: t('action_tasbih'), icon: List, color: 'text-purple-600 bg-purple-50 dark:bg-purple-900/30 dark:text-purple-400' },
-    { id: 'habits', label: t('action_habits'), icon: Sprout, color: 'text-lime-600 bg-lime-50 dark:bg-lime-900/30 dark:text-lime-400' },
-    { id: 'zakat', label: t('action_zakat'), icon: Share2, color: 'text-amber-600 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-400' },
-    { id: 'qada', label: t('action_qada'), icon: RotateCcw, color: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400' },
-    { id: 'settings', label: t('action_settings'), icon: Settings, color: 'text-slate-600 bg-slate-50 dark:bg-slate-800 dark:text-slate-400' },
+    { id: 'lectures', label: t('quran'), icon: BookOpen, color: 'text-emerald-600 bg-emerald-50' },
+    { id: 'qibla', label: t('qibla'), icon: Compass, color: 'text-blue-600 bg-blue-50' },
+    { id: 'dua', label: t('dua'), icon: Heart, color: 'text-rose-600 bg-rose-50' },
+    { id: 'tasbih', label: t('tasbih'), icon: List, color: 'text-purple-600 bg-purple-50' },
+    { id: 'study', label: t('study_space'), icon: GraduationCap, color: 'text-blue-600 bg-blue-50' },
+    { id: 'habits', label: t('habit_tracker'), icon: CheckSquare, color: 'text-green-600 bg-green-50' },
+    { id: 'content', label: t('content_hub'), icon: PlayCircle, color: 'text-pink-600 bg-pink-50' },
+    { id: 'qada', label: t('qada'), icon: RotateCcw, color: 'text-indigo-600 bg-indigo-50' },
   ];
 
   return (
-    <div id="quick-actions" className="grid grid-cols-4 gap-y-6 gap-x-4 mb-8">
+    <div id="quick-actions" className="grid grid-cols-2 gap-4 mb-8 px-1">
       {ACTIONS.map((action) => (
-        <button 
-          key={action.id} 
+        <button
+          key={action.id}
           onClick={() => onActionClick(action.id)}
-          className="flex flex-col items-center space-y-2 group cursor-pointer bg-transparent border-none p-0 focus:outline-none"
+          className="group relative flex flex-row items-center p-3.5 rounded-2xl bg-brand-surface border border-brand-border/50 shadow-sm hover:shadow-premium hover:border-brand-primary/20 hover:bg-brand-surface transition-all duration-300 text-left"
         >
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm transition-all duration-200 group-active:scale-90 group-hover:shadow-md ${action.color}`}>
-            <action.icon size={24} strokeWidth={1.5} />
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-inner ${action.color} bg-opacity-10 group-hover:scale-105 transition-transform`}>
+            <action.icon size={20} strokeWidth={2} className="opacity-90" />
           </div>
-          <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400">{action.label}</span>
+          <div className="ml-3 flex-1 min-w-0">
+            <span className="text-sm font-bold text-brand-forest block leading-tight group-hover:text-brand-primary transition-colors truncate">
+              {action.label}
+            </span>
+          </div>
+          <div className="absolute right-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+            {/* Optional arrow or indicator on hover if desired */}
+          </div>
         </button>
       ))}
     </div>
   );
+
 };

@@ -1,129 +1,36 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Muslim Daily</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              brand: {
-                // Using RGB variables allows Tailwind's opacity modifiers to work (e.g. bg-brand-forest/50)
-                forest: 'rgb(var(--color-primary) / <alpha-value>)',
-                teal: 'rgb(var(--color-primary-dark) / <alpha-value>)',
-                mint: 'rgb(var(--color-primary-light) / <alpha-value>)',
-              },
-              status: {
-                jamaah: '#1FA66A',
-                home: '#7EDB9B',
-                late: '#F2A33A',
-                missed: '#E35D5D',
-                qada: '#3AA1FF',
-              },
-              neutral: {
-                card: 'rgb(var(--color-card) / <alpha-value>)',
-                body: 'rgb(var(--color-bg) / <alpha-value>)',
-                primary: 'rgb(var(--color-text-main) / <alpha-value>)',
-                muted: 'rgb(var(--color-text-muted) / <alpha-value>)',
-                line: 'rgb(var(--color-border) / <alpha-value>)',
-              }
-            },
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              arabic: ['Noto Naskh Arabic', 'serif'],
-              quran: ['Amiri', 'serif'],
-            },
-            boxShadow: {
-              'card': '0 4px 20px -2px rgba(0, 0, 0, 0.06)',
-              'nav': '0 -4px 20px -2px rgba(0, 0, 0, 0.05)',
-            }
-          },
-        },
-      }
-    </script>
-    <style>
-      :root {
-        /* Default Light Theme (Forest Green) */
-        --color-primary: 15 107 74;       /* #0F6B4A */
-        --color-primary-dark: 25 107 95;  /* #196B5F */
-        --color-primary-light: 233 248 242; /* #E9F8F2 */
-        
-        --color-bg: 242 243 244;          /* #F2F3F4 */
-        --color-card: 255 255 255;        /* #FFFFFF */
-        --color-text-main: 11 27 23;      /* #0B1B17 */
-        --color-text-muted: 107 122 118;  /* #6B7A76 */
-        --color-border: 233 236 235;      /* #E9ECEB */
-      }
 
-      /* Dark Mode Overrides */
-      .dark {
-        --color-bg: 17 24 39;             /* gray-900 */
-        --color-card: 31 41 55;           /* gray-800 */
-        --color-text-main: 249 250 251;   /* gray-50 */
-        --color-text-muted: 156 163 175;  /* gray-400 */
-        --color-border: 55 65 81;         /* gray-700 */
-        
-        /* Dark Mode Primary Adjustments (slightly brighter/desaturated for contrast) */
-        --color-primary-light: 6 78 59;   /* Darker mint background */
-      }
-
-      body {
-        background-color: rgb(var(--color-bg));
-        color: rgb(var(--color-text-main));
-        font-family: 'Inter', sans-serif;
-        -webkit-font-smoothing: antialiased;
-        transition: background-color 0.3s ease, color 0.3s ease;
-      }
-      /* Hide scrollbar for horizontal scrolling areas */
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      
-      /* Specific Quran Justification Logic */
-      .quran-justify {
-        text-align: justify;
-        text-align-last: center; /* Ensures the last line is centered, common in Mushafs */
-        -moz-text-align-last: center;
-        text-justify: inter-character;
-      }
-
-      /* Remove focus outline from Recharts wrapper */
-      .recharts-wrapper {
-        outline: none !important;
-      }
-    </style>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/khaliliicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Muslim Daily</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
   <script type="importmap">
 {
   "imports": {
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
-    "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
     "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "adhan": "https://esm.sh/adhan",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.7",
-    "react-virtuoso": "https://esm.sh/react-virtuoso@4.6.2?external=react,react-dom",
-    "i18next": "https://esm.sh/i18next@23.7.16",
-    "react-i18next": "https://esm.sh/react-i18next@14.0.0?external=react,react-dom",
-    "i18next-browser-languagedetector": "https://esm.sh/i18next-browser-languagedetector@7.2.0"
+    "vite": "https://aistudiocdn.com/vite@^7.2.4",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
   }
 }
 </script>
+  <link rel="stylesheet" href="/index.css">
 </head>
-  <body>
-    <div id="root"></div>
-  </body>
+
+<body class="overscroll-none select-none">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
