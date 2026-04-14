@@ -44,11 +44,11 @@
 
     /* ----- BACKGROUND COLORS ----- */
 
-    /* App Background: Cream/ivory for main app
+    /* App Background: Custom user-provided #D8F2D9 (rgb(216, 242, 217))
        USED IN: Main page background
        EXAMPLE: The whole app body background */
-    --bg-app: 255 255 240;
-    /* Ivory - #FFFFF0 */
+    --bg-app: 216 242 217;
+    /* Soft custom green - #d8f2d9 */
 
     /* Surface: White cards and panels
        USED IN: All cards, modals, panels
@@ -64,11 +64,11 @@
 
     /* ----- TEXT COLORS ----- */
 
-    /* Primary Text: Dark green for main readable text
+    /* Primary Text: Deep charcoal-emerald for lower eye strain
        USED IN: All main headings, body text, important labels
        EXAMPLE: Prayer names, section titles, buttons */
-    --text-primary: 2 44 34;
-    /* Emerald 950 - #022C22 */
+    --text-primary: 26 47 42;
+    /* Charcoal Emerald - #1A2F2A */
 
     /* Secondary Text: Medium green for subtitles
        USED IN: Subtitles, secondary labels
@@ -199,11 +199,11 @@ canvas {
 }
 
 @layer components {
-  /* --- PREMIUM COMPONENT SYSTEM --- */
+  /* --- PREMIUM COMPONENT SYSTEM (SANCTUARY THEME) --- */
 
   /* 1. BUTTONS */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl font-medium transition-all duration-500 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-primary {
@@ -224,7 +224,7 @@ canvas {
 
   /* 2. CARDS */
   .card-premium {
-    @apply bg-brand-surface rounded-2xl border border-brand-border/50 shadow-glass backdrop-blur-sm overflow-hidden;
+    @apply bg-brand-surface rounded-3xl shadow-soft-xl border border-black/5 backdrop-blur-sm overflow-hidden transition-all duration-500;
   }
 
   /* 3. INPUTS */
@@ -244,12 +244,8 @@ canvas {
 
   /* 6. 3D DEPTH & PREMIUM EFFECTS */
   .card-3d {
-    @apply relative bg-brand-surface rounded-2xl border border-brand-border/50;
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.05),
-      0 10px 15px -3px rgba(0, 0, 0, 0.05),
-      0 20px 25px -5px rgba(0, 0, 0, 0.03);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    @apply relative bg-brand-surface rounded-3xl border border-black/5 shadow-soft-xl;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .card-3d:hover {
@@ -261,21 +257,36 @@ canvas {
   }
 
   .card-elevated {
-    @apply bg-brand-surface rounded-2xl;
-    box-shadow:
-      0 1px 3px 0 rgba(0, 0, 0, 0.04),
-      0 4px 8px -2px rgba(0, 0, 0, 0.04),
-      0 12px 20px -4px rgba(0, 0, 0, 0.06);
+    @apply bg-brand-surface rounded-3xl shadow-soft-xl;
   }
 
   .glass-premium {
-    @apply backdrop-blur-xl border border-brand-border/40;
-    background: linear-gradient(135deg,
-        rgba(var(--bg-surface), 0.92) 0%,
-        rgba(var(--bg-surface), 0.78) 100%);
+    @apply backdrop-blur-xl border border-white/20 bg-brand-surface/80 rounded-3xl shadow-soft-xl transition-all duration-500;
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.08),
+      0 20px 40px -15px rgba(4, 120, 87, 0.05),
       inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+
+  .skeleton-premium {
+    @apply relative overflow-hidden bg-brand-surface;
+  }
+
+  .skeleton-premium::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg,
+        rgba(4, 120, 87, 0) 0%,
+        rgba(4, 120, 87, 0.05) 20%,
+        rgba(255, 255, 240, 0.4) 50%,
+        rgba(4, 120, 87, 0.05) 80%,
+        rgba(4, 120, 87, 0) 100%);
+    animation: shimmer 2.5s infinite;
   }
 
   .depth-1 {
@@ -327,5 +338,11 @@ canvas {
 
   100% {
     background-position: 0% 50%;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
   }
 }

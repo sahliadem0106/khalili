@@ -71,6 +71,7 @@ export const SuhbaService = {
 
         const docRef = await addDoc(collection(db, 'groups'), {
             adminId,
+            coAdmins: [],
             name,
             description,
             isPublic,
@@ -168,7 +169,30 @@ export const SuhbaService = {
         }
 
         const circleRef = doc(db, 'groups', circleId);
-        await updateDoc(circleRef, { members: arrayRemove(targetUserId) });
+        await updateDoc(circleRef, {
+            members: arrayRemove(targetUserId),
+            coAdmins: arrayRemove(targetUserId)
+        });
+    },
+
+    async addCoAdmin(circleId: string, requestingUserId: string, newCoAdminId: string): Promise<void> {
+        const circle = await this.getCircle(circleId);
+        if (!circle) throw new Error("Circle not found");
+
+        if (circle.adminId !== requestingUserId) {
+            throw new Error("Only the circle admin can add co-admins");
+        }
+
+        if (!circle.members.includes(newCoAdminId)) {
+            throw new Error("User must be a circle member first");
+        }
+
+        if (newCoAdminId === circle.adminId || circle.coAdmins?.includes(newCoAdminId)) {
+            throw new Error("User is already an admin");
+        }
+
+        const circleRef = doc(db, 'groups', circleId);
+        await updateDoc(circleRef, { coAdmins: arrayUnion(newCoAdminId) });
     },
 
     // --- Broadcast System ---

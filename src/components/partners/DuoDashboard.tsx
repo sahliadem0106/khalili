@@ -8,7 +8,8 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { useToast, Toast } from '../shared/Toast';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { NotificationSettings } from '../profile/NotificationSettings';
 
 interface PrayerLog {
     prayerName: string;
@@ -40,6 +41,7 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
     const [myTodayPrayers, setMyTodayPrayers] = useState<PrayerLog[]>([]);
     const [partnerTodayPrayers, setPartnerTodayPrayers] = useState<PrayerLog[]>([]);
     const [refreshing, setRefreshing] = useState(false);
+    const [showNotificationRules, setShowNotificationRules] = useState(false);
     const { toast, showToast, clearToast } = useToast();
 
     // Get partner ID (the other user in the partnership)
@@ -189,11 +191,18 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
                     <p className="text-emerald-100 max-w-md">
                         {t('duo_subtitle')}
                     </p>
+                    <button
+                        onClick={() => setShowNotificationRules(true)}
+                        className="mt-4 inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-colors"
+                    >
+                        <Bell size={14} />
+                        Duo notification rules
+                    </button>
                 </div>
             </div>
 
             {/* Today's Prayers Comparison */}
-            <div className="bg-brand-surface p-5 rounded-2xl shadow-sm border border-brand-border">
+            <div className="bg-brand-surface p-5 rounded-3xl shadow-sm border border-black/5">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-brand-forest">{t('duo_todays_prayers')}</h3>
                     <button
@@ -261,7 +270,7 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
             {/* Stats Comparison */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* My Stats */}
-                <div className="bg-brand-surface p-6 rounded-2xl shadow-sm border border-brand-border">
+                <div className="bg-brand-surface p-6 rounded-3xl shadow-sm border border-black/5">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-10 h-10 bg-brand-primary/10 rounded-full flex items-center justify-center text-brand-primary font-bold">{t('duo_you')}</div>
                         <h3 className="font-bold text-brand-forest">{t('duo_my_progress')}</h3>
@@ -282,7 +291,7 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
                 </div>
 
                 {/* Partner Stats */}
-                <div className="bg-brand-surface p-6 rounded-2xl shadow-sm border border-brand-border">
+                <div className="bg-brand-surface p-6 rounded-3xl shadow-sm border border-black/5">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-10 h-10 bg-brand-secondary/10 rounded-full flex items-center justify-center text-brand-secondary font-bold">
                             <User size={20} />
@@ -312,7 +321,7 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
 
             {/* Partner's Social Links (if any) */}
             {partnerProfile?.socialLinks && partnerProfile.socialLinks.length > 0 && (
-                <div className="bg-brand-surface p-4 rounded-2xl border border-brand-border">
+                <div className="bg-brand-surface p-4 rounded-3xl border border-black/5">
                     <h4 className="font-bold text-brand-forest mb-3">{t('duo_contact_info')}</h4>
                     <div className="flex flex-wrap gap-2">
                         {partnerProfile.socialLinks.map((link, idx) => (
@@ -321,7 +330,7 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
                                 href={link.handle.startsWith('http') ? link.handle : `https://${link.handle}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 px-3 py-2 bg-brand-subtle rounded-lg text-sm text-brand-forest hover:bg-brand-primary/10 transition-colors"
+                                className="flex items-center gap-2 px-3 py-2 bg-brand-subtle rounded-3xl text-sm text-brand-forest hover:bg-brand-primary/10 transition-colors"
                             >
                                 {getSocialIcon(link.platform)}
                                 <span>{link.platform}</span>
@@ -336,7 +345,7 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
                 <button
                     onClick={handlePoke}
                     disabled={poking}
-                    className="bg-brand-surface border-2 border-brand-border hover:border-brand-primary/40 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all"
+                    className="bg-brand-surface border-2 border-black/5 hover:border-brand-primary/40 p-4 rounded-3xl flex flex-col items-center justify-center gap-2 group transition-all"
                 >
                     <div className="w-12 h-12 bg-brand-primary/10 rounded-full flex items-center justify-center text-brand-primary group-hover:scale-110 transition-transform">
                         <Bell size={24} />
@@ -346,7 +355,7 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
 
                 <button
                     onClick={() => setShowEndConfirm(true)}
-                    className="bg-brand-surface border-2 border-red-200 hover:border-red-300 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all"
+                    className="bg-brand-surface border-2 border-red-200 hover:border-red-300 p-4 rounded-3xl flex flex-col items-center justify-center gap-2 group transition-all"
                 >
                     <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-600 group-hover:scale-110 transition-transform">
                         <UserX size={24} />
@@ -358,7 +367,7 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
             {/* End Partnership Confirmation Modal */}
             {showEndConfirm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-brand-surface border border-brand-border rounded-2xl p-6 max-w-sm w-full shadow-xl">
+                    <div className="bg-brand-surface border border-black/5 rounded-3xl p-6 max-w-sm w-full shadow-xl">
                         <h3 className="text-xl font-bold text-brand-forest mb-2">{t('duo_end_confirm_title')}</h3>
                         <p className="text-brand-muted mb-6">
                             {t('duo_end_confirm_desc')}
@@ -366,14 +375,14 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowEndConfirm(false)}
-                                className="flex-1 px-4 py-3 bg-brand-subtle text-brand-forest rounded-xl font-bold hover:bg-brand-primary/10 transition-colors"
+                                className="flex-1 px-4 py-3 bg-brand-subtle text-brand-forest rounded-3xl font-bold hover:bg-brand-primary/10 transition-colors"
                             >
                                 {t('cancel' as any)}
                             </button>
                             <button
                                 onClick={handleEndPartnership}
                                 disabled={ending}
-                                className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-colors disabled:opacity-50"
+                                className="flex-1 px-4 py-3 bg-red-500 text-white rounded-3xl font-bold hover:bg-red-600 transition-colors disabled:opacity-50"
                             >
                                 {ending ? t('duo_ending') : t('duo_yes_end')}
                             </button>
@@ -383,6 +392,31 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
             )}
             <AnimatePresence>
                 {toast && <Toast {...toast} onDismiss={clearToast} />}
+            </AnimatePresence>
+            <AnimatePresence>
+                {showNotificationRules && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ y: 24, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 24, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute inset-0 sm:inset-8 sm:rounded-3xl overflow-hidden bg-brand-surface border border-brand-border shadow-2xl"
+                        >
+                            <NotificationSettings
+                                onBack={() => setShowNotificationRules(false)}
+                                defaultScope="partner"
+                                canManagePolicies={true}
+                                title="Duo Notification Rules"
+                            />
+                        </motion.div>
+                    </motion.div>
+                )}
             </AnimatePresence>
         </div>
     );

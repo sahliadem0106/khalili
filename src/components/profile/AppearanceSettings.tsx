@@ -35,7 +35,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({ onBack }
                     <div className="space-y-3">
                         <button
                             onClick={() => setLanguage('en')}
-                            className={`w-full p-4 rounded-xl flex items-center justify-between transition-all border ${language === 'en'
+                            className={`w-full p-4 rounded-3xl flex items-center justify-between transition-all border ${language === 'en'
                                 ? 'bg-brand-primary/10 border-brand-primary/30 shadow-md'
                                 : 'bg-white border-transparent hover:bg-gray-50 shadow-sm'
                                 }`}
@@ -54,7 +54,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({ onBack }
 
                         <button
                             onClick={() => setLanguage('ar')}
-                            className={`w-full p-4 rounded-xl flex items-center justify-between transition-all border ${language === 'ar'
+                            className={`w-full p-4 rounded-3xl flex items-center justify-between transition-all border ${language === 'ar'
                                 ? 'bg-brand-primary/10 border-brand-primary/30 shadow-md'
                                 : 'bg-white border-transparent hover:bg-gray-50 shadow-sm'
                                 }`}
@@ -73,7 +73,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({ onBack }
 
                         <button
                             onClick={() => setLanguage('fr')}
-                            className={`w-full p-4 rounded-xl flex items-center justify-between transition-all border ${language === 'fr'
+                            className={`w-full p-4 rounded-3xl flex items-center justify-between transition-all border ${language === 'fr'
                                 ? 'bg-brand-primary/10 border-brand-primary/30 shadow-md'
                                 : 'bg-white border-transparent hover:bg-gray-50 shadow-sm'
                                 }`}
@@ -92,7 +92,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({ onBack }
 
                         <button
                             onClick={() => setLanguage('tr')}
-                            className={`w-full p-4 rounded-xl flex items-center justify-between transition-all border ${language === 'tr'
+                            className={`w-full p-4 rounded-3xl flex items-center justify-between transition-all border ${language === 'tr'
                                 ? 'bg-brand-primary/10 border-brand-primary/30 shadow-md'
                                 : 'bg-white border-transparent hover:bg-gray-50 shadow-sm'
                                 }`}
@@ -111,7 +111,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({ onBack }
 
                         <button
                             onClick={() => setLanguage('ur')}
-                            className={`w-full p-4 rounded-xl flex items-center justify-between transition-all border ${language === 'ur'
+                            className={`w-full p-4 rounded-3xl flex items-center justify-between transition-all border ${language === 'ur'
                                 ? 'bg-brand-primary/10 border-brand-primary/30 shadow-md'
                                 : 'bg-white border-transparent hover:bg-gray-50 shadow-sm'
                                 }`}
@@ -130,7 +130,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({ onBack }
 
                         <button
                             onClick={() => setLanguage('id')}
-                            className={`w-full p-4 rounded-xl flex items-center justify-between transition-all border ${language === 'id'
+                            className={`w-full p-4 rounded-3xl flex items-center justify-between transition-all border ${language === 'id'
                                 ? 'bg-brand-primary/10 border-brand-primary/30 shadow-md'
                                 : 'bg-white border-transparent hover:bg-gray-50 shadow-sm'
                                 }`}
@@ -155,7 +155,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({ onBack }
                         {t('settings_theme')}
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
-                        <button className="p-4 rounded-xl bg-brand-primary/10 border border-brand-primary/30 relative overflow-hidden group">
+                        <button className="p-4 rounded-3xl bg-brand-primary/10 border border-brand-primary/30 relative overflow-hidden group">
                             <div className="flex flex-col items-center py-2">
                                 <Sun className="text-brand-primary mb-2" size={32} />
                                 <span className="font-medium text-brand-forest">{t('settings_theme_light')}</span>
@@ -164,7 +164,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({ onBack }
                                 <Check className="text-brand-primary" size={16} />
                             </div>
                         </button>
-                        <button className="p-4 rounded-xl bg-white border border-gray-100 relative overflow-hidden group opacity-50 cursor-not-allowed">
+                        <button className="p-4 rounded-3xl bg-white border border-gray-100 relative overflow-hidden group opacity-50 cursor-not-allowed">
                             <div className="flex flex-col items-center py-2">
                                 <Moon className="text-neutral-400 mb-2" size={32} />
                                 <span className="font-medium text-neutral-400">{t('settings_theme_dark')}</span>

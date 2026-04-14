@@ -34,7 +34,7 @@ export const HelpSupport: React.FC<HelpSupportProps> = ({ onBack }) => {
 
             <div className="p-5 overflow-y-auto">
                 <div className="text-center mb-8 py-6">
-                    <div className="w-20 h-20 bg-gradient-to-br from-brand-primary to-brand-secondary rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-brand-primary/20">
+                    <div className="w-20 h-20 bg-gradient-to-br from-brand-primary to-brand-secondary rounded-3xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-brand-primary/20">
                         <Heart className="text-white fill-white/20" size={40} />
                     </div>
                     <h3 className="text-xl font-bold text-brand-forest">Khalili</h3>
@@ -46,7 +46,7 @@ export const HelpSupport: React.FC<HelpSupportProps> = ({ onBack }) => {
                         <button
                             key={i}
                             onClick={link.action}
-                            className="w-full p-4 bg-white rounded-xl shadow-sm border border-transparent hover:border-brand-primary/20 hover:shadow-md transition-all flex items-center"
+                            className="w-full p-4 bg-white rounded-3xl shadow-sm border border-transparent hover:border-brand-primary/20 hover:shadow-md transition-all flex items-center"
                         >
                             <div className="w-10 h-10 rounded-full bg-brand-surface flex items-center justify-center text-brand-primary">
                                 <link.icon size={20} />
@@ -59,7 +59,7 @@ export const HelpSupport: React.FC<HelpSupportProps> = ({ onBack }) => {
                     ))}
                 </div>
 
-                <div className="mt-10 p-4 bg-brand-sand/30 rounded-xl text-center">
+                <div className="mt-10 p-4 bg-brand-sand/30 rounded-3xl text-center">
                     <p className="text-sm text-brand-forest/80 leading-relaxed">
                         {t('profile_help_desc')}
                     </p>

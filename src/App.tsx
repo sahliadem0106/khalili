@@ -9,7 +9,6 @@ import { BottomNav } from './components/BottomNav';
 import { TasbihPage } from './components/TasbihPage';
 import { QiblaFinder } from './components/QiblaFinder';
 import { QadaTracker } from './components/QadaTracker';
-import { LecturesPage } from './components/LecturesPage';
 import { ProfilePage } from './components/ProfilePage';
 import { DailyDuaWidget } from './components/DailyDuaWidget';
 import { PrayerDetailModal } from './components/PrayerDetailModal';
@@ -21,7 +20,6 @@ import { GuidedTour, TourStep } from './components/GuidedTour';
 import { NotificationPermission } from './components/NotificationPermission';
 import { StudySpacePage } from './components/StudySpacePage';
 import { HabitTrackerPage } from './components/HabitTrackerPage';
-import { ContentHubPage } from './components/ContentHubPage';
 import { ZakatCalculator } from './components/ZakatCalculator';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { INITIAL_PRAYERS } from './constants';
@@ -161,6 +159,21 @@ const AppContent: React.FC = () => {
   const [isQiblaOpen, setIsQiblaOpen] = useState(false);
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null);
   const [activeTab, setActiveTab] = useState('home');
+  const [navVisible, setNavVisible] = useState(true);
+  const [quranMode, setQuranMode] = useState<'list' | 'mushaf'>('list');
+
+  // Auto-hide bottom nav in Quran reading view
+  useEffect(() => {
+    if (activeTab === 'quran' && quranMode === 'mushaf') {
+      const timer = setTimeout(() => {
+        setNavVisible(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    } else {
+      setNavVisible(true);
+    }
+  }, [activeTab, quranMode]);
+
   const [direction, setDirection] = useState(0); // -1 for left, 1 for right
   const [isTourOpen, setIsTourOpen] = useState(false);
 
@@ -476,10 +489,10 @@ const AppContent: React.FC = () => {
         break;
       case 'settings': handleTabChange('profile'); break;
       case 'goals': handleTabChange('stats'); break;
-      case 'lectures': handleTabChange('quran'); break; // Mapping lectures to quran tab for now or create new
+      case 'lectures': handleTabChange('quran'); break;
       case 'study': handleTabChange('study'); break;
       case 'habits': handleTabChange('habits'); break;
-      case 'content': handleTabChange('content'); break;
+      case 'content': handleTabChange('quran'); break;
       case 'zakat': handleTabChange('zakat'); break;
       default: break;
     }
@@ -560,10 +573,6 @@ const AppContent: React.FC = () => {
         { targetId: 'analytics-streak', title: t('tour_stats_streak_title'), content: t('tour_stats_streak_content') },
         { targetId: 'analytics-weakness', title: t('tour_stats_insights_title'), content: t('tour_stats_insights_content') },
       ],
-      'lectures': [
-        { targetId: 'lectures-featured', title: t('tour_lectures_featured_title'), content: t('tour_lectures_featured_content') },
-        { targetId: 'lecture-card-first', title: t('tour_lectures_lib_title'), content: t('tour_lectures_lib_content') },
-      ],
       'profile': [
         { targetId: 'profile-user-card', title: t('tour_profile_id_title'), content: t('tour_profile_id_content') },
         { targetId: 'profile-settings-first', title: t('tour_profile_settings_title'), content: t('tour_profile_settings_content') },
@@ -594,22 +603,20 @@ const AppContent: React.FC = () => {
     let content;
     switch (activeTab) {
       case 'dua': content = <DuaPage onBack={() => setActiveTab('home')} onHelp={() => setIsTourOpen(true)} />; break;
-      case 'quran': content = <QuranReader />; break;
-      case 'partners': content = <PartnersPage initialSection={partnersSection} />; break;
+      case 'quran': content = <QuranReader onModeChange={setQuranMode} />; break;
+      case 'partners': content = <PartnersPage initialSection={partnersSection} onGlobalNavigate={(tab) => handleTabChange(tab)} />; break;
       case 'tasbih': content = <TasbihPage onBack={() => setActiveTab('home')} />; break;
-      case 'lectures': content = <LecturesPage />; break;
       case 'profile': content = <ProfilePage user={user} onTestAdhan={triggerTestAdhan} onRequestOnboarding={() => { setShowOnboarding(true); setOnboardingStep(7); }} />; break;
       case 'stats': content = <AnalyticsPage prayers={prayers} />; break;
       case 'study': content = <StudySpacePage onBack={() => setActiveTab('home')} />; break;
       case 'habits': content = <HabitTrackerPage onBack={() => setActiveTab('home')} />; break;
-      case 'content': content = <ContentHubPage onBack={() => setActiveTab('home')} />; break;
       case 'zakat': content = <div className="flex flex-col animate-in fade-in"><button onClick={() => setActiveTab('home')} className="self-start mb-4 p-2 bg-neutral-100 rounded-full dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-600 dark:text-neutral-400"><path d="m15 18-6-6 6-6"/></svg></button><ZakatCalculator /></div>; break;
       case 'home':
       default:
         content = (
-          <div className="space-y-6 px-5 md:px-8 pt-4 pb-20">
-            <PrayerCard prayerData={prayerData} />
+          <div className="space-y-4 px-5 md:px-8 pt-4 pb-10">
             <DailyDuaWidget />
+            <PrayerCard prayerData={prayerData} />
             <QuickActions onActionClick={handleQuickAction} />
             <PrayerList
               prayers={prayers}
@@ -682,11 +689,11 @@ const AppContent: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className="w-full h-[100dvh] relative bg-brand-surface/90 backdrop-blur-2xl overflow-hidden flex flex-col mx-auto max-w-xl border-x border-brand-border/50 shadow-2xl">
+      <div className="w-full h-[100dvh] relative overflow-hidden flex flex-col mx-auto max-w-xl border-x border-brand-border/50 shadow-2xl">
 
         {/* Header Area - Only on Home */}
         {activeTab === 'home' && (
-          <div className="px-5 md:px-8 pt-safe-top z-20 sticky top-0 bg-brand-surface/95 backdrop-blur-xl border-b border-brand-border/50 transition-all duration-300">
+          <div className="px-5 md:px-8 pt-safe-top z-20 sticky top-0 transition-all duration-300">
             <div className="min-h-[60px] flex items-center">
               <div className="w-full pb-2">
                 <Header
@@ -701,14 +708,14 @@ const AppContent: React.FC = () => {
         )}
 
         {/* Scrollable Content Area */}
-        <main ref={mainRef} className="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth relative px-0">
+        <main ref={mainRef} className="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth relative px-0 pb-32">
           {/* Swipeable Container */}
           <motion.div
             key={activeTab}
-            drag={MAIN_TABS.includes(activeTab) ? "x" : false}
+            drag={MAIN_TABS.includes(activeTab) && activeTab !== 'partners' ? "x" : false}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.2}
-            onDragEnd={MAIN_TABS.includes(activeTab) ? (e, { offset, velocity }) => {
+            onDragEnd={MAIN_TABS.includes(activeTab) && activeTab !== 'partners' ? (e, { offset, velocity }) => {
               const swipeThreshold = 50;
               const currentIndex = MAIN_TABS.indexOf(activeTab);
 
@@ -722,16 +729,19 @@ const AppContent: React.FC = () => {
                 handleTabChange(MAIN_TABS[currentIndex - 1]);
               }
             } : undefined}
-            className="w-full h-full"
+            className="w-full h-full relative"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
           >
+            {/* Subtle Vignette Scrim (Sanctuary Theme) */}
+            <div className="pointer-events-none fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.04)_100%)] mix-blend-multiply" />
+            
             {renderContent()}
           </motion.div>
         </main>
 
-        <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+        <BottomNav activeTab={activeTab} onTabChange={handleTabChange} isVisible={navVisible} />
 
         {/* Global Floating Help Button */}
         {/* Global Floating Help Button Removed */}

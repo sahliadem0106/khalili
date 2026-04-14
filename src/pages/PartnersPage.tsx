@@ -13,9 +13,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface PartnersPageProps {
     initialSection?: 'duo' | 'family' | 'suhba' | 'requests';
+    onGlobalNavigate?: (tab: string) => void;
 }
 
-export const PartnersPage: React.FC<PartnersPageProps> = ({ initialSection = 'duo' }) => {
+export const PartnersPage: React.FC<PartnersPageProps> = ({ initialSection = 'duo', onGlobalNavigate }) => {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<'duo' | 'family' | 'suhba' | 'requests'>(initialSection);
     const [showConnectModal, setShowConnectModal] = useState(false);
@@ -47,49 +48,96 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ initialSection = 'du
     };
 
     return (
-        <div className="p-4 md:p-8 max-w-6xl mx-auto pb-24">
-            <div className="mb-6 rounded-2xl border border-brand-border bg-brand-surface/90 backdrop-blur-sm px-4 py-4 sm:px-5">
-                <div className="flex flex-wrap justify-between items-center gap-3">
-                    <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-brand-forest font-outfit">Community & Partners</h1>
-                        <p className="text-sm text-brand-muted mt-1">Manage partner, family, and suhba connections in one place.</p>
-                    </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
+        <div className="p-4 md:p-10 max-w-[85rem] mx-auto pb-28 pt-8 overflow-hidden">
+            {/* Top Zone: Global Swiping (Home & Quran) */}
+            <motion.div 
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(e, { offset }) => {
+                    const swipeThreshold = 50;
+                    const isLTR = document.documentElement.dir !== 'rtl';
+                    const isNextSwipe = isLTR ? offset.x < -swipeThreshold : offset.x > swipeThreshold;
+                    const isPrevSwipe = isLTR ? offset.x > swipeThreshold : offset.x < -swipeThreshold;
+                    
+                    if (isNextSwipe) {
+                        onGlobalNavigate?.('quran');
+                    } else if (isPrevSwipe) {
+                        onGlobalNavigate?.('home');
+                    }
+                }}
+                className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 cursor-grab active:cursor-grabbing"
+            >
+                <div className="pointer-events-none">
+                    <h1 className="text-4xl sm:text-5xl font-black text-brand-forest font-outfit tracking-tight mb-2">Community & Partners</h1>
+                    <p className="text-base text-brand-muted font-medium">Manage partner, family, and suhba connections in one place.</p>
+                </div>
+                <div className="flex flex-col gap-3 w-full sm:w-auto sm:min-w-[180px]">
                     <button
                         onClick={() => setActiveTab('requests')}
-                        className={`p-2 rounded-xl transition-all relative border ${activeTab === 'requests' ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/30' : 'bg-brand-surface text-brand-muted border-brand-border hover:bg-brand-subtle'}`}
+                        className={`w-full flex items-center justify-center gap-2 p-3 sm:py-3.5 rounded-2xl transition-all relative font-bold text-sm border ${activeTab === 'requests' ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/30' : 'bg-brand-surface text-brand-forest border-black/5 hover:bg-brand-subtle shadow-sm'}`}
                     >
                         <Inbox size={20} />
+                        Inbox
                         {/* Red notification badge */}
                         {requestCount > 0 && (
-                            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm animate-in zoom-in">
+                            <span className="absolute top-2 right-2 min-w-[20px] h-[20px] bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm animate-in zoom-in">
                                 {requestCount > 9 ? '9+' : requestCount}
                             </span>
                         )}
                     </button>
                     <button
                         onClick={() => setShowConnectModal(true)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-brand-primary/10 text-brand-primary px-4 py-2 rounded-xl font-bold hover:bg-brand-primary/20 transition-colors border border-brand-primary/20"
+                        className="w-full flex items-center justify-center gap-2 bg-brand-primary text-white px-5 py-3 sm:py-3.5 rounded-2xl font-bold hover:bg-brand-primary/90 transition-colors shadow-lg shadow-brand-primary/20 text-sm"
                     >
                         <QrCode size={20} />
-                        <span className="hidden sm:inline">Scan / Code</span>
+                        <span>Scan / Code</span>
                     </button>
                 </div>
-            </div>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-3 p-1 bg-brand-subtle rounded-2xl w-full md:w-fit mb-8 relative border border-brand-border">
+            {/* Bottom Zone: Local Tab Swiping */}
+            <motion.div
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(e, { offset }) => {
+                    const swipeThreshold = 50;
+                    const TABS = ['duo', 'family', 'suhba'] as const;
+                    const currentIndex = TABS.indexOf(activeTab as any);
+                    
+                    // Do not allow swiping out of the Inbox/Requests view easily
+                    if (currentIndex === -1) return;
+
+                    const isLTR = document.documentElement.dir !== 'rtl';
+                    const isNextSwipe = isLTR ? offset.x < -swipeThreshold : offset.x > swipeThreshold;
+                    const isPrevSwipe = isLTR ? offset.x > swipeThreshold : offset.x < -swipeThreshold;
+
+                    if (isNextSwipe && currentIndex < TABS.length - 1) {
+                         setActiveTab(TABS[currentIndex + 1]);
+                    } else if (isPrevSwipe && currentIndex > 0) {
+                         setActiveTab(TABS[currentIndex - 1]);
+                    }
+                }}
+                className="w-full flex-1 cursor-grab active:cursor-grabbing"
+            >
+                <div className="flex bg-brand-subtle rounded-3xl w-full md:w-fit mb-10 relative border border-black/5 shadow-inner p-1">
                 {(['duo', 'family', 'suhba'] as const).map((tab) => {
                     const isActive = activeTab === tab;
                     return (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`flex-1 md:flex-none px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 
-                                ${isActive
-                                    ? 'bg-brand-primary text-white shadow-md'
-                                    : 'text-brand-muted hover:text-brand-forest hover:bg-brand-surface'}`}
+                            className={`flex-[1_0_0] md:flex-none relative z-10 px-4 sm:px-8 py-3 rounded-3xl text-sm font-bold transition-colors flex items-center justify-center gap-2 
+                                ${isActive ? 'text-white' : 'text-brand-muted hover:text-brand-forest hover:bg-black/5'}`}
                         >
+                            {isActive && (
+                                <motion.div
+                                    layoutId="partner-tab-indicator"
+                                    className="absolute inset-0 bg-brand-primary rounded-3xl -z-10 shadow-md"
+                                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                                />
+                            )}
                             {tab === 'duo' && <Heart size={16} className={isActive ? 'fill-current' : ''} />}
                             {tab === 'family' && <Home size={16} className={isActive ? 'fill-current' : ''} />}
                             {tab === 'suhba' && <Users size={16} className={isActive ? 'fill-current' : ''} />}
@@ -127,6 +175,7 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ initialSection = 'du
                     {activeTab === 'suhba' && <SuhbaDashboard />}
                 </motion.div>
             </AnimatePresence>
+            </motion.div>
 
             {showConnectModal && <PartnerConnect onClose={() => setShowConnectModal(false)} />}
         </div>

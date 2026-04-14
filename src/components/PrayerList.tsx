@@ -3,7 +3,7 @@
  * Now integrates with usePrayerTimes hook for actual prayer data
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Prayer, PrayerStatus } from '../types';
 import { STATUS_COLORS } from '../constants';
 import { Check, ChevronRight, ChevronLeft, Home, Users, Clock, AlertCircle, Star, Edit3 } from 'lucide-react';
@@ -39,6 +39,16 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
   const { t, language, dir } = useLanguage();
   const { prayerTimes, nextPrayer } = usePrayerTimes();
   const ChevronIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
+  const [isTravelMode, setIsTravelMode] = useState(false);
+  const TRAVEL_MODE_KEY = 'khalil_travel_mode';
+
+  useEffect(() => {
+    try {
+      setIsTravelMode(localStorage.getItem(TRAVEL_MODE_KEY) === 'true');
+    } catch {
+      setIsTravelMode(false);
+    }
+  }, []);
 
   // Merge real times with prayer status data and add Shuruk after Fajr
   const prayersWithRealTimes = useMemo(() => {
@@ -119,70 +129,79 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
   };
 
   return (
-    <div id="prayer-list" className="space-y-3 mb-8">
+    <div id="prayer-list" className="space-y-4 mb-2">
       <div className="flex items-center justify-between mb-4 px-1">
         <h3 className="font-bold text-lg text-neutral-primary">{t('todaysPrayers')}</h3>
+        {isTravelMode && (
+          <span className="text-[10px] sm:text-xs bg-brand-primary/10 text-brand-primary border border-brand-primary/30 rounded-full px-2 py-1 font-semibold">
+            {t('travelModeActive')}
+          </span>
+        )}
       </div>
 
       {prayersWithRealTimes.map((prayer) => {
         const isNextPrayer = prayer.isNext;
         const isPast = hasPassed(prayer);
         const isShuruk = prayer.isShuruk;
+        const isMissed = prayer.status === PrayerStatus.Missed;
 
         return (
           <div
             key={prayer.id}
             onClick={() => !isShuruk && onPrayerClick(prayer)}
             className={`
-              relative overflow-hidden group
-              rounded-2xl border transition-all duration-300
+              relative overflow-hidden group transform-gpu
+              rounded-3xl transition-all duration-500
               ${isShuruk ? 'cursor-default opacity-90' : 'cursor-pointer'}
               ${isNextPrayer
-                ? 'border-brand-primary/30 shadow-glass ring-1 ring-brand-primary/10 scale-[1.02] z-10'
-                : 'border-brand-border/50 hover:border-brand-primary/20 hover:shadow-md'
+                ? 'bg-brand-surface shadow-[0_0_20px_rgba(4,120,87,0.1)] scale-[1.02] z-10 animate-[pulse_2s_ease-in-out_infinite]'
+                : isMissed
+                  ? 'bg-red-500/10'
+                  : 'bg-brand-surface hover:shadow-sm hover:-translate-y-0.5'
               }
             `}
           >
+            {/* Gradient Border Visualization */}
+            {!isShuruk && (
+              <div className={`absolute top-0 bottom-0 w-1.5 transition-all duration-300 z-10
+                ${dir === 'rtl' ? 'right-0' : 'left-0'}
+                ${isMissed ? 'bg-gradient-to-b from-red-500/80 to-red-400/50' : 
+                  prayer.status === PrayerStatus.Upcoming ? (isNextPrayer ? 'bg-gradient-to-b from-brand-primary to-brand-primary/40 shadow-[0_0_8px_rgba(4,120,87,0.6)]' : 'bg-transparent') : 
+                  'bg-gradient-to-b from-brand-primary to-brand-secondary'}
+              `}></div>
+            )}
+
             {/* Background Image */}
             <div
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+              className={`absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105 ${isMissed ? 'opacity-20 mix-blend-luminosity' : ''}`}
               style={{ backgroundImage: `url(${PRAYER_IMAGES[prayer.id.toLowerCase()] || PRAYER_IMAGES.fajr})` }}
             />
-            {/* No overlay - full image visibility */}
+            {/* No overlay - full image visibility unless missed */}
 
-            <div className="relative p-4 flex items-center justify-between z-10 gap-3">
-              <div className="flex items-center space-x-3 sm:space-x-4 rtl:space-x-reverse min-w-0 flex-1">
-                {/* Status Bar */}
-                <div className={`
-                  w-1.5 h-10 rounded-full transition-colors duration-300
-                  ${prayer.status === PrayerStatus.Missed
-                    ? 'bg-red-500' // Explicit red for missed
-                    : prayer.status === PrayerStatus.Upcoming
-                      ? (isNextPrayer ? 'bg-brand-primary animate-pulse' : 'bg-brand-border')
-                      : 'bg-brand-primary'}
-                `}></div>
-
-                <div className="min-w-0">
+            <div className="relative p-4 flex items-center justify-between z-10 gap-3 h-full">
+              <div className="flex items-center space-x-3 sm:space-x-4 rtl:space-x-reverse min-w-0 flex-1 z-20">
+                <div className="min-w-0 bg-white/40 dark:bg-black/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 shadow-soft-xl flex flex-col justify-center">
                   <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                    <span className={`font-bold truncate ${isPast && prayer.status === PrayerStatus.Upcoming ? 'text-brand-muted/80' : 'text-brand-forest'}`}>
+                    <span className="font-extrabold text-neutral-900 dark:text-white text-lg tracking-tight">
                       {['ar', 'ur'].includes(language) ? prayer.arabicName : prayer.name}
                     </span>
-                    <span className="text-xs text-brand-muted/70 font-arabic hidden sm:inline-block">
+                    <span className="text-sm text-neutral-800/80 dark:text-neutral-200/80 font-arabic hidden sm:inline-block">
                       {['ar', 'ur'].includes(language) ? prayer.name : prayer.arabicName}
                     </span>
                     {isNextPrayer && (
-                      <span className="text-[10px] bg-brand-primary text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-sm animate-in fade-in">
+                      <span className="text-[10px] bg-brand-primary text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-sm animate-in fade-in ml-2">
                         {t('next_prayer' as any)}
                       </span>
                     )}
                   </div>
-                  <span className={`text-sm font-mono tracking-tight ${isNextPrayer ? 'text-brand-primary font-bold' : 'text-brand-muted'}`}>
+                  <span className={`text-sm font-mono tracking-tight font-black mt-0.5 ${isNextPrayer ? 'text-brand-primary drop-shadow-sm' : 'text-neutral-800 dark:text-neutral-200'}`}>
                     {prayer.time}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
+              {/* Push metadata icons to right */}
+              <div className="flex items-center space-x-2 rtl:space-x-reverse ml-auto z-10">
                 {/* Metadata Icons - Hide for Shuruk */}
                 {!isShuruk && prayer.khushuRating !== undefined && prayer.khushuRating !== null && (
                   <div className="flex items-center space-x-0.5 rtl:space-x-reverse text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">

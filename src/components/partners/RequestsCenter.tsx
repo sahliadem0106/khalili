@@ -127,7 +127,7 @@ export const RequestsCenter: React.FC<RequestsCenterProps> = ({ onRequestProcess
 
     if (requests.length === 0) {
         return (
-            <div className="text-center py-10 bg-transparent rounded-2xl border border-dashed border-brand-border/40">
+            <div className="text-center py-10 bg-transparent rounded-3xl border border-dashed border-black/5/40">
                 <p className="text-brand-forest text-sm font-medium">No pending requests</p>
                 <p className="text-brand-muted text-xs mt-1">Invites from friends will appear here</p>
             </div>
@@ -143,7 +143,7 @@ export const RequestsCenter: React.FC<RequestsCenterProps> = ({ onRequestProcess
                 </span>
             </h3>
             {requests.map(req => (
-                <div key={req.id} className="bg-brand-surface p-4 rounded-xl shadow-sm border border-brand-border flex items-center justify-between gap-3">
+                <div key={req.id} className="bg-brand-surface p-4 rounded-3xl shadow-sm border border-black/5 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                         {/* Avatar */}
                         {req.senderAvatar ? (

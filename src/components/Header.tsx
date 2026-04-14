@@ -52,9 +52,9 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="pt-3 pb-1 px-1" id="app-header">
-      {/* Daily Reminder Card - Compact & Premium */}
+      {/* Daily Reminder Card - Wide Banner */}
       <div
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-forest via-brand-primary to-teal-800 shadow-lg group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-forest via-brand-primary to-teal-800 shadow-soft-xl group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:scale-[1.01] animate-in fade-in zoom-in-[0.98] duration-700"
         onClick={() => setIsEditing(true)}
       >
         {/* Pattern Overlay */}

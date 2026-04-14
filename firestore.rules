@@ -144,6 +144,7 @@ service cloud.firestore {
     // Social notification policy rules (local scheduler source of truth)
     match /socialNotificationPolicies/{policyId} {
       allow read: if request.auth != null && (
+        resource.data.ownerId == request.auth.uid ||
         (resource.data.audience.type == 'user' && request.auth.uid in resource.data.audience.userIds) ||
         (resource.data.audience.type == 'group' && isGroupMember(resource.data.audience.groupId)) ||
         (resource.data.audience.type == 'partnership' && isPartnershipMember(resource.data.audience.partnershipId))

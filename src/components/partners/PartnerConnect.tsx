@@ -103,9 +103,9 @@ export const PartnerConnect: React.FC<PartnerConnectProps> = ({ onClose }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-brand-surface rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-brand-border animate-in zoom-in-95 duration-200">
+            <div className="bg-brand-surface rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-black/5 animate-in zoom-in-95 duration-200">
                 {/* Header */}
-                <div className="flex justify-between items-center p-4 border-b border-brand-border">
+                <div className="flex justify-between items-center p-4 border-b border-black/5">
                     <h3 className="font-bold text-lg text-brand-forest">Connect Partner</h3>
                     <button onClick={onClose} className="p-2 hover:bg-brand-subtle rounded-full text-brand-muted">
                         <X size={20} />
@@ -116,13 +116,13 @@ export const PartnerConnect: React.FC<PartnerConnectProps> = ({ onClose }) => {
                 <div className="flex p-2 bg-brand-subtle">
                     <button
                         onClick={() => setActiveTab('my-code')}
-                        className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${activeTab === 'my-code' ? 'bg-brand-surface shadow text-brand-primary' : 'text-brand-muted hover:text-brand-forest'}`}
+                        className={`flex-1 py-2 text-sm font-bold rounded-3xl transition-all ${activeTab === 'my-code' ? 'bg-brand-surface shadow text-brand-primary' : 'text-brand-muted hover:text-brand-forest'}`}
                     >
                         My Code
                     </button>
                     <button
                         onClick={() => setActiveTab('scan')}
-                        className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${activeTab === 'scan' ? 'bg-brand-surface shadow text-brand-primary' : 'text-brand-muted hover:text-brand-forest'}`}
+                        className={`flex-1 py-2 text-sm font-bold rounded-3xl transition-all ${activeTab === 'scan' ? 'bg-brand-surface shadow text-brand-primary' : 'text-brand-muted hover:text-brand-forest'}`}
                     >
                         Scan QR
                     </button>
@@ -132,13 +132,13 @@ export const PartnerConnect: React.FC<PartnerConnectProps> = ({ onClose }) => {
                 <div className="p-6">
                     {activeTab === 'my-code' ? (
                         <div className="flex flex-col items-center text-center space-y-6">
-                            <div className="bg-brand-surface p-4 rounded-2xl shadow-inner border border-brand-border">
+                            <div className="bg-brand-surface p-4 rounded-3xl shadow-inner border border-black/5">
                                 <QRCode value={qrData} size={200} fgColor="#047857" />
                             </div>
 
                             <div className="text-brand-muted text-sm">
                                 <p className="mb-2">Scan this code to connect instantly</p>
-                                <div className="flex items-center justify-center gap-2 bg-brand-subtle py-2 px-3 rounded-lg max-w-full overflow-hidden border border-brand-border">
+                                <div className="flex items-center justify-center gap-2 bg-brand-subtle py-2 px-3 rounded-3xl max-w-full overflow-hidden border border-black/5">
                                     <span className="truncate font-mono text-xs">{user.uid}</span>
                                     <button onClick={copyToClipboard} className="text-brand-primary">
                                         {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -154,7 +154,7 @@ export const PartnerConnect: React.FC<PartnerConnectProps> = ({ onClose }) => {
                         <div className="flex flex-col items-center">
                             {!scanResult ? (
                                 <div className="w-full space-y-4">
-                                    <div className="w-full aspect-square bg-black rounded-2xl overflow-hidden relative">
+                                    <div className="w-full aspect-square bg-black rounded-3xl overflow-hidden relative">
                                         <div id="reader" className="w-full h-full"></div>
                                         <p className="absolute bottom-4 left-0 right-0 text-center text-white/80 text-sm pointer-events-none z-10">
                                             Point camera at partner's QR code
@@ -172,13 +172,13 @@ export const PartnerConnect: React.FC<PartnerConnectProps> = ({ onClose }) => {
                                     <div className="flex gap-3">
                                         <button
                                             onClick={() => setScanResult(null)}
-                                            className="flex-1 py-3 border border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50"
+                                            className="flex-1 py-3 border border-gray-200 rounded-3xl font-bold text-gray-600 hover:bg-gray-50"
                                         >
                                             Scan Again
                                         </button>
                                         <button
                                             onClick={() => handleSendRequest(scanResult)}
-                                            className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-200"
+                                            className="flex-1 py-3 bg-emerald-600 text-white rounded-3xl font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-200"
                                         >
                                             Send Request
                                         </button>

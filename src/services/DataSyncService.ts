@@ -265,7 +265,7 @@ class DataSyncService {
                     prayerName: prayer.name.toLowerCase(),
                     status: prayer.status,
                     scheduledTime: prayer.time,
-                    completedTime: (prayer.status !== 'upcoming' && prayer.status !== 'upcoming' as any) ? new Date().toISOString() : null,
+                    completedTime: prayer.status !== PrayerStatus.Upcoming ? new Date().toISOString() : null,
                     khushuLevel: null,
                     barrier: null,
                     journal: null,

@@ -182,7 +182,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                                     type="text"
                                     value={firstName}
                                     onChange={(e) => setFirstName(e.target.value)}
-                                    className="w-full p-4 pl-12 rounded-xl bg-brand-subtle border border-brand-border focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-brand-forest placeholder:text-brand-muted"
+                                    className="w-full p-4 pl-12 rounded-3xl bg-brand-subtle border border-black/5 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-brand-forest placeholder:text-brand-muted"
                                     placeholder={t('profile_first_name_ph')}
                                 />
                                 <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
@@ -197,7 +197,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                                     type="text"
                                     value={lastName}
                                     onChange={(e) => setLastName(e.target.value)}
-                                    className="w-full p-4 pl-12 rounded-xl bg-brand-subtle border border-brand-border focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-brand-forest placeholder:text-brand-muted"
+                                    className="w-full p-4 pl-12 rounded-3xl bg-brand-subtle border border-black/5 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-brand-forest placeholder:text-brand-muted"
                                     placeholder={t('profile_last_name_ph')}
                                 />
                                 <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
@@ -215,7 +215,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                                 type="text"
                                 value={nickname}
                                 onChange={(e) => setNickname(e.target.value)}
-                                className="w-full p-4 pl-12 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-gray-900 dark:text-white"
+                                className="w-full p-4 pl-12 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-gray-900 dark:text-white"
                                 placeholder={t('profile_nickname_ph')}
                             />
                             <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
@@ -232,7 +232,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                                 type="number"
                                 value={age}
                                 onChange={(e) => setAge(e.target.value ? parseInt(e.target.value) : '')}
-                                className="w-full p-4 pl-12 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-gray-900 dark:text-white"
+                                className="w-full p-4 pl-12 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-gray-900 dark:text-white"
                                 placeholder={t('profile_age_ph')}
                                 min={13}
                                 max={120}
@@ -251,7 +251,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                                 type="text"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full p-4 pl-12 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-gray-900 dark:text-white"
+                                className="w-full p-4 pl-12 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-gray-900 dark:text-white"
                                 placeholder={t('profile_location_ph')}
                             />
                             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
@@ -267,7 +267,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                             <textarea
                                 value={about}
                                 onChange={(e) => setAbout(e.target.value.slice(0, 200))}
-                                className="w-full p-4 pl-12 rounded-xl bg-brand-subtle border border-brand-border focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all resize-none text-brand-forest placeholder:text-brand-muted"
+                                className="w-full p-4 pl-12 rounded-3xl bg-brand-subtle border border-black/5 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all resize-none text-brand-forest placeholder:text-brand-muted"
                                 placeholder={t('profile_about_ph')}
                                 rows={3}
                             />
@@ -305,7 +305,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                                         value={newHobby}
                                         onChange={(e) => setNewHobby(e.target.value)}
                                         onKeyPress={(e) => e.key === 'Enter' && handleAddHobby()}
-                                        className="w-full p-4 pl-12 rounded-xl bg-brand-subtle border border-brand-border focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-brand-forest placeholder:text-brand-muted"
+                                        className="w-full p-4 pl-12 rounded-3xl bg-brand-subtle border border-black/5 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-brand-forest placeholder:text-brand-muted"
                                         placeholder={t('profile_hobbies_ph')}
                                     />
                                     <Heart className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
@@ -313,7 +313,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                                 <button
                                     onClick={handleAddHobby}
                                     disabled={!newHobby.trim()}
-                                    className="px-4 bg-brand-primary text-white rounded-xl hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-4 bg-brand-primary text-white rounded-3xl hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Plus size={24} />
                                 </button>
@@ -347,7 +347,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                                 <select
                                     value={socialInput.platform}
                                     onChange={(e) => setSocialInput({ ...socialInput, platform: e.target.value })}
-                                    className="p-4 rounded-xl bg-brand-subtle border border-brand-border focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-brand-forest"
+                                    className="p-4 rounded-3xl bg-brand-subtle border border-black/5 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-brand-forest"
                                 >
                                     <option value="WhatsApp">WhatsApp</option>
                                     <option value="Telegram">Telegram</option>
@@ -361,7 +361,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                                         value={socialInput.handle}
                                         onChange={(e) => setSocialInput({ ...socialInput, handle: e.target.value })}
                                         onKeyPress={(e) => e.key === 'Enter' && handleAddSocialLink()}
-                                        className="w-full p-4 pl-12 rounded-xl bg-brand-subtle border border-brand-border focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-brand-forest placeholder:text-brand-muted"
+                                        className="w-full p-4 pl-12 rounded-3xl bg-brand-subtle border border-black/5 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-brand-forest placeholder:text-brand-muted"
                                         placeholder={t('profile_social_ph')}
                                     />
                                     <Share2 className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
@@ -369,7 +369,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                                 <button
                                     onClick={handleAddSocialLink}
                                     disabled={!socialInput.handle.trim()}
-                                    className="px-4 bg-brand-primary text-white rounded-xl hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-4 bg-brand-primary text-white rounded-3xl hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Plus size={24} />
                                 </button>

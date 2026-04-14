@@ -80,6 +80,14 @@
             "collectionGroup": "socialNotificationPolicies",
             "queryScope": "COLLECTION",
             "fields": [
+                { "fieldPath": "ownerId", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "socialNotificationPolicies",
+            "queryScope": "COLLECTION",
+            "fields": [
                 { "fieldPath": "enabled", "order": "ASCENDING" },
                 { "fieldPath": "audience.type", "order": "ASCENDING" },
                 { "fieldPath": "audience.userIds", "arrayConfig": "CONTAINS" },

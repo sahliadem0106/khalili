@@ -39,12 +39,15 @@ export default {
         'glass': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
         'premium': '0 10px 40px -10px rgba(4, 120, 87, 0.1)',
         'glow': '0 0 20px rgba(217, 119, 6, 0.15)',
+        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+        'inner-glow': 'inset 0 0 15px rgba(255, 255, 255, 0.2)',
         // Explicit colored shadows for buttons to avoid alpha-variable issues
-        'primary': '0 4px 14px 0 rgba(4, 120, 87, 0.3)',
-        'primary-lg': '0 10px 25px -3px rgba(4, 120, 87, 0.4)',
+        'primary': '0 4px 14px 0 rgba(4, 120, 87, 0.4)',
+        'primary-lg': '0 10px 25px -3px rgba(4, 120, 87, 0.5)',
+        'soft-xl': '0 15px 35px -5px rgba(4, 120, 87, 0.15)',
       },
       backgroundImage: {
-        'gradient-mesh': 'radial-gradient(at top right, rgba(4, 120, 87, 0.05), transparent 40%), radial-gradient(at bottom left, rgba(217, 119, 6, 0.05), transparent 40%)',
+        'gradient-mesh': 'radial-gradient(at top right, rgba(4, 120, 87, 0.08), transparent 40%), radial-gradient(at bottom left, rgba(217, 119, 6, 0.05), transparent 40%)',
       }
     },
   },

@@ -4,7 +4,7 @@ import { Language } from '../types';
 export const translations = {
   en: {
     // General
-    appName: "Muslim Daily",
+    appName: "Dhikra",
     greeting: "Salam",
 
     // Header
@@ -454,7 +454,7 @@ export const translations = {
     study_easy: "Easy",
 
     // Auth Modal
-    auth_welcome: "Welcome to Khalili",
+    auth_welcome: "Welcome to Dhikra",
     auth_subtitle: "Your Daily Companion for Worship",
     auth_sync_desc: "Sign in to sync your prayers, settings, and stats across all your devices.",
     auth_google: "Continue with Google",
@@ -560,7 +560,7 @@ export const translations = {
     share_title_family: "Join my Family",
     share_title_suhba: "Join my Suhba Circle",
     share_title_partnership: "Join my Partnership",
-    share_text: "Join {groupName} on Muslim Daily!",
+    share_text: "Join {groupName} on Dhikra!",
     share_invite_link: "Share Invite Link",
     generating_invite_link: "Generating invite link...",
     invite_link: "Invite Link",
@@ -723,7 +723,7 @@ export const translations = {
   },
   ar: {
     // General
-    appName: "يوميات المسلم",
+    appName: "ذكرى",
     greeting: "سلام",
 
     // Header

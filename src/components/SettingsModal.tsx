@@ -19,6 +19,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
 import { tafsirService, POPULAR_TRANSLATIONS, POPULAR_TAFSIRS } from '../services/TafsirService';
 import { quranAudioService, POPULAR_RECITERS } from '../services/QuranAudioService';
+import { UserSettings } from '../services/AuthService';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -100,7 +101,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             });
             tafsirService.setTafsir(settings.preferredTafsirId);
             tafsirService.setTranslation(settings.preferredTranslationId);
-            await updateSettings(settings as any);
+            const settingsToPersist: Partial<UserSettings> = {
+                calculationMethod: settings.calculationMethod,
+                asrMethod: settings.asrMethod,
+                notificationsEnabled: settings.notificationsEnabled,
+                reminderTiming: settings.reminderTiming as UserSettings['reminderTiming'],
+                theme: settings.theme,
+                preferredReciterId: settings.preferredReciterId,
+                preferredTranslationId: settings.preferredTranslationId,
+                preferredTafsirId: settings.preferredTafsirId,
+            };
+            await updateSettings(settingsToPersist);
             onClose();
         } catch (e) {
             console.error('Failed to save settings:', e);
@@ -175,9 +186,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             {t('settings_appearance')}
                         </p>
                         <p className="text-sm text-brand-muted">
-                            {settings.theme === 'light' && t('settings_light' as any)}
-                            {settings.theme === 'dark' && t('settings_dark' as any)}
-                            {settings.theme === 'auto' && t('settings_auto' as any)}
+                            {settings.theme === 'light' && t('settings_light')}
+                            {settings.theme === 'dark' && t('settings_dark')}
+                            {settings.theme === 'auto' && t('settings_auto')}
                         </p>
                     </div>
                 </div>
@@ -352,9 +363,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </p>
             <div className="grid grid-cols-3 gap-3">
                 {[
-                    { id: 'light', icon: '☀️', label: t('settings_light' as any) },
-                    { id: 'dark', icon: '🌙', label: t('settings_dark' as any) },
-                    { id: 'auto', icon: '🌓', label: t('settings_auto' as any) },
+                    { id: 'light', icon: '☀️', label: t('settings_light') },
+                    { id: 'dark', icon: '🌙', label: t('settings_dark') },
+                    { id: 'auto', icon: '🌓', label: t('settings_auto') },
                 ].map(theme => (
                     <button
                         key={theme.id}
@@ -420,7 +431,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 <button
                                     key={translation.id}
                                     onClick={() => {
-                                        updateSetting('preferredTranslationId', translation.id as any);
+                                        updateSetting('preferredTranslationId', translation.id);
                                         tafsirService.setTranslation(translation.id);
                                     }}
                                     className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
@@ -448,7 +459,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 <button
                                     key={source.id}
                                     onClick={() => {
-                                        updateSetting('preferredTafsirId', source.id as any);
+                                        updateSetting('preferredTafsirId', source.id);
                                         tafsirService.setTafsir(source.id);
                                     }}
                                     className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${

@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Challenge } from '../../types/partner';
 import { CheckCircle2, Clock, Award, Circle } from 'lucide-react';
 import { FamilyService } from '../../services/FamilyService';
 import { useAuth } from '../../hooks/useAuth';
+import { notificationService } from '../../services/NotificationService';
 
 interface TeenChallengeViewProps {
     challenges: Challenge[];
@@ -12,6 +13,36 @@ interface TeenChallengeViewProps {
 
 export const TeenChallengeView: React.FC<TeenChallengeViewProps> = ({ challenges, onRefresh }) => {
     const { user } = useAuth();
+
+    useEffect(() => {
+        if (!user?.uid || challenges.length === 0) return;
+        const key = `khalil_family_challenge_notified_${user.uid}`;
+        let initialNotified: string[] = [];
+        try {
+            initialNotified = JSON.parse(localStorage.getItem(key) || '[]');
+        } catch {
+            initialNotified = [];
+        }
+        const notifiedIds = new Set<string>(initialNotified);
+
+        const assignedPendingChallenges = challenges.filter((challenge) => {
+            const status = challenge.participantsStatus?.[user.uid];
+            return status === 'pending' && !notifiedIds.has(challenge.id);
+        });
+
+        if (assignedPendingChallenges.length === 0) return;
+
+        assignedPendingChallenges.forEach((challenge) => {
+            notificationService.showPartnerNotification(
+                'New Family Challenge Assigned',
+                `${challenge.title} - open Family > Challenges to view details.`,
+                { type: 'family_challenge', fromUser: challenge.createdBy }
+            );
+            notifiedIds.add(challenge.id);
+        });
+
+        localStorage.setItem(key, JSON.stringify(Array.from(notifiedIds)));
+    }, [challenges, user?.uid]);
 
     const handleComplete = async (challengeId: string) => {
         if (!user) return;
@@ -35,7 +66,7 @@ export const TeenChallengeView: React.FC<TeenChallengeViewProps> = ({ challenges
                     const daysLeft = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 3600 * 24));
 
                     return (
-                        <div key={challenge.id} className="bg-white border border-emerald-100 p-4 rounded-xl shadow-sm flex gap-4">
+                        <div key={challenge.id} className="bg-white border border-emerald-100 p-4 rounded-3xl shadow-sm flex gap-4">
                             <div className="flex-1">
                                 <div className="flex justify-between items-start mb-2">
                                     <h4 className="font-bold text-gray-900">{challenge.title}</h4>

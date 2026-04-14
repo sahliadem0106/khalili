@@ -83,6 +83,7 @@ export interface SuhbaCircle {
     name: string;
     description: string;
     adminId: string;
+    coAdmins?: string[];
     members: string[];
     createdAt: Timestamp;
     inviteCode: string;

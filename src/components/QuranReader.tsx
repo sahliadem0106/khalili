@@ -21,17 +21,17 @@ const AyahMarker = ({ number }: { number: number }) => (
 
 // Surah Header Component
 const SurahHeader = ({ nameArabic, nameEnglish, number }: { nameArabic: string, nameEnglish: string, number: number }) => (
-   <div className="w-full my-10 relative py-6 border-y-2 border-double border-amber-400/40 bg-[#fdf6e3] dark:bg-brand-surface dark:border-white/10 rounded-xl shadow-sm select-none" dir="ltr">
-      <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]" />
-      <div className="relative z-10 flex flex-col items-center justify-center space-y-2">
+   <div className="w-full my-12 relative py-12 border-y-2 border-double border-amber-400/50 bg-gradient-to-br from-[#fdf6e3] to-[#f4ecd2] dark:from-brand-surface dark:to-brand-surface/80 dark:border-white/10 rounded-3xl shadow-soft-xl select-none overflow-hidden" dir="ltr">
+      <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]" />
+      <div className="relative z-10 flex flex-col items-center justify-center space-y-4">
          {/* Decorative frame */}
-         <div className="flex items-center space-x-3 text-amber-600/60">
-            <span className="h-px w-12 bg-current"></span>
-            <span className="text-[10px] font-bold tracking-widest uppercase">Surah {number}</span>
-            <span className="h-px w-12 bg-current"></span>
+         <div className="flex items-center space-x-4 text-brand-primary">
+            <span className="h-0.5 w-16 bg-current opacity-60"></span>
+            <span className="text-[11px] font-black tracking-[0.3em] uppercase">Surah {number}</span>
+            <span className="h-0.5 w-16 bg-current opacity-60"></span>
          </div>
-         <h1 className="text-4xl text-brand-forest dark:text-white font-bold drop-shadow-md font-quran mb-1">{nameArabic}</h1>
-         <span className="text-sm text-neutral-500 dark:text-neutral-300 font-medium tracking-wide">{nameEnglish}</span>
+         <h1 className="text-6xl md:text-7xl text-brand-forest dark:text-white font-bold drop-shadow-lg font-quran mb-2">{nameArabic}</h1>
+         <span className="text-lg text-brand-muted dark:text-neutral-300 font-bold tracking-[0.2em] uppercase">{nameEnglish}</span>
       </div>
    </div>
 );
@@ -43,9 +43,19 @@ const Bismillah = () => (
    </div>
 );
 
-export const QuranReader: React.FC = () => {
+interface QuranReaderProps {
+  onModeChange?: (mode: 'list' | 'mushaf') => void;
+}
+
+export const QuranReader: React.FC<QuranReaderProps> = ({ onModeChange }) => {
    // MODE STATE: 'list' | 'mushaf'
    const [mode, setMode] = useState<'list' | 'mushaf'>('list');
+
+   useEffect(() => {
+      if (onModeChange) {
+         onModeChange(mode);
+      }
+   }, [mode, onModeChange]);
    const [listTab, setListTab] = useState<'surah' | 'juz'>('surah');
 
    // DATA STATE
@@ -425,7 +435,7 @@ export const QuranReader: React.FC = () => {
       <div className="fixed inset-0 z-50 bg-[#fffcf5] dark:bg-neutral-950 flex flex-col animate-in slide-in-from-right duration-300">
 
          {/* 1. HEADER */}
-         <div className="bg-[#fffcf5]/95 dark:bg-neutral-950/95 backdrop-blur-sm z-30 border-b border-amber-100/50 dark:border-white/10 px-4 py-2 shadow-sm flex justify-between items-center">
+         <div className="bg-[#fffcf5]/85 dark:bg-neutral-950/85 backdrop-blur-xl z-30 border-b border-black/5 dark:border-white/10 px-4 py-4 shadow-[0_4px_30px_rgba(0,0,0,0.03)] flex justify-between items-center">
             <div className="flex items-center">
                <button onClick={() => setMode('list')} className="p-2 -ml-2 rtl:ml-0 rtl:-mr-2 rounded-full hover:bg-amber-100 dark:hover:bg-brand-subtle text-neutral-600 dark:text-white">
                   <BackIcon size={24} />
@@ -460,7 +470,7 @@ export const QuranReader: React.FC = () => {
                itemContent={(index, page) => (
                   <div
                      key={page.pageNumber}
-                     className="w-full max-w-2xl mx-auto px-4 sm:px-6 pb-8 pt-4 min-h-[60vh] bg-[#fffcf5] dark:bg-neutral-950 relative transition-colors duration-300"
+                     className="w-full max-w-2xl mx-auto px-4 sm:px-6 pb-8 pt-4 min-h-[60vh] bg-[#fffcf5] sepia-[0.05] dark:bg-neutral-950 relative transition-colors duration-300"
                   >
                      {/* Intersection Observer for Page Tracking */}
                      <PageObserver
@@ -484,7 +494,7 @@ export const QuranReader: React.FC = () => {
 
                         {/* Verses Container */}
                         <div
-                           className="text-right leading-[4rem] md:leading-[5rem] text-3xl md:text-4xl text-slate-900 dark:text-white dark:drop-shadow-md quran-justify transition-colors duration-300"
+                           className="text-right leading-[5rem] md:leading-[6.5rem] text-[2.25rem] md:text-[2.75rem] text-slate-900 dark:text-white dark:drop-shadow-md quran-justify transition-colors duration-300"
                            dir="rtl"
                         >
                            {page.ayahs.map((ayah) => {
@@ -528,7 +538,7 @@ export const QuranReader: React.FC = () => {
                                        }}
                                        className={`
                                             inline px-1 rounded-lg cursor-pointer transition-colors duration-200 relative
-                                            ${selectedAyahNum === ayah.numberInSurah && selectedAyahPage === page.pageNumber ? 'bg-brand-mint/60 dark:bg-brand-primary/40 text-brand-forest dark:text-white' : 'hover:bg-amber-50 dark:hover:bg-white/5'}
+                                            ${selectedAyahNum === ayah.numberInSurah && selectedAyahPage === page.pageNumber ? 'bg-brand-secondary/15 text-brand-forest dark:text-white ring-1 ring-brand-secondary/30' : 'hover:bg-amber-50 dark:hover:bg-white/5'}
                                          `}
                                     >
                                        {bookmarks.has(`ayah:${page.pageNumber}:${ayah.numberInSurah}`) && (

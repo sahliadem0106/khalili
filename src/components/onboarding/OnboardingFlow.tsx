@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Transition } from 'framer-motion';
 import { ChevronRight, MapPin, Check, ArrowRight } from 'lucide-react';
 import { onboardingService } from '../../services/OnboardingService';
 import { locationService } from '../../services/LocationService';
@@ -75,7 +75,7 @@ const SmoothText = ({ text, className, delay = 0 }: { text: string, className?: 
             opacity: 1,
             y: 0,
             filter: 'blur(0px)',
-            transition: { duration: 0.4, ease: "easeOut" as any }
+            transition: { duration: 0.4, ease: 'easeOut' } as Transition
         }
     };
     return (
@@ -179,14 +179,14 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, init
     // --- LOGIC: Auth Redirect ---
     const handleGoogleLogin = async () => {
         try {
-            const userCred = await signInWithGoogle() as any;
+            await signInWithGoogle();
             onboardingService.markGoogleLinked();
 
             // Fetch firestore profile to verify completeness directly
-            if (userCred?.uid || user) {
+            if (auth.currentUser?.uid || user) {
                 const { getDoc, doc } = await import('firebase/firestore');
                 const { db } = await import('../../services/firebase');
-                const uid = userCred?.uid || user?.uid;
+                const uid = auth.currentUser?.uid || user?.uid;
                 if (uid) {
                     const userDoc = await getDoc(doc(db, 'users', uid));
 

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from './ui/Card';
 import { Plane, CheckCircle2, AlertCircle } from 'lucide-react';
 import { QadaStats } from '../types';
@@ -13,14 +13,36 @@ export const QadaTracker: React.FC<QadaTrackerProps> = ({ stats }) => {
   const [isTravelMode, setIsTravelMode] = useState(false);
   const { t } = useLanguage();
   const percentage = Math.min(100, Math.round((stats.madeUp / (stats.totalMissed || 1)) * 100));
+  const TRAVEL_MODE_KEY = 'khalil_travel_mode';
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(TRAVEL_MODE_KEY);
+      setIsTravelMode(saved === 'true');
+    } catch {
+      setIsTravelMode(false);
+    }
+  }, []);
+
+  const toggleTravelMode = () => {
+    setIsTravelMode((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(TRAVEL_MODE_KEY, String(next));
+      } catch {
+        // Ignore storage errors and keep UI responsive.
+      }
+      return next;
+    });
+  };
 
   return (
     <div className="space-y-4 mb-6">
       {/* Qada Stats Card */}
-      <Card className="!bg-brand-surface border border-brand-border">
+      <Card className="!bg-brand-surface border border-black/5 shadow-soft-xl rounded-3xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-neutral-900">{t('missedPrayers')}</h3>
-          <span className="text-xs font-medium text-brand-primary bg-brand-primary/10 px-2 py-1 rounded-md">
+          <span className="text-xs font-medium text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full">
             {t('makeUp')}
           </span>
         </div>
@@ -41,14 +63,14 @@ export const QadaTracker: React.FC<QadaTrackerProps> = ({ stats }) => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-red-50 dark:bg-red-500/10 rounded-xl p-3 flex items-center space-x-3 rtl:space-x-reverse border border-red-200 dark:border-red-500/20">
+          <div className="bg-red-50 dark:bg-red-500/10 rounded-2xl p-3 flex items-center space-x-3 rtl:space-x-reverse border border-red-500/10">
             <AlertCircle size={18} className="text-red-600 dark:text-red-400" />
             <div>
               <p className="text-xs text-red-600 dark:text-red-300 font-medium uppercase">{t('pending')}</p>
               <p className="text-lg font-bold text-red-600 dark:text-red-400">{stats.totalMissed - stats.madeUp}</p>
             </div>
           </div>
-          <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl p-3 flex items-center space-x-3 rtl:space-x-reverse border border-blue-200 dark:border-blue-500/20">
+          <div className="bg-blue-50 dark:bg-blue-500/10 rounded-2xl p-3 flex items-center space-x-3 rtl:space-x-reverse border border-blue-500/10">
             <CheckCircle2 size={18} className="text-blue-600 dark:text-blue-400" />
             <div>
               <p className="text-xs text-blue-600 dark:text-blue-300 font-medium uppercase">{t('completed')}</p>
@@ -59,29 +81,29 @@ export const QadaTracker: React.FC<QadaTrackerProps> = ({ stats }) => {
       </Card>
 
       {/* Travel Mode Card */}
-      <Card className={`transition-all duration-300 ${isTravelMode ? 'bg-brand-primary text-white' : 'bg-brand-surface text-neutral-900 border border-brand-border'}`}>
+      <Card className={`transition-all duration-500 border rounded-3xl shadow-soft-xl ${isTravelMode ? 'bg-brand-primary text-white border-brand-primary/70' : 'bg-brand-surface text-neutral-900 border-black/5'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <div className={`p-2 rounded-full ${isTravelMode ? 'bg-white/20' : 'bg-neutral-100'}`}>
-              <Plane size={20} className={isTravelMode ? 'text-white' : 'text-neutral-500'} />
+            <div className={`p-2 rounded-full ${isTravelMode ? 'bg-white/20' : 'bg-brand-subtle'}`}>
+              <Plane size={20} className={isTravelMode ? 'text-white' : 'text-brand-muted'} />
             </div>
             <div>
               <h3 className="font-bold text-sm">{t('travelMode')}</h3>
-              <p className={`text-xs ${isTravelMode ? 'text-brand-mint' : 'text-neutral-muted'}`}>
+              <p className={`text-xs ${isTravelMode ? 'text-brand-mint' : 'text-brand-muted'}`}>
                 {isTravelMode ? t('travelModeActive') : t('travelModeDesc')}
               </p>
             </div>
           </div>
 
           <button
-            onClick={() => setIsTravelMode(!isTravelMode)}
-            className={`w-12 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out focus:outline-none ${isTravelMode ? 'bg-white' : 'bg-neutral-200'}`}
+            onClick={toggleTravelMode}
+            aria-pressed={isTravelMode}
+            aria-label={t('travelMode')}
+            className={`w-12 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${isTravelMode ? 'bg-white/90 focus-visible:ring-white/80' : 'bg-brand-subtle focus-visible:ring-brand-primary/40'}`}
           >
             <div
-              className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${isTravelMode ? 'translate-x-5 rtl:-translate-x-5 bg-brand-forest' : 'translate-x-0'}`}
-            >
-              {isTravelMode && <div className="w-full h-full rounded-full bg-brand-forest"></div>}
-            </div>
+              className={`w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${isTravelMode ? 'translate-x-5 rtl:-translate-x-5 bg-brand-primary' : 'translate-x-0 bg-white border border-brand-border'}`}
+            />
           </button>
         </div>
       </Card>

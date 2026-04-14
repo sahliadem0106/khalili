@@ -108,9 +108,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
     for (let i = 0; i < heatmapDays; i++) {
       const date = new Date(startDate);
       date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       const summary = prayerLogService.getDailySummary(dateStr);
-      const isToday = dateStr === today.toISOString().split('T')[0];
+      const isToday = dateStr === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
       data.push({
         day: i + 1,
@@ -145,7 +145,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
     if (count === 0) return 'bg-red-500/10 text-red-600 border border-red-200';
     if (count <= 2) return 'bg-brand-primary/20 text-brand-primary border border-brand-primary/30';
     if (count <= 4) return 'bg-brand-primary/50 text-white border border-brand-primary/60';
-    return 'bg-brand-primary text-white border border-brand-primary shadow-sm';
+    return 'bg-brand-primary text-white border border-brand-primary shadow-glow';
   };
 
   const containerVariants = {
@@ -168,7 +168,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="space-y-6 pb-24 relative px-5 md:px-8 pt-4 mx-auto w-full"
+      className="space-y-6 pb-24 relative px-3 sm:px-4 md:px-6 pt-4 mx-auto w-full"
     >
       {/* Selected Day Popup */}
       <AnimatePresence>
@@ -200,66 +200,68 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
         )}
       </AnimatePresence>
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-8 mt-4">
         <div>
-          <h2 className="text-3xl font-bold text-brand-forest dark:text-white tracking-tight drop-shadow-sm">{t('insights')}</h2>
-          <p className="text-sm text-brand-muted dark:text-neutral-300">{t('analytics_spiritual_journey')}</p>
+          <h2 className="text-4xl sm:text-5xl font-black text-brand-forest dark:text-white font-outfit tracking-tight drop-shadow-sm mb-2">{t('insights')}</h2>
+          <p className="text-base text-brand-muted dark:text-neutral-300 font-medium">{t('analytics_spiritual_journey')}</p>
         </div>
       </div>
 
       {/* Hero Stats Staggered Grid */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4 sm:gap-6">
         {/* Streak Card */}
-        <motion.div variants={itemVariants} className="col-span-2 relative overflow-hidden rounded-2xl p-6 shadow-glow border border-brand-gold/20 bg-gradient-to-br from-brand-secondary to-brand-accent text-white">
-          <div className="absolute top-0 right-0 p-4 opacity-10"><Flame size={120} /></div>
+        <motion.div variants={itemVariants} className="col-span-2 relative overflow-hidden rounded-3xl p-8 sm:p-10 shadow-soft-xl border-none bg-gradient-to-br from-amber-500 via-brand-primary to-emerald-700 text-white">
+          <div className="absolute -top-10 -right-10 p-4 opacity-10"><Flame size={180} /></div>
           <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-2 text-white/90">
-              <Flame size={20} className="fill-white" />
-              <span className="font-semibold text-sm">{t('currentStreak')}</span>
+            <div className="flex items-center gap-3 mb-4 text-white/90">
+              <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <Flame size={24} className="fill-white" />
+              </div>
+              <span className="font-bold text-lg">{t('currentStreak')}</span>
             </div>
-            <div className="flex items-end gap-2">
-              <h3 className="text-5xl font-bold tracking-tighter">{metrics?.prayerStreak ?? 0}</h3>
-              <span className="mb-2 text-lg font-medium opacity-80">{t('analytics_days')}</span>
+            <div className="flex items-end gap-3 mt-4">
+              <h3 className="text-7xl font-black tracking-tighter drop-shadow-md">{metrics?.prayerStreak ?? 0}</h3>
+              <span className="mb-3 text-xl font-bold opacity-90">{t('analytics_days')}</span>
             </div>
-            <p className="text-sm mt-2 text-white/90 font-medium max-w-[80%]">{t('streakDesc')}</p>
+            <p className="text-sm sm:text-base mt-2 text-white/90 font-medium max-w-[85%] leading-relaxed">{t('streakDesc')}</p>
           </div>
         </motion.div>
 
         {/* Khushu Score */}
-        <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl p-4 border border-brand-primary/10 dark:border-white/10 shadow-sm flex flex-col justify-between min-h-[8.5rem] relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 bg-brand-primary/5 dark:bg-white/5 w-24 h-24 rounded-full group-hover:scale-110 transition-transform"></div>
-          <div className="flex items-center gap-2 text-brand-muted dark:text-neutral-300">
-            <Activity size={18} />
-            <span className="text-xs font-bold">{t('analytics_focus_score')}</span>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-3xl p-6 border border-black/5 dark:border-white/10 shadow-soft-xl flex flex-col justify-between min-h-[10rem] relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 bg-gradient-to-br from-brand-primary/5 to-brand-primary/10 dark:from-white/5 dark:to-transparent w-32 h-32 rounded-full group-hover:scale-125 transition-transform duration-700"></div>
+          <div className="flex items-center gap-2 text-brand-primary dark:text-emerald-300">
+            <Activity size={24} />
+            <span className="text-sm font-bold uppercase tracking-wider">{t('analytics_focus_score')}</span>
           </div>
-          <div>
-            <div className="text-3xl font-bold text-brand-forest dark:text-white flex items-baseline gap-1">
+          <div className="mt-4">
+            <div className="text-5xl font-black text-brand-forest dark:text-white flex items-baseline gap-1 drop-shadow-sm">
               {stats.avgKhushu}
-              <span className="text-sm font-normal text-neutral-400">/10</span>
+              <span className="text-xl font-bold text-neutral-400">/10</span>
             </div>
-            <div className="text-[10px] text-brand-muted dark:text-neutral-400 mt-1">{t('analytics_avg_khushu')}</div>
+            <div className="text-xs font-bold text-brand-muted dark:text-neutral-400 mt-2">{t('analytics_avg_khushu')}</div>
           </div>
         </motion.div>
 
         {/* Total Prayers */}
-        <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl p-4 border border-brand-primary/10 dark:border-white/10 shadow-sm flex flex-col justify-between min-h-[8.5rem] relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 bg-brand-secondary/5 dark:bg-white/5 w-24 h-24 rounded-full group-hover:scale-110 transition-transform"></div>
-          <div className="flex items-center gap-2 text-brand-muted dark:text-neutral-300">
-            <Trophy size={18} />
-            <span className="text-xs font-bold">{t('analytics_total_done')}</span>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-3xl p-6 border border-black/5 dark:border-white/10 shadow-soft-xl flex flex-col justify-between min-h-[10rem] relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 bg-gradient-to-br from-brand-secondary/5 to-brand-secondary/10 dark:from-white/5 dark:to-transparent w-32 h-32 rounded-full group-hover:scale-125 transition-transform duration-700"></div>
+          <div className="flex items-center gap-2 text-brand-secondary dark:text-amber-400">
+            <Trophy size={24} />
+            <span className="text-sm font-bold uppercase tracking-wider">{t('analytics_total_done')}</span>
           </div>
-          <div>
-            <div className="text-3xl font-bold text-brand-forest dark:text-white">
+          <div className="mt-4">
+            <div className="text-5xl font-black text-brand-forest dark:text-white drop-shadow-sm">
               {stats.completed}
             </div>
-            <div className="text-[10px] text-brand-muted dark:text-neutral-400 mt-1">{t('analytics_prayers_recorded')}</div>
+            <div className="text-xs font-bold text-brand-muted dark:text-neutral-400 mt-2">{t('analytics_prayers_recorded')}</div>
           </div>
         </motion.div>
       </div>
 
       {/* Consistency Heatmap */}
-      <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl border border-brand-border dark:border-white/10 shadow-glass p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl border border-brand-border dark:border-white/10 shadow-glass p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-brand-sand dark:bg-white/5 rounded-full text-brand-primary dark:text-emerald-300">
               <Calendar size={18} />
@@ -283,14 +285,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <div className="grid grid-cols-7 gap-2 min-w-[320px]">
+        <div className="w-full">
+          <div className="grid grid-cols-7 gap-1.5 sm:gap-2 w-full">
           {heatmapData.map((day, i) => {
             const showWeekdayLabel = heatmapDays === 7 || i < 7;
             return (
               <div key={day.date} className="flex flex-col items-center gap-1 min-w-0">
                 {/* Dynamic Day Label above each bubble */}
-                <span className="text-[9px] font-bold text-neutral-300 uppercase h-3 leading-none whitespace-nowrap text-center w-full">
+                <span className="text-[9px] font-bold text-neutral-300 h-3 leading-none whitespace-nowrap text-center w-full">
                   {showWeekdayLabel ? day.weekdayLabel.slice(0, 3) : ''}
                 </span>
 
@@ -299,7 +301,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   onClick={() => setSelectedDay({ day: day.day, count: day.count })}
-                  className={`w-full aspect-square rounded-lg flex flex-col items-center justify-center transition-all relative ${getHeatmapColor(day.count)} ${day.isToday ? 'ring-2 ring-offset-2 ring-brand-secondary' : ''}`}
+                  className={`w-full aspect-square rounded-full flex flex-col items-center justify-center transition-all relative ${getHeatmapColor(day.count)} ${day.isToday ? 'ring-2 ring-offset-1 sm:ring-offset-2 ring-brand-secondary' : ''}`}
                 >
                   <span className={`text-[10px] font-bold ${day.count > 2 ? 'text-white/90 shadow-sm' : 'text-brand-primary dark:text-emerald-200'}`}>
                     {new Date(day.date).getDate()}
@@ -354,8 +356,8 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
                 type="monotone"
                 dataKey="score"
                 stroke={CHART_THEME.primary}
-                strokeWidth={2.5}
-                fillOpacity={1}
+                strokeWidth={3}
+                fillOpacity={0.3}
                 fill="url(#colorScore)"
                 dot={{ r: 3, fill: CHART_THEME.primary, strokeWidth: 0 }}
                 activeDot={{ r: 5, fill: CHART_THEME.primary, stroke: 'white', strokeWidth: 2 }}

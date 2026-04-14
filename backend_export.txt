@@ -1,5 +1,5 @@
 // KHALILI — BACKEND EXPORT (Cloud Functions)
-// Generated: 2026-04-14T11:46:06.619Z
+// Generated: 2026-04-14T23:14:07.621Z
 
 
 =================================================================
@@ -224,6 +224,11 @@ service cloud.firestore {
         allow read: if request.auth != null;
         allow write: if request.auth != null && request.auth.uid == userId;
       }
+
+      // Daily usage counters (cost control + anti-abuse)
+      match /usageDaily/{dayId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
     
     // Broadcasts (for Suhba circle broadcasts)
@@ -331,6 +336,7 @@ service cloud.firestore {
     // Social notification policy rules (local scheduler source of truth)
     match /socialNotificationPolicies/{policyId} {
       allow read: if request.auth != null && (
+        resource.data.ownerId == request.auth.uid ||
         (resource.data.audience.type == 'user' && request.auth.uid in resource.data.audience.userIds) ||
         (resource.data.audience.type == 'group' && isGroupMember(resource.data.audience.groupId)) ||
         (resource.data.audience.type == 'partnership' && isPartnershipMember(resource.data.audience.partnershipId))
@@ -438,6 +444,14 @@ FILE: firestore.indexes.json
             "fields": [
                 { "fieldPath": "toUserId", "order": "ASCENDING" },
                 { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "socialNotificationPolicies",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "ownerId", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
             ]
         },
         {

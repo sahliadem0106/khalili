@@ -47,7 +47,7 @@ export const PrayerSettings: React.FC<PrayerSettingsProps> = ({ onBack }) => {
                             <button
                                 key={method.id}
                                 onClick={() => setSettings(prev => ({ ...prev, calculationMethod: method.id }))}
-                                className={`w-full p-4 rounded-xl flex items-center justify-between text-left rtl:text-right transition-all border ${settings.calculationMethod === method.id
+                                className={`w-full p-4 rounded-3xl flex items-center justify-between text-left rtl:text-right transition-all border ${settings.calculationMethod === method.id
                                     ? 'bg-brand-primary/10 border-brand-primary/30 shadow-md'
                                     : 'bg-white border-transparent hover:bg-gray-50 shadow-sm'
                                     }`}
@@ -76,7 +76,7 @@ export const PrayerSettings: React.FC<PrayerSettingsProps> = ({ onBack }) => {
                     <div className="grid grid-cols-2 gap-3">
                         <button
                             onClick={() => setSettings(prev => ({ ...prev, asrJuristic: 'standard' }))}
-                            className={`p-4 rounded-xl flex flex-col items-center justify-center text-center transition-all border ${settings.asrJuristic === 'standard'
+                            className={`p-4 rounded-3xl flex flex-col items-center justify-center text-center transition-all border ${settings.asrJuristic === 'standard'
                                 ? 'bg-brand-primary/10 border-brand-primary/30 shadow-md'
                                 : 'bg-white border-transparent hover:bg-gray-50 shadow-sm'
                                 }`}
@@ -88,7 +88,7 @@ export const PrayerSettings: React.FC<PrayerSettingsProps> = ({ onBack }) => {
 
                         <button
                             onClick={() => setSettings(prev => ({ ...prev, asrJuristic: 'hanafi' }))}
-                            className={`p-4 rounded-xl flex flex-col items-center justify-center text-center transition-all border ${settings.asrJuristic === 'hanafi'
+                            className={`p-4 rounded-3xl flex flex-col items-center justify-center text-center transition-all border ${settings.asrJuristic === 'hanafi'
                                 ? 'bg-brand-primary/10 border-brand-primary/30 shadow-md'
                                 : 'bg-white border-transparent hover:bg-gray-50 shadow-sm'
                                 }`}
@@ -101,7 +101,7 @@ export const PrayerSettings: React.FC<PrayerSettingsProps> = ({ onBack }) => {
                 </section>
 
                 {/* Manual Adjustments Note */}
-                <div className="p-4 bg-orange-50 rounded-xl border border-orange-100/50">
+                <div className="p-4 bg-orange-50 rounded-3xl border border-orange-100/50">
                     <p className="text-xs text-orange-700 leading-relaxed text-center">
                         {t('settings_manual_note')}
                     </p>

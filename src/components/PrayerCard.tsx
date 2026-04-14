@@ -106,9 +106,7 @@ export const PrayerCard: React.FC<PrayerCardProps> = ({ prayerData }) => {
   if (isLoading) {
     return (
       <div id="next-prayer-card" className="mb-6">
-        <div className="card-premium p-8 flex items-center justify-center min-h-[200px]">
-          <Loader2 size={24} className="text-brand-primary animate-spin" />
-          <span className="ms-2 text-brand-muted">Loading Prayer Times...</span>
+        <div className="card-premium skeleton-premium min-h-[200px]">
         </div>
       </div>
     );
@@ -162,7 +160,7 @@ export const PrayerCard: React.FC<PrayerCardProps> = ({ prayerData }) => {
             {/* Next Prayer Info OR Completion Message */}
             {nextPrayer ? (
               <>
-                <h2 className="text-4xl sm:text-5xl font-extrabold text-brand-forest mb-1 tracking-tight">
+                <h2 className="text-6xl sm:text-7xl font-extrabold text-brand-forest mb-1 tracking-tighter drop-shadow-[0_0_15px_rgba(4,120,87,0.3)]">
                   {formatTime(nextPrayer.time)}
                 </h2>
                 <p className="text-xl text-brand-muted font-medium mb-4">
@@ -213,12 +211,12 @@ export const PrayerCard: React.FC<PrayerCardProps> = ({ prayerData }) => {
           </div>
 
           {/* Image Container - Decorative */}
-          <div className={`hidden sm:block absolute -top-6 w-40 h-48 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 rotate-6 transition-transform hover:rotate-3 ${dir === 'rtl' ? '-left-6' : '-right-6'
+          <div className={`hidden sm:block absolute -top-8 w-48 h-56 rounded-3xl overflow-hidden rotate-6 transition-transform hover:rotate-3 [mask-image:linear-gradient(to_bottom,black_50%,transparent_100%)] ${dir === 'rtl' ? '-left-8' : '-right-8'
             }`}>
             <img
               src={IMAGES.mosqueCard}
               alt="Mosque"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-700"
             />
           </div>
         </div>

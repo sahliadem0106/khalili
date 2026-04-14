@@ -75,10 +75,9 @@ export const DailyDuaWidget: React.FC = () => {
     const [fadeIn, setFadeIn] = useState(true);
 
     useEffect(() => {
-        // Get today's dua based on day of year
-        const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-        const duaIndex = dayOfYear % DAILY_DUAS.length;
-        setCurrentDua(DAILY_DUAS[duaIndex]);
+        // True random on every mount
+        const randomIndex = Math.floor(Math.random() * DAILY_DUAS.length);
+        setCurrentDua(DAILY_DUAS[randomIndex]);
     }, []);
 
     const handleRefresh = () => {
@@ -93,7 +92,7 @@ export const DailyDuaWidget: React.FC = () => {
     if (!currentDua) return null;
 
     return (
-        <div className="bg-brand-surface rounded-2xl p-5 border border-brand-border shadow-sm mb-6 card-3d">
+        <div className="bg-brand-surface rounded-3xl p-5 border border-black/5 shadow-soft-xl mb-2 card-3d">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -115,7 +114,7 @@ export const DailyDuaWidget: React.FC = () => {
             </div>
 
             {/* Dua Content */}
-            <div className={`transition-opacity duration-200 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
+            <div className={`transition-opacity duration-300 min-h-[140px] flex flex-col justify-center ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
                 {/* Arabic */}
                 <p className="text-xl font-arabic text-emerald-900 dark:text-white text-right leading-loose mb-3 drop-shadow-md">
                     {currentDua.arabic}

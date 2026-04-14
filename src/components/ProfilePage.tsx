@@ -42,7 +42,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isLangModalOpen, setIsLangModalOpen] = useState(false);
   const { toast, showToast, clearToast } = useToast();
-  const formFullName = `${(firebaseUser as any)?.firstName || ''} ${(firebaseUser as any)?.lastName || ''}`.trim();
+  const profileWithNames = firebaseUser as (typeof firebaseUser & { firstName?: string; lastName?: string });
+  const formFullName = `${profileWithNames?.firstName || ''} ${profileWithNames?.lastName || ''}`.trim();
   const resolvedDisplayName = formFullName || user.name || firebaseUser?.displayName || 'User';
   const genderAvatar =
     firebaseUser?.gender === 'female'
@@ -533,39 +534,30 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
       <div className="space-y-6">
         {/* Authenticated User Profile Header */}
         {isAuthenticated && (
-          <div id="profile-user-card" className="flex items-center space-x-4 rtl:space-x-reverse p-5 glass-panel mt-4 border border-brand-border">
-            <div className="w-16 h-16 rounded-full relative flex-shrink-0">
+          <div id="profile-user-card" className="flex flex-col items-center justify-center text-center p-8 sm:p-10 rounded-3xl bg-brand-surface dark:bg-neutral-800 shadow-soft-xl mt-4 border border-black/5 dark:border-white/5 relative">
+            <div className="w-28 h-28 rounded-full relative flex-shrink-0 mb-4">
               {resolvedAvatar ? (
                 <img
                   src={resolvedAvatar}
                   alt={resolvedDisplayName}
-                  className="w-full h-full rounded-full object-cover border-2 border-brand-primary/20"
+                  className="w-full h-full rounded-full object-cover border-4 border-white dark:border-neutral-800 shadow-lg"
                 />
               ) : (
-                <div className="w-full h-full rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary text-xl font-bold">
+                <div className="w-full h-full rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary text-4xl font-black border-4 border-white dark:border-neutral-800 shadow-lg">
                   {resolvedDisplayName.charAt(0)}
                 </div>
               )}
-              <div className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 bg-brand-primary w-4 h-4 rounded-full border-2 border-brand-surface shadow-sm"></div>
             </div>
+            
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-brand-forest truncate">{resolvedDisplayName}</h2>
-              <p className="text-sm text-brand-muted truncate">{firebaseUser?.email}</p>
-              <div className="mt-1">
-                <SyncIndicator
-                  status={syncState.status}
-                  isOnline={syncState.isOnline}
-                  pendingChanges={syncState.pendingChanges}
-                  onPress={forceSync}
-                />
-              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-brand-forest dark:text-white truncate">{resolvedDisplayName}</h2>
             </div>
           </div>
         )}
 
         {/* Guest Banner - Solid Clean */}
         {!isAuthenticated && (
-          <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-emerald-100 dark:border-neutral-700 p-5 flex flex-col sm:flex-row items-center justify-between gap-4 mt-2">
+          <div className="bg-white dark:bg-neutral-800 rounded-3xl shadow-soft-xl border border-black/5 dark:border-neutral-700 p-8 flex flex-col sm:flex-row items-center justify-between gap-6 mt-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0">
                 <UserIcon size={24} />
@@ -592,11 +584,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
 
 
         {/* Settings List */}
-        <div className="space-y-6">
+        <div className="space-y-8 mt-6">
           {SETTINGS_SECTIONS.map((section, idx) => (
             <div key={idx}>
-              <h3 className="text-xs font-bold text-brand-secondary uppercase tracking-wider ms-3 mb-2">{section.title}</h3>
-              <div className="glass-panel overflow-hidden border border-brand-border">
+              <h3 className="text-sm font-bold text-brand-secondary uppercase tracking-wider ms-4 mb-3">{section.title}</h3>
+              <div className="bg-brand-surface rounded-3xl shadow-soft-xl overflow-hidden border border-black/5 p-2">
                 {section.items.map((item, i) => (
                   <div
                     key={i}
@@ -604,10 +596,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                       if (item.action) item.action();
                       else if (item.view) setActiveView(item.view);
                     }}
-                    className="flex items-center justify-between p-4 border-b border-brand-border last:border-0 cursor-pointer hover:bg-brand-subtle active:bg-brand-primary/10 transition-colors group"
+                    className="flex items-center justify-between p-5 rounded-2xl cursor-pointer hover:bg-brand-subtle active:bg-brand-primary/10 transition-colors group mb-1 last:mb-0"
                   >
-                    <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                      <div className={`p-2.5 rounded-xl bg-opacity-10 ${item.color.replace('bg-', 'bg-').replace('50', '500/10')}`}>
+                    <div className="flex items-center space-x-5 rtl:space-x-reverse">
+                      <div className={`p-3.5 rounded-2xl bg-opacity-10 ${item.color.replace('bg-', 'bg-').replace('50', '500/10')}`}>
                         <item.icon size={18} className={item.color.split(' ')[0]} />
                       </div>
                       <div>
@@ -662,7 +654,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 pb-24 px-5 md:px-8 pt-4">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-28 px-5 md:px-10 pt-6">
       <AnimatePresence mode="wait">
         {activeView === 'main' && (
           <motion.div

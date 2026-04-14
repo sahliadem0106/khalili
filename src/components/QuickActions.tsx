@@ -2,6 +2,7 @@
 import React from 'react';
 import { BookOpen, Compass, Heart, List, RotateCcw, Settings, GraduationCap, CheckSquare, PlayCircle, Coins } from 'lucide-react';
 import { QuickAction, ActionId } from '../types';
+import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface QuickActionsProps {
@@ -23,26 +24,28 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ onActionClick }) => 
   ];
 
   return (
-    <div id="quick-actions" className="grid grid-cols-2 gap-3 sm:gap-4 mb-8 px-1">
-      {ACTIONS.map((action) => (
-        <button
-          key={action.id}
-          onClick={() => onActionClick(action.id)}
-          className="group relative flex flex-row items-center min-h-[76px] p-3.5 rounded-2xl bg-brand-surface border border-brand-border/50 shadow-sm hover:shadow-premium hover:border-brand-primary/20 hover:bg-brand-surface transition-all duration-300 text-left"
-        >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-inner ${action.color} bg-opacity-10 group-hover:scale-105 transition-transform`}>
-            <action.icon size={20} strokeWidth={2} className="opacity-90" />
-          </div>
-          <div className="ml-3 flex-1 min-w-0 pe-1">
-            <span className="text-[13px] sm:text-sm font-bold text-brand-forest block leading-tight group-hover:text-brand-primary transition-colors whitespace-normal break-words">
+    <div id="quick-actions" className="grid grid-cols-4 gap-2.5 sm:gap-4 mb-6 px-1">
+      {ACTIONS.map((action) => {
+        const textColor = action.color.split(' ')[0]; // e.g. text-emerald-600
+        const bgColor = action.color.split(' ')[1]; // e.g. bg-emerald-50
+        
+        return (
+          <motion.button
+            key={action.id}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onActionClick(action.id)}
+            className={`group flex flex-col items-center justify-center p-3 sm:p-4 rounded-3xl border border-white/50 shadow-sm hover:shadow-soft-xl transition-all duration-300 ${bgColor}`}
+          >
+            <div className={`${textColor} mb-1.5 group-hover:scale-110 transition-transform drop-shadow-sm`}>
+              <action.icon size={26} strokeWidth={2.5} />
+            </div>
+            <span className={`text-[10px] sm:text-xs font-extrabold text-center w-full leading-tight whitespace-normal break-words ${textColor} opacity-90 group-hover:opacity-100 transition-opacity`}>
               {action.label}
             </span>
-          </div>
-          <div className="absolute right-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-            {/* Optional arrow or indicator on hover if desired */}
-          </div>
-        </button>
-      ))}
+          </motion.button>
+        );
+      })}
     </div>
   );
 

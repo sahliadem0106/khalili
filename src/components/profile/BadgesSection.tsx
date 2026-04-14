@@ -73,7 +73,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ compact = false })
                             onClick={() => setSelectedCategory(cat.key)}
                             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedCategory === cat.key
                                     ? 'bg-brand-primary text-white'
-                                    : 'bg-brand-subtle text-brand-muted border border-brand-border'
+                                    : 'bg-brand-subtle text-brand-muted border border-black/5'
                                 }`}
                         >
                             {language === 'ar' ? cat.labelAr : cat.label}
@@ -94,7 +94,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ compact = false })
                             onClick={() => setSelectedBadge(badge)}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className={`relative p-4 rounded-2xl flex flex-col items-center text-center transition-all ${earned
+                            className={`relative p-4 rounded-3xl flex flex-col items-center text-center transition-all ${earned
                                     ? `bg-gradient-to-br ${getTierGradient(badge.tier)} shadow-lg`
                                     : 'bg-neutral-100 dark:bg-neutral-800 opacity-60'
                                 }`}
@@ -148,7 +148,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ compact = false })
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             onClick={e => e.stopPropagation()}
-                            className="bg-brand-surface border border-brand-border rounded-3xl p-6 max-w-sm w-full shadow-2xl"
+                            className="bg-brand-surface border border-black/5 rounded-3xl p-6 max-w-sm w-full shadow-2xl"
                         >
                             <div className="text-center">
                                 <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center text-4xl mb-4 ${isEarned(selectedBadge.id)
@@ -200,7 +200,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ compact = false })
 
                                 <button
                                     onClick={() => setSelectedBadge(null)}
-                                    className="w-full mt-6 py-3 bg-brand-subtle text-brand-forest rounded-xl font-medium border border-brand-border"
+                                    className="w-full mt-6 py-3 bg-brand-subtle text-brand-forest rounded-3xl font-medium border border-black/5"
                                 >
                                     {language === 'ar' ? 'إغلاق' : 'Close'}
                                 </button>

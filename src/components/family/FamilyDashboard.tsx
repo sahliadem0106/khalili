@@ -104,14 +104,14 @@ export const FamilyDashboard: React.FC = () => {
                 <div className="flex gap-2 w-full sm:w-auto">
                     <button
                         onClick={() => setShowJoinModal(true)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-brand-surface text-brand-primary border border-brand-border px-4 py-2 rounded-xl hover:bg-brand-subtle font-medium transition-all"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-brand-surface text-brand-primary border border-black/5 px-4 py-2 rounded-3xl hover:bg-brand-subtle font-medium transition-all"
                     >
                         <LogIn size={18} />
                         <span className="hidden sm:inline">Join</span>
                     </button>
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-primary/90 shadow-md shadow-brand-primary/20 font-medium transition-all"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-3xl hover:bg-brand-primary/90 shadow-md shadow-brand-primary/20 font-medium transition-all"
                     >
                         <Plus size={18} />
                         <span className="hidden sm:inline">Create</span>
@@ -120,7 +120,7 @@ export const FamilyDashboard: React.FC = () => {
             </div>
 
             {families.length === 0 ? (
-                <div className="text-center py-16 bg-brand-surface rounded-3xl border border-dashed border-brand-border">
+                <div className="text-center py-16 bg-brand-surface rounded-3xl border border-dashed border-black/5">
                     <div className="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Users size={32} className="text-brand-primary" />
                     </div>
@@ -144,7 +144,7 @@ export const FamilyDashboard: React.FC = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             onClick={() => setSelectedFamily(family)}
-                            className="bg-brand-surface p-6 rounded-2xl text-brand-forest shadow-sm border border-brand-border hover:shadow-md transition-shadow cursor-pointer group relative overflow-hidden"
+                            className="bg-brand-surface p-6 rounded-3xl text-brand-forest shadow-sm border border-black/5 hover:shadow-md transition-shadow cursor-pointer group relative overflow-hidden"
                         >
                             <div className="absolute right-0 top-0 w-24 h-24 bg-brand-subtle rounded-bl-full -mr-8 -mt-8 opacity-60"></div>
 
@@ -163,7 +163,7 @@ export const FamilyDashboard: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between border-t border-brand-border pt-4 relative z-10">
+                            <div className="flex items-center justify-between border-t border-black/5 pt-4 relative z-10">
                                 <div className="flex -space-x-2">
                                     {family.members.slice(0, 4).map((m, i) => (
                                         <div key={m} className="w-8 h-8 rounded-full bg-brand-primary/10 border-2 border-brand-surface flex items-center justify-center text-[10px] font-bold text-brand-primary">

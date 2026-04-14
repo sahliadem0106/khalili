@@ -78,7 +78,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ onBack }) => {
                     <h3 className="text-sm font-semibold text-brand-forest/60 uppercase tracking-wider mb-4 px-1">
                         {t('profile_data_visibility')}
                     </h3>
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-6">
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 space-y-6">
 
                         <div className="flex items-center justify-between">
                             <div className="flex items-start space-x-3 rtl:space-x-reverse">
@@ -143,7 +143,7 @@ export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ onBack }) => {
                     </div>
                 </section>
 
-                <div className="p-4 bg-blue-50 rounded-xl flex items-start space-x-3 rtl:space-x-reverse">
+                <div className="p-4 bg-blue-50 rounded-3xl flex items-start space-x-3 rtl:space-x-reverse">
                     <Shield className="text-blue-500 shrink-0 mt-1" size={20} />
                     <p className="text-sm text-blue-700 leading-relaxed">
                         {t('privacy_data_notice')}

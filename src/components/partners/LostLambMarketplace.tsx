@@ -6,7 +6,7 @@ import { User, MapPin, Heart, Edit3, Shield, Info, QrCode, Clock } from 'lucide-
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../hooks/useAuth';
 import { onboardingService } from '../../services/OnboardingService';
-import { Toast } from '../shared/Toast';
+import { Toast, useToast } from '../shared/Toast';
 
 // Initialize user location from localStorage eagerly to avoid race condition
 function getInitialUserLocation(): { lat: number; lon: number } | null {
@@ -34,9 +34,7 @@ export const LostLambMarketplace: React.FC = () => {
     // FIX: Initialize from localStorage to avoid race condition with nearbyOnly filter
     const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(getInitialUserLocation);
 
-    // Toast notification state
-    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
-    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => setToast({ message, type });
+    const { toast, showToast, clearToast } = useToast();
 
     // Form State
     const [formData, setFormData] = useState<Partial<PartnerProfile>>({
@@ -206,11 +204,11 @@ export const LostLambMarketplace: React.FC = () => {
 
             {/* Toast Notification */}
             <AnimatePresence>
-                {toast && <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />}
+                {toast && <Toast message={toast.message} type={toast.type} onDismiss={clearToast} />}
             </AnimatePresence>
 
             {/* Header / My Status */}
-            <div className="glass-panel p-6 bg-brand-surface border border-brand-border">
+            <div className="rounded-3xl shadow-soft-xl border border-black/5 p-6 bg-brand-surface/80 backdrop-blur-sm">
                 <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
                     <div>
                         <h2 className="text-2xl font-bold text-brand-forest font-outfit mb-2">
@@ -229,11 +227,11 @@ export const LostLambMarketplace: React.FC = () => {
                 {/* Status Cards for matched users */}
                 {myProfile && (
                     <div className="flex flex-wrap gap-3">
-                        <div className="flex items-center gap-2 bg-brand-secondary/10 text-brand-secondary px-4 py-2 rounded-xl text-sm font-medium">
+                        <div className="flex items-center gap-2 bg-brand-secondary/10 text-brand-secondary px-4 py-2 rounded-3xl text-sm font-medium">
                             <Clock size={16} />
                             Waiting for match...
                         </div>
-                        <div className="flex items-center gap-2 bg-brand-primary/10 text-brand-primary px-4 py-2 rounded-xl text-sm font-medium">
+                        <div className="flex items-center gap-2 bg-brand-primary/10 text-brand-primary px-4 py-2 rounded-3xl text-sm font-medium">
                             <QrCode size={16} />
                             Use QR Code or send requests below
                         </div>
@@ -241,7 +239,7 @@ export const LostLambMarketplace: React.FC = () => {
                 )}
 
                 {/* Nearby Filter Toggle */}
-                <div className="flex items-center justify-between mt-5 p-4 bg-brand-subtle rounded-2xl shadow-sm border border-brand-border transition-all hover:shadow-md">
+                <div className="flex items-center justify-between mt-5 p-4 bg-brand-subtle rounded-3xl shadow-sm border border-black/5 transition-all hover:shadow-md">
                     <div className="flex items-center gap-3">
                         <div className={`p-2.5 rounded-full transition-colors ${nearbyOnly ? 'bg-brand-primary/20 text-brand-primary' : 'bg-brand-subtle text-brand-muted'}`}>
                             <MapPin size={20} />
@@ -342,7 +340,7 @@ export const LostLambMarketplace: React.FC = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 whileHover={{ y: -5 }}
-                                className="bg-brand-surface rounded-2xl shadow-sm hover:shadow-xl border border-brand-border overflow-hidden transition-all duration-300 group relative h-full"
+                                className="bg-brand-surface rounded-3xl shadow-sm hover:shadow-xl border border-black/5 overflow-hidden transition-all duration-300 group relative h-full"
                             >
                                 {/* Decorative Gradient Bar */}
                                 <div className="h-1.5 w-full bg-gradient-to-r from-brand-primary to-brand-primary-dark transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
@@ -350,7 +348,7 @@ export const LostLambMarketplace: React.FC = () => {
                                 <div className="p-6 h-full flex flex-col">
                                     <div className="flex items-start justify-between mb-5">
                                         <div className="flex items-center space-x-3.5">
-                                            <div className="w-14 h-14 bg-brand-surface rounded-full flex items-center justify-center text-brand-primary font-outfit font-bold text-xl shadow-md border border-brand-border group-hover:scale-110 transition-transform duration-300">
+                                            <div className="w-14 h-14 bg-brand-surface rounded-full flex items-center justify-center text-brand-primary font-outfit font-bold text-xl shadow-md border border-black/5 group-hover:scale-110 transition-transform duration-300">
                                                 {profile.nickname[0]}
                                             </div>
                                             <div>
@@ -381,7 +379,7 @@ export const LostLambMarketplace: React.FC = () => {
                                         {profile.hobbies && profile.hobbies.length > 0 && (
                                             <div className="flex flex-wrap gap-1.5">
                                                 {profile.hobbies.slice(0, 3).map(tag => (
-                                                    <span key={tag} className="text-[10px] bg-brand-subtle text-brand-forest px-2.5 py-1 rounded-md border border-brand-border font-medium">
+                                                    <span key={tag} className="text-[10px] bg-brand-subtle text-brand-forest px-2.5 py-1 rounded-3xl border border-black/5 font-medium">
                                                         #{tag}
                                                     </span>
                                                 ))}
