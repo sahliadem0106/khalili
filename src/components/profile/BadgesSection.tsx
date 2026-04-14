@@ -55,11 +55,11 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ compact = false })
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Trophy size={20} className="text-amber-500" />
-                    <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                    <h3 className="text-lg font-bold text-brand-forest">
                         {language === 'ar' ? 'الإنجازات' : 'Achievements'}
                     </h3>
                 </div>
-                <span className="text-sm text-neutral-500">
+                <span className="text-sm text-brand-muted">
                     {earnedBadges.length}/{BADGE_DEFINITIONS.length}
                 </span>
             </div>
@@ -73,7 +73,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ compact = false })
                             onClick={() => setSelectedCategory(cat.key)}
                             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedCategory === cat.key
                                     ? 'bg-brand-primary text-white'
-                                    : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
+                                    : 'bg-brand-subtle text-brand-muted border border-brand-border'
                                 }`}
                         >
                             {language === 'ar' ? cat.labelAr : cat.label}
@@ -148,7 +148,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ compact = false })
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             onClick={e => e.stopPropagation()}
-                            className="bg-white dark:bg-neutral-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl"
+                            className="bg-brand-surface border border-brand-border rounded-3xl p-6 max-w-sm w-full shadow-2xl"
                         >
                             <div className="text-center">
                                 <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center text-4xl mb-4 ${isEarned(selectedBadge.id)
@@ -158,11 +158,11 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ compact = false })
                                     {isEarned(selectedBadge.id) ? selectedBadge.icon : <Lock size={32} className="text-neutral-400" />}
                                 </div>
 
-                                <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
+                                <h3 className="text-xl font-bold text-brand-forest mb-2">
                                     {language === 'ar' ? selectedBadge.nameAr : selectedBadge.name}
                                 </h3>
 
-                                <p className="text-neutral-500 dark:text-neutral-400 mb-4">
+                                <p className="text-brand-muted mb-4">
                                     {language === 'ar' ? selectedBadge.descriptionAr : selectedBadge.description}
                                 </p>
 
@@ -200,7 +200,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ compact = false })
 
                                 <button
                                     onClick={() => setSelectedBadge(null)}
-                                    className="w-full mt-6 py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium"
+                                    className="w-full mt-6 py-3 bg-brand-subtle text-brand-forest rounded-xl font-medium border border-brand-border"
                                 >
                                     {language === 'ar' ? 'إغلاق' : 'Close'}
                                 </button>

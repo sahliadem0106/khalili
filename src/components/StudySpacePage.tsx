@@ -123,14 +123,14 @@ export const StudySpacePage: React.FC<StudySpacePageProps> = ({ onBack }) => {
     ];
 
     return (
-        <div className="min-h-screen bg-neutral-50 dark:bg-brand-background pb-20">
+        <div className="min-h-screen bg-brand-background pb-20">
             {/* Header */}
-            <div className="bg-white/80 dark:bg-brand-surface/80 backdrop-blur-xl border-b border-neutral-200 dark:border-white/5 px-4 py-4 sticky top-0 z-20">
+            <div className="bg-brand-surface/90 backdrop-blur-xl border-b border-brand-border px-4 py-4 sticky top-0 z-20">
                 <div className="flex items-center justify-between mb-4">
-                    <button onClick={onBack} className="p-2 -ml-2 text-neutral-500 dark:text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/5 rounded-full">
+                    <button onClick={onBack} className="p-2 -ml-2 text-brand-muted hover:bg-brand-subtle rounded-full">
                         <ArrowLeft size={20} />
                     </button>
-                    <h1 className="text-lg font-bold text-neutral-900 dark:text-neutral-900 dark:text-white">
+                    <h1 className="text-lg font-bold text-brand-forest">
                         {t('study_space')}
                     </h1>
                     {/* Empty placeholder to maintain header layout */}
@@ -138,14 +138,14 @@ export const StudySpacePage: React.FC<StudySpacePageProps> = ({ onBack }) => {
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="flex space-x-1 rtl:space-x-reverse bg-neutral-100 dark:bg-neutral-100 dark:bg-black/20 p-1 rounded-xl">
+                <div className="flex space-x-1 rtl:space-x-reverse bg-brand-subtle p-1 rounded-xl border border-brand-border">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex-1 flex flex-col items-center py-2 px-1 rounded-lg text-xs font-medium transition-all ${activeTab === tab.id
                                 ? 'bg-white dark:bg-brand-surface shadow-sm text-brand-primary'
-                                : 'text-neutral-500 dark:text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-white/5'
+                                : 'text-brand-muted hover:bg-brand-surface'
                                 }`}
                         >
                             {tab.icon}
@@ -159,42 +159,42 @@ export const StudySpacePage: React.FC<StudySpacePageProps> = ({ onBack }) => {
             <div className="px-4 pt-4">
                 <div className="grid grid-cols-3 gap-3">
                     {/* Tasks Counter */}
-                    <div className="bg-white dark:bg-brand-surface/40 backdrop-blur-sm rounded-xl p-3 border border-neutral-200 dark:border-white/5 shadow-sm dark:shadow-none">
+                    <div className="bg-brand-surface backdrop-blur-sm rounded-xl p-3 border border-brand-border shadow-sm">
                         <div className="flex items-center justify-center w-8 h-8 bg-green-500/20 rounded-lg mb-2">
                             <CheckSquare size={16} className="text-green-500 dark:text-green-400" />
                         </div>
-                        <p className="text-lg font-bold text-neutral-900 dark:text-neutral-900 dark:text-white">{taskStats.total - taskStats.done}</p>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-400">{t('study_remaining' as any)}</p>
+                        <p className="text-lg font-bold text-brand-forest">{taskStats.total - taskStats.done}</p>
+                        <p className="text-xs text-brand-muted">{t('study_remaining' as any)}</p>
                     </div>
 
                     {/* Focus Time */}
                     {/* Focus Time - Clickable to toggle format */}
                     <button
                         onClick={() => setShowTotalMinutes(!showTotalMinutes)}
-                        className="bg-white dark:bg-brand-surface/40 backdrop-blur-sm rounded-xl p-3 border border-neutral-200 dark:border-white/5 shadow-sm dark:shadow-none hover:border-blue-400 transition-colors text-left"
+                        className="bg-brand-surface backdrop-blur-sm rounded-xl p-3 border border-brand-border shadow-sm hover:border-blue-400 transition-colors text-left"
                     >
                         <div className="flex items-center justify-center w-8 h-8 bg-blue-500/20 rounded-lg mb-2">
                             <Clock size={16} className="text-blue-500 dark:text-blue-400" />
                         </div>
-                        <p className="text-lg font-bold text-neutral-900 dark:text-neutral-900 dark:text-white">
+                        <p className="text-lg font-bold text-brand-forest">
                             {showTotalMinutes
                                 ? `${Math.floor(todayFocus)}m`
                                 : `${Math.floor(todayFocus / 60)}h ${todayFocus % 60}m`
                             }
                         </p>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-400">{t('study_today')}</p>
+                        <p className="text-xs text-brand-muted">{t('study_today')}</p>
                     </button>
 
                     {/* Streak - Clickable to set goal */}
                     <button
                         onClick={() => setShowStreakModal(true)}
-                        className="bg-white dark:bg-brand-surface/40 backdrop-blur-sm rounded-xl p-3 border border-neutral-200 dark:border-white/5 shadow-sm dark:shadow-none hover:border-orange-400 transition-colors text-left"
+                        className="bg-brand-surface backdrop-blur-sm rounded-xl p-3 border border-brand-border shadow-sm hover:border-orange-400 transition-colors text-left"
                     >
                         <div className="flex items-center justify-center w-8 h-8 bg-orange-500/20 rounded-lg mb-2">
                             <span className="text-orange-400">🔥</span>
                         </div>
-                        <p className="text-lg font-bold text-neutral-900 dark:text-neutral-900 dark:text-white">{streak}</p>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-400">{t('study_streak')}</p>
+                        <p className="text-lg font-bold text-brand-forest">{streak}</p>
+                        <p className="text-xs text-brand-muted">{t('study_streak')}</p>
                     </button>
                 </div>
             </div>

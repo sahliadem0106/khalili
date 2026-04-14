@@ -98,8 +98,8 @@ export const FamilyDashboard: React.FC = () => {
         <div className="space-y-6 pt-4">
             <div className="flex flex-wrap justify-between items-center gap-3 px-1">
                 <div>
-                    <h2 className="text-2xl font-bold font-outfit text-brand-forest">My Families</h2>
-                    <p className="text-sm text-brand-muted">Manage your household and challenges</p>
+                    <h2 className="text-2xl font-bold font-outfit text-brand-forest">My Family</h2>
+                    <p className="text-sm text-brand-muted">Manage your household and challenges in one place</p>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
                     <button
@@ -124,11 +124,11 @@ export const FamilyDashboard: React.FC = () => {
                     <div className="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Users size={32} className="text-brand-primary" />
                     </div>
-                    <h3 className="text-lg font-bold text-brand-forest mb-1">No Families Yet</h3>
+                    <h3 className="text-lg font-bold text-brand-forest mb-1">No Family Yet</h3>
                     <p className="text-brand-muted max-w-xs mx-auto mb-6 text-sm">Create a group for your household to track prayers and set challenges together.</p>
                     <div className="flex flex-col gap-2 items-center">
                         <button onClick={() => setShowCreateModal(true)} className="text-brand-primary font-bold hover:underline">
-                            Create your first family group
+                            Create your family group
                         </button>
                         <span className="text-brand-muted text-sm">or</span>
                         <button onClick={() => setShowJoinModal(true)} className="text-brand-muted font-medium hover:text-brand-forest hover:underline">

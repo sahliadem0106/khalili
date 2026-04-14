@@ -87,9 +87,9 @@ export const HeartStateWidget: React.FC<HeartStateWidgetProps> = ({ currentState
       </div>
 
       {/* Weekly Trend Mini-Indicator */}
-      <div className="flex items-center space-x-2 rtl:space-x-reverse mb-6 bg-neutral-50 p-2 rounded-lg border border-neutral-100/50">
+      <div className="flex items-center space-x-2 rtl:space-x-reverse mb-6 bg-brand-subtle p-2 rounded-lg border border-brand-border">
         <trend.icon size={14} className={`${trend.color} rtl:flip-x`} />
-        <span className="text-xs text-neutral-600">
+        <span className="text-xs text-brand-muted">
           {trend.text}
           {metrics && metrics.prayerStreak > 0 && (
             <strong className="ms-1">({metrics.prayerStreak} day streak)</strong>
@@ -111,13 +111,13 @@ export const HeartStateWidget: React.FC<HeartStateWidgetProps> = ({ currentState
                 onClick={() => onSelect(state.id as HeartCondition)}
                 className={`
                   flex flex-col items-center justify-center min-w-[60px] p-2 rounded-xl transition-all duration-300
-                  ${isSelected ? 'bg-brand-primary shadow-md scale-105' : 'bg-brand-surface/40 border border-white/10 hover:bg-brand-surface/60'}
+                  ${isSelected ? 'bg-brand-primary shadow-md scale-105' : 'bg-brand-surface border border-brand-border hover:bg-brand-subtle'}
                 `}
               >
                 <div className={`mb-1 ${isSelected ? 'text-white' : state.color.split(' ')[0]}`}>
                   <state.icon size={20} strokeWidth={isSelected ? 2.5 : 2} />
                 </div>
-                <span className={`text-[10px] font-medium ${isSelected ? 'text-white' : 'text-neutral-500'}`}>
+                <span className={`text-[10px] font-medium ${isSelected ? 'text-white' : 'text-brand-muted'}`}>
                   {state.label}
                 </span>
               </button>

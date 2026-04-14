@@ -5,6 +5,7 @@
 class AudioServiceClass {
     private adhanAudio: HTMLAudioElement | null = null;
     private isAdhanPlaying: boolean = false;
+    private autoplayBlocked: boolean = false;
 
     /**
      * Play the Adhan audio
@@ -33,10 +34,17 @@ class AudioServiceClass {
             // Attempt to play
             await this.adhanAudio.play();
             this.isAdhanPlaying = true;
+            this.autoplayBlocked = false;
             console.log('[AudioService] Adhan playback started');
             return true;
         } catch (error) {
-            console.error('[AudioService] Failed to play Adhan:', error);
+            const playbackError = error as DOMException;
+            this.autoplayBlocked = playbackError?.name === 'NotAllowedError';
+            if (this.autoplayBlocked) {
+                console.warn('[AudioService] Adhan blocked until user interaction');
+            } else {
+                console.error('[AudioService] Failed to play Adhan:', error);
+            }
             this.isAdhanPlaying = false;
             return false;
         }
@@ -70,6 +78,10 @@ class AudioServiceClass {
      */
     isPlaying(): boolean {
         return this.isAdhanPlaying;
+    }
+
+    isAutoplayBlocked(): boolean {
+        return this.autoplayBlocked;
     }
 
     /**

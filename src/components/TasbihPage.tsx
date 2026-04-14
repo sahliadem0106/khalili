@@ -166,13 +166,13 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
         <div className="min-h-screen bg-brand-background pb-20 animate-in fade-in duration-300">
 
             {/* HEADER */}
-            <div className="bg-brand-surface/90 backdrop-blur-md px-4 py-4 sticky top-0 z-20 border-b border-white/10 shadow-sm">
+            <div className="bg-brand-surface/90 backdrop-blur-md px-4 py-4 sticky top-0 z-20 border-b border-brand-border shadow-sm">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
                         {onBack && (
                             <button
                                 onClick={onBack}
-                                className="p-2 -ml-2 rounded-full hover:bg-white/10 text-brand-forest transition-colors"
+                                className="p-2 -ml-2 rounded-full hover:bg-brand-subtle text-brand-forest transition-colors"
                                 aria-label={t('back')}
                             >
                                 <BackIcon size={22} />
@@ -184,7 +184,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                     {view === 'active' && (
                         <button
                             onClick={() => setView('setup')}
-                            className="p-2 -mr-2 rounded-full hover:bg-white/10 text-neutral-400 hover:text-brand-primary transition-colors"
+                            className="p-2 -mr-2 rounded-full hover:bg-brand-subtle text-brand-muted hover:text-brand-primary transition-colors"
                             aria-label={t('settings')}
                         >
                             <Settings2 size={22} />
@@ -200,16 +200,16 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                 {view === 'setup' && (
                     <div className="space-y-6 max-w-lg mx-auto">
                         {/* Mode Toggle */}
-                        <div className="bg-brand-surface border border-white/10 p-1 rounded-2xl flex shadow-sm">
+                        <div className="bg-brand-surface border border-brand-border p-1 rounded-2xl flex shadow-sm">
                             <button
                                 onClick={() => { setMode('single'); setIsCustom(false); }}
-                                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all font-outfit ${mode === 'single' ? 'bg-brand-primary text-white shadow-md' : 'text-neutral-500 hover:bg-white/5'}`}
+                                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all font-outfit ${mode === 'single' ? 'bg-brand-primary text-white shadow-md' : 'text-brand-muted hover:bg-brand-subtle'}`}
                             >
                                 {t('tasbih_mode_single')}
                             </button>
                             <button
                                 onClick={() => setMode('combo')}
-                                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all font-outfit ${mode === 'combo' ? 'bg-brand-primary text-white shadow-md' : 'text-neutral-500 hover:bg-white/5'}`}
+                                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all font-outfit ${mode === 'combo' ? 'bg-brand-primary text-white shadow-md' : 'text-brand-muted hover:bg-brand-subtle'}`}
                             >
                                 {t('tasbih_mode_combo')}
                             </button>
@@ -219,7 +219,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                         {mode === 'single' && (
                             <>
                                 <div className="space-y-4">
-                                    <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest px-1">{t('tasbih_select_dhikr')}</label>
+                                    <label className="text-xs font-bold text-brand-muted uppercase tracking-widest px-1">{t('tasbih_select_dhikr')}</label>
                                     <div className="grid grid-cols-2 gap-3">
                                         {PRESETS.map(p => (
                                             <button
@@ -227,20 +227,20 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                                 onClick={() => { setSelectedDhikr(p); setIsCustom(false); }}
                                                 className={`p-4 rounded-2xl border text-start transition-all relative overflow-hidden group ${!isCustom && selectedDhikr.label === p.label
                                                     ? 'border-brand-primary bg-brand-primary/10'
-                                                    : 'border-white/10 bg-brand-surface hover:border-brand-primary/30'}`}
+                                                    : 'border-brand-border bg-brand-surface hover:border-brand-primary/30'}`}
                                             >
                                                 <p className={`font-bold text-sm truncate font-outfit ${!isCustom && selectedDhikr.label === p.label ? 'text-brand-primary' : 'text-brand-forest'}`}>{p.label}</p>
-                                                <p className="text-xs text-neutral-500 font-arabic mt-1 truncate group-hover:text-brand-primary/80 transition-colors">{p.arabic}</p>
+                                                <p className="text-xs text-brand-muted font-arabic mt-1 truncate group-hover:text-brand-primary/80 transition-colors">{p.arabic}</p>
                                             </button>
                                         ))}
                                         <button
                                             onClick={() => setIsCustom(true)}
                                             className={`p-4 rounded-2xl border flex flex-col items-center justify-center transition-all ${isCustom
                                                 ? 'border-brand-primary bg-brand-primary/10'
-                                                : 'border-dashed border-white/20 bg-transparent hover:bg-white/5'}`}
+                                                : 'border-dashed border-brand-border bg-transparent hover:bg-brand-subtle'}`}
                                         >
-                                            <Plus size={20} className={`mb-1 ${isCustom ? 'text-brand-primary' : 'text-neutral-400'}`} />
-                                            <span className={`text-xs font-bold ${isCustom ? 'text-brand-primary' : 'text-neutral-500'}`}>{t('tasbih_custom')}</span>
+                                            <Plus size={20} className={`mb-1 ${isCustom ? 'text-brand-primary' : 'text-brand-muted'}`} />
+                                            <span className={`text-xs font-bold ${isCustom ? 'text-brand-primary' : 'text-brand-muted'}`}>{t('tasbih_custom')}</span>
                                         </button>
                                     </div>
 
@@ -250,13 +250,13 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                             value={customInput}
                                             onChange={(e) => setCustomInput(e.target.value)}
                                             placeholder={t('tasbih_custom_placeholder')}
-                                            className="w-full p-4 rounded-2xl bg-brand-surface border border-white/10 focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary outline-none shadow-inner text-brand-forest placeholder-neutral-400 text-xl font-bold font-arabic"
+                                            className="w-full p-4 rounded-2xl bg-brand-surface border border-brand-border focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary outline-none shadow-inner text-brand-forest placeholder-brand-muted text-xl font-bold font-arabic"
                                         />
                                     )}
                                 </div>
 
                                 <div className="space-y-4">
-                                    <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest px-1">{t('tasbih_set_goal')}</label>
+                                    <label className="text-xs font-bold text-brand-muted uppercase tracking-widest px-1">{t('tasbih_set_goal')}</label>
                                     <div className="flex space-x-3 rtl:space-x-reverse">
                                         {[33, 100, 0].map(t => (
                                             <button
@@ -264,7 +264,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                                 onClick={() => setTarget(t)}
                                                 className={`flex-1 py-3 rounded-xl border font-bold transition-all shadow-sm ${target === t
                                                     ? 'border-brand-primary bg-brand-primary text-white shadow-brand-primary/20'
-                                                    : 'border-white/10 bg-brand-surface text-brand-forest hover:bg-white/5'}`}
+                                                    : 'border-brand-border bg-brand-surface text-brand-forest hover:bg-brand-subtle'}`}
                                             >
                                                 {t === 0 ? '∞' : t}
                                             </button>
@@ -290,12 +290,12 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                             <div className="space-y-6">
                                 {/* Current Sequence List */}
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-neutral-400 uppercase tracking-widest flex justify-between items-center px-1">
+                                    <label className="text-sm font-bold text-brand-muted uppercase tracking-widest flex justify-between items-center px-1">
                                         <span>{t('tasbih_sequence')}</span>
-                                        <span className="text-xs bg-brand-surface px-2 py-0.5 rounded-full border border-white/10 text-neutral-500">{comboSequence.length} {t('tasbih_steps')}</span>
+                                        <span className="text-xs bg-brand-surface px-2 py-0.5 rounded-full border border-brand-border text-brand-muted">{comboSequence.length} {t('tasbih_steps')}</span>
                                     </label>
 
-                                    <div className="bg-brand-surface/50 rounded-2xl border border-white/10 min-h-[100px] p-2">
+                                    <div className="bg-brand-surface rounded-2xl border border-brand-border min-h-[100px] p-2">
                                         {comboSequence.length === 0 ? (
                                             <div className="h-24 flex flex-col items-center justify-center text-neutral-400/50">
                                                 <p className="text-xs italic font-medium">{t('tasbih_no_steps')}</p>
@@ -303,23 +303,23 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                         ) : (
                                             <div className="space-y-3">
                                                 {comboSequence.map((step, index) => (
-                                                    <div key={step.id} className="flex items-center justify-between p-4 bg-brand-surface rounded-xl border border-white/5 hover:border-brand-primary/20 group transition-colors shadow-sm">
+                                                    <div key={step.id} className="flex items-center justify-between p-4 bg-brand-surface rounded-xl border border-brand-border hover:border-brand-primary/20 group transition-colors shadow-sm">
                                                         <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                                                            <span className="w-8 h-8 bg-brand-background rounded-full border border-white/10 flex items-center justify-center text-xs font-bold text-brand-primary">
+                                                            <span className="w-8 h-8 bg-brand-background rounded-full border border-brand-border flex items-center justify-center text-xs font-bold text-brand-primary">
                                                                 {index + 1}
                                                             </span>
                                                             <div>
                                                                 <p className="text-lg font-bold text-brand-forest">{step.label}</p>
-                                                                <p className="text-sm text-neutral-500 font-arabic">{step.arabic}</p>
+                                                                <p className="text-sm text-brand-muted font-arabic">{step.arabic}</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                                                            <span className="text-sm font-mono bg-brand-background px-3 py-1.5 rounded-lg border border-white/10 text-brand-forest font-bold">
+                                                            <span className="text-sm font-mono bg-brand-background px-3 py-1.5 rounded-lg border border-brand-border text-brand-forest font-bold">
                                                                 x{step.target}
                                                             </span>
                                                             <button
                                                                 onClick={() => removeFromSequence(step.id)}
-                                                                className="text-neutral-400 hover:text-rose-500 transition-colors p-2"
+                                                                className="text-brand-muted hover:text-rose-500 transition-colors p-2"
                                                             >
                                                                 <Trash2 size={20} />
                                                             </button>
@@ -332,7 +332,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                 </div>
 
                                 {/* Add Step Form */}
-                                <div className="bg-brand-surface p-4 rounded-2xl border border-white/10 shadow-sm space-y-4">
+                                <div className="bg-brand-surface p-4 rounded-2xl border border-brand-border shadow-sm space-y-4">
                                     <div className="flex items-center space-x-2 rtl:space-x-reverse text-brand-primary font-bold text-sm uppercase tracking-wide mb-1">
                                         <Plus size={18} />
                                         <span>{t('tasbih_add_step')}</span>
@@ -346,7 +346,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                                 onClick={() => { setBuilderDhikr(p); setIsBuilderCustom(false); }}
                                                 className={`p-3 rounded-xl border text-sm font-bold transition-all ${!isBuilderCustom && builderDhikr.label === p.label
                                                     ? 'bg-brand-primary text-white border-brand-primary'
-                                                    : 'bg-brand-background border-white/5 text-neutral-500 hover:bg-white/5'}`}
+                                                    : 'bg-brand-background border-brand-border text-brand-muted hover:bg-brand-subtle'}`}
                                             >
                                                 {p.label}
                                             </button>
@@ -355,7 +355,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                             onClick={() => setIsBuilderCustom(true)}
                                             className={`p-3 rounded-xl border text-sm font-bold transition-all ${isBuilderCustom
                                                 ? 'bg-brand-primary text-white border-brand-primary'
-                                                : 'bg-brand-background border-dashed border-white/20 text-neutral-500'}`}
+                                                : 'bg-brand-background border-dashed border-brand-border text-brand-muted'}`}
                                         >
                                             {t('tasbih_custom')}
                                         </button>
@@ -365,7 +365,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                         <input
                                             type="text"
                                             placeholder={t('tasbih_custom_placeholder')}
-                                            className="w-full text-lg p-3 rounded-xl border border-white/10 bg-brand-background focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary text-brand-forest font-arabic"
+                                            className="w-full text-lg p-3 rounded-xl border border-brand-border bg-brand-background focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary text-brand-forest font-arabic"
                                             value={builderCustomInput}
                                             onChange={(e) => setBuilderCustomInput(e.target.value)}
                                         />
@@ -379,7 +379,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                                 onClick={() => setBuilderTarget(t)}
                                                 className={`flex-1 py-3 rounded-xl border text-sm font-bold transition-all ${builderTarget === t
                                                     ? 'bg-brand-primary/10 text-brand-primary border-brand-primary'
-                                                    : 'bg-brand-background border-white/10 text-neutral-500'}`}
+                                                    : 'bg-brand-background border-brand-border text-brand-muted'}`}
                                             >
                                                 {t}
                                             </button>
@@ -389,9 +389,9 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                                 type="number"
                                                 value={builderTarget}
                                                 onChange={(e) => setBuilderTarget(parseInt(e.target.value) || 0)}
-                                                className="w-full py-3 text-center rounded-xl border border-white/10 bg-brand-background text-sm font-bold focus:outline-none focus:border-brand-primary text-brand-forest"
+                                                className="w-full py-3 text-center rounded-xl border border-brand-border bg-brand-background text-sm font-bold focus:outline-none focus:border-brand-primary text-brand-forest"
                                             />
-                                            <span className="absolute right-2 rtl:right-auto rtl:left-2 top-1/2 -translate-y-1/2 text-[10px] text-neutral-400 uppercase">{t('tasbih_count')}</span>
+                                            <span className="absolute right-2 rtl:right-auto rtl:left-2 top-1/2 -translate-y-1/2 text-[10px] text-brand-muted uppercase">{t('tasbih_count')}</span>
                                         </div>
                                     </div>
 
@@ -432,7 +432,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                                         {t('tasbih_step_progress').replace('{current}', (comboIndex + 1).toString()).replace('{total}', comboSequence.length.toString())}
                                     </span>
                                     {comboIndex < comboSequence.length - 1 && (
-                                        <span className="text-[10px] text-neutral-400 flex items-center font-medium mt-1">
+                                        <span className="text-[10px] text-brand-muted flex items-center font-medium mt-1">
                                             {t('tasbih_next')}: {comboSequence[comboIndex + 1].label} <ArrowDown size={10} className="ms-1" />
                                         </span>
                                     )}
@@ -447,7 +447,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                             {/* Progress Ring SVG */}
                             <svg className="absolute inset-0 w-full h-full transform -rotate-90 pointer-events-none filter drop-shadow-xl" viewBox="0 0 288 288">
                                 {/* Track */}
-                                <circle cx="144" cy="144" r="135" stroke="rgba(255,255,255,0.05)" strokeWidth="8" fill="none" />
+                                <circle cx="144" cy="144" r="135" stroke="rgba(148,163,184,0.2)" strokeWidth="8" fill="none" />
                                 {/* Progress */}
                                 <circle
                                     cx="144" cy="144" r="135"
@@ -464,8 +464,8 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                             <div className={`
                   w-72 h-72 rounded-full 
                   bg-gradient-to-br from-brand-surface to-brand-background
-                  border border-white/10
-                  shadow-[inset_0_-4px_4px_rgba(0,0,0,0.1),0_0_0_4px_rgba(255,255,255,0.05)]
+                  border border-brand-border
+                  shadow-[inset_0_-4px_4px_rgba(0,0,0,0.08),0_0_0_4px_rgba(255,255,255,0.04)]
                   flex items-center justify-center
                   transition-all duration-100 ease-out
                   group-active:scale-95 group-active:shadow-inner
@@ -490,7 +490,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                      `}>
                                             {count}
                                         </span>
-                                        <span className="text-sm text-neutral-400 font-bold uppercase tracking-widest mt-2 block">
+                                        <span className="text-sm text-brand-muted font-bold uppercase tracking-widest mt-2 block">
                                             {getCurrentTarget() > 0 ? `/ ${getCurrentTarget()}` : t('tasbih_count')}
                                         </span>
                                     </div>
@@ -499,7 +499,7 @@ export const TasbihPage: React.FC<TasbihPageProps> = ({ onBack }) => {
                         </div>
 
                         <div className="flex space-x-4 rtl:space-x-reverse w-full max-w-xs opacity-60 hover:opacity-100 transition-opacity duration-300">
-                            <Button variant="ghost" fullWidth onClick={() => { setCount(0); setSessionComplete(false); }} className="hover:bg-white/5 text-neutral-400 hover:text-white">
+                            <Button variant="ghost" fullWidth onClick={() => { setCount(0); setSessionComplete(false); }} className="hover:bg-brand-subtle text-brand-muted hover:text-brand-forest">
                                 <RotateCcw size={18} className="me-2" /> {t('tasbih_reset')}
                             </Button>
                         </div>

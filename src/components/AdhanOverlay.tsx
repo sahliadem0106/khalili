@@ -28,6 +28,7 @@ export const AdhanOverlay: React.FC<AdhanOverlayProps> = ({
 }) => {
     const { t, language } = useLanguage();
     const [showRemindOptions, setShowRemindOptions] = useState(false);
+    const [requiresUserTap, setRequiresUserTap] = useState(false);
 
     // Audio Effect - Play when opened if shouldPlaySound is true
     // Audio Effect - Play when opened if shouldPlaySound is true
@@ -44,9 +45,8 @@ export const AdhanOverlay: React.FC<AdhanOverlayProps> = ({
                     if (mounted) {
                         onClose(); // Auto-dismiss when finished
                     }
-                }).catch(err => {
-                    console.error("[AdhanOverlay] Failed to auto-play audio:", err);
                 });
+                setRequiresUserTap(audioService.isAutoplayBlocked());
             }, 100);
         }
 
@@ -62,6 +62,13 @@ export const AdhanOverlay: React.FC<AdhanOverlayProps> = ({
     const handleStop = () => {
         audioService.stopAdhan();
         onClose();
+    };
+
+    const handleManualPlay = async () => {
+        const started = await audioService.playAdhan(() => onClose());
+        if (started) {
+            setRequiresUserTap(false);
+        }
     };
 
     const handleRemindClick = () => setShowRemindOptions(true);
@@ -156,6 +163,14 @@ export const AdhanOverlay: React.FC<AdhanOverlayProps> = ({
                             transition={{ delay: 0.4 }}
                             className="w-full space-y-3"
                         >
+                            {requiresUserTap && (
+                                <button
+                                    onClick={handleManualPlay}
+                                    className="w-full rounded-2xl bg-brand-primary text-white font-bold text-lg h-14 flex items-center justify-center hover:bg-brand-primary/90 transition-all active:scale-95 border border-white/10"
+                                >
+                                    {t('tap_to_play_adhan' as any) || 'Tap to play Adhan'}
+                                </button>
+                            )}
                             <button
                                 onClick={handleStop}
                                 className="w-full group relative overflow-hidden rounded-2xl bg-white text-brand-forest font-bold text-lg h-14 flex items-center justify-center shadow-xl shadow-white/5 hover:shadow-white/10 transition-all active:scale-95"

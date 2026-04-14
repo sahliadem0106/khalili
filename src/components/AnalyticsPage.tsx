@@ -225,11 +225,11 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
         </motion.div>
 
         {/* Khushu Score */}
-        <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl p-4 border border-brand-primary/10 dark:border-white/10 shadow-sm flex flex-col justify-between h-32 relative overflow-hidden group">
+        <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl p-4 border border-brand-primary/10 dark:border-white/10 shadow-sm flex flex-col justify-between min-h-[8.5rem] relative overflow-hidden group">
           <div className="absolute -right-4 -bottom-4 bg-brand-primary/5 dark:bg-white/5 w-24 h-24 rounded-full group-hover:scale-110 transition-transform"></div>
           <div className="flex items-center gap-2 text-brand-muted dark:text-neutral-300">
             <Activity size={18} />
-            <span className="text-xs font-bold uppercase">{t('analytics_focus_score')}</span>
+            <span className="text-xs font-bold">{t('analytics_focus_score')}</span>
           </div>
           <div>
             <div className="text-3xl font-bold text-brand-forest dark:text-white flex items-baseline gap-1">
@@ -241,11 +241,11 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
         </motion.div>
 
         {/* Total Prayers */}
-        <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl p-4 border border-brand-primary/10 dark:border-white/10 shadow-sm flex flex-col justify-between h-32 relative overflow-hidden group">
+        <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl p-4 border border-brand-primary/10 dark:border-white/10 shadow-sm flex flex-col justify-between min-h-[8.5rem] relative overflow-hidden group">
           <div className="absolute -right-4 -bottom-4 bg-brand-secondary/5 dark:bg-white/5 w-24 h-24 rounded-full group-hover:scale-110 transition-transform"></div>
           <div className="flex items-center gap-2 text-brand-muted dark:text-neutral-300">
             <Trophy size={18} />
-            <span className="text-xs font-bold uppercase">{t('analytics_total_done')}</span>
+            <span className="text-xs font-bold">{t('analytics_total_done')}</span>
           </div>
           <div>
             <div className="text-3xl font-bold text-brand-forest dark:text-white">
@@ -257,7 +257,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
       </div>
 
       {/* Consistency Heatmap */}
-      <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl border border-brand-primary/10 dark:border-white/10 shadow-glass p-5">
+      <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl border border-brand-border dark:border-white/10 shadow-glass p-5">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-brand-sand dark:bg-white/5 rounded-full text-brand-primary dark:text-emerald-300">
@@ -284,11 +284,12 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
 
         <div className="grid grid-cols-7 gap-2">
           {heatmapData.map((day, i) => {
+            const showWeekdayLabel = heatmapDays === 7 || i < 7;
             return (
-              <div key={day.date} className="flex flex-col items-center gap-1">
+              <div key={day.date} className="flex flex-col items-center gap-1 min-w-0">
                 {/* Dynamic Day Label above each bubble */}
-                <span className="text-[10px] font-bold text-neutral-300 uppercase">
-                  {day.dateLabel.split(',')[0]} {/* e.g. "Mon" */}
+                <span className="text-[10px] font-bold text-neutral-300 uppercase h-3">
+                  {showWeekdayLabel ? day.dateLabel.split(',')[0] : ''}
                 </span>
 
                 <motion.button
@@ -309,7 +310,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
       </motion.div>
 
       {/* Focus Trends Chart */}
-      <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl border border-brand-primary/10 dark:border-white/10 shadow-glass overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl border border-brand-border dark:border-white/10 shadow-glass overflow-hidden">
         <div className="flex items-center justify-between p-5 pb-2">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-brand-sand dark:bg-white/5 rounded-full text-brand-secondary">
@@ -363,12 +364,12 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
 
       {/* Barrier Breakdown */}
       {barrierData.length > 0 && (
-        <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-brand-primary/10 shadow-glass p-5">
+        <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl border border-brand-primary/10 dark:border-white/10 shadow-glass p-5">
           <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 bg-brand-sand rounded-full text-brand-forest">
+            <div className="p-2 bg-brand-sand dark:bg-white/5 rounded-full text-brand-forest dark:text-white">
               <Shield size={18} />
             </div>
-            <h3 className="font-bold text-brand-forest text-lg">{t('topBarriers')}</h3>
+            <h3 className="font-bold text-brand-forest dark:text-white text-lg">{t('topBarriers')}</h3>
           </div>
 
           <div className="flex items-center">

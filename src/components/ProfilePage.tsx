@@ -146,10 +146,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
     return (
       <div className="space-y-8 animate-in slide-in-from-right duration-300 px-1">
         <div className="flex items-center gap-3">
-          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors">
-            <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600 dark:text-neutral-400" />
+          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-brand-subtle transition-colors">
+            <ChevronLeft size={24} className="rtl:rotate-180 text-brand-muted" />
           </button>
-          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Edit Profile</h2>
+          <h2 className="text-xl font-bold text-brand-forest">Edit Profile</h2>
         </div>
 
         {/* Avatar Section */}
@@ -172,7 +172,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
         <div className="space-y-5">
           {/* Display Name */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Full Name</label>
+            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider ml-1">Full Name</label>
             <div className="relative group">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand-primary transition-colors">
                 <UserIcon size={20} />
@@ -181,7 +181,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400"
+                className="w-full pl-12 pr-4 py-4 bg-brand-subtle border border-brand-border rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-brand-forest placeholder:text-brand-muted"
                 placeholder="Your full name"
               />
             </div>
@@ -190,7 +190,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
           {/* Nickname & Age Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Nickname</label>
+            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider ml-1">Nickname</label>
               <div className="relative group">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand-primary transition-colors">
                   <Hash size={18} />
@@ -199,19 +199,19 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                   type="text"
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
-                  className="w-full pl-11 pr-4 py-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400"
+                  className="w-full pl-11 pr-4 py-4 bg-brand-subtle border border-brand-border rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-brand-forest placeholder:text-brand-muted"
                   placeholder="Ali"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Age</label>
+              <label className="text-xs font-bold text-brand-muted uppercase tracking-wider ml-1">Age</label>
               <div className="relative group">
                 <input
                   type="number"
                   value={age}
                   onChange={(e) => setAge(e.target.value ? parseInt(e.target.value) : '')}
-                  className="w-full px-4 py-4 text-center bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400"
+                  className="w-full px-4 py-4 text-center bg-brand-subtle border border-brand-border rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-brand-forest placeholder:text-brand-muted"
                   placeholder="25"
                 />
               </div>
@@ -220,7 +220,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
 
           {/* Email (Read-only) */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Email Address</label>
+            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider ml-1">Email Address</label>
             <div className="relative opacity-70">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
                 <Mail size={20} />
@@ -229,14 +229,14 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                 type="text"
                 value={firebaseUser?.email || ''}
                 readOnly
-                className="w-full pl-12 pr-4 py-4 bg-neutral-100 dark:bg-white/5 border border-transparent rounded-2xl text-neutral-500 dark:text-neutral-400 cursor-not-allowed"
+                className="w-full pl-12 pr-4 py-4 bg-brand-subtle border border-transparent rounded-2xl text-brand-muted cursor-not-allowed"
               />
             </div>
           </div>
 
           {/* About Me */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">About Me</label>
+            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider ml-1">About Me</label>
             <div className="relative group">
               <div className="absolute left-4 top-5 text-neutral-400 group-focus-within:text-brand-primary transition-colors">
                 <FileText size={20} />
@@ -245,10 +245,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                 value={about}
                 onChange={(e) => setAbout(e.target.value.slice(0, 200))}
                 rows={4}
-                className="w-full pl-12 pr-4 py-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all resize-none font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400 leading-relaxed"
+                className="w-full pl-12 pr-4 py-4 bg-brand-subtle border border-brand-border rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all resize-none font-medium text-brand-forest placeholder:text-brand-muted leading-relaxed"
                 placeholder="Share a bit about yourself..."
               />
-              <div className="absolute bottom-3 right-4 text-[10px] font-medium text-neutral-400">
+              <div className="absolute bottom-3 right-4 text-[10px] font-medium text-brand-muted">
                 {about.length}/200
               </div>
             </div>
@@ -256,10 +256,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
 
           {/* Hobbies */}
           <div className="space-y-3">
-            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">
+            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider ml-1">
               Hobbies ({hobbies.length}/5)
             </label>
-            <div className="p-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl space-y-3">
+            <div className="p-4 bg-brand-subtle border border-brand-border rounded-2xl space-y-3">
               <div className="flex flex-wrap gap-2">
                 {hobbies.map((hobby, index) => (
                   <span
@@ -277,7 +277,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                   </span>
                 ))}
                 {hobbies.length === 0 && (
-                  <span className="text-sm text-neutral-400 italic py-1">No hobbies added yet</span>
+                  <span className="text-sm text-brand-muted italic py-1">No hobbies added yet</span>
                 )}
               </div>
 
@@ -288,7 +288,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                     value={newHobby}
                     onChange={(e) => setNewHobby(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleAddHobby()}
-                    className="flex-1 bg-transparent border-b-2 border-neutral-200 dark:border-neutral-700 focus:border-brand-primary py-2 px-1 outline-none transition-colors text-sm"
+                    className="flex-1 bg-transparent border-b-2 border-brand-border focus:border-brand-primary py-2 px-1 outline-none transition-colors text-sm text-brand-forest placeholder:text-brand-muted"
                     placeholder="Type a hobby and press Enter..."
                   />
                   <button
@@ -533,7 +533,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
       <div className="space-y-6">
         {/* Authenticated User Profile Header */}
         {isAuthenticated && (
-          <div id="profile-user-card" className="flex items-center space-x-4 rtl:space-x-reverse p-5 glass-panel mt-4">
+          <div id="profile-user-card" className="flex items-center space-x-4 rtl:space-x-reverse p-5 glass-panel mt-4 border border-brand-border">
             <div className="w-16 h-16 rounded-full relative flex-shrink-0">
               {resolvedAvatar ? (
                 <img
@@ -549,8 +549,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
               <div className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 bg-brand-primary w-4 h-4 rounded-full border-2 border-brand-surface shadow-sm"></div>
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-neutral-900 dark:text-white truncate">{resolvedDisplayName}</h2>
-              <p className="text-sm text-neutral-400 truncate">{firebaseUser?.email}</p>
+              <h2 className="text-lg font-bold text-brand-forest truncate">{resolvedDisplayName}</h2>
+              <p className="text-sm text-brand-muted truncate">{firebaseUser?.email}</p>
               <div className="mt-1">
                 <SyncIndicator
                   status={syncState.status}
@@ -596,7 +596,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
           {SETTINGS_SECTIONS.map((section, idx) => (
             <div key={idx}>
               <h3 className="text-xs font-bold text-brand-secondary uppercase tracking-wider ms-3 mb-2">{section.title}</h3>
-              <div className="glass-panel overflow-hidden">
+              <div className="glass-panel overflow-hidden border border-brand-border">
                 {section.items.map((item, i) => (
                   <div
                     key={i}
@@ -604,21 +604,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                       if (item.action) item.action();
                       else if (item.view) setActiveView(item.view);
                     }}
-                    className="flex items-center justify-between p-4 border-b border-white/5 last:border-0 cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors group"
+                    className="flex items-center justify-between p-4 border-b border-brand-border last:border-0 cursor-pointer hover:bg-brand-subtle active:bg-brand-primary/10 transition-colors group"
                   >
                     <div className="flex items-center space-x-4 rtl:space-x-reverse">
                       <div className={`p-2.5 rounded-xl bg-opacity-10 ${item.color.replace('bg-', 'bg-').replace('50', '500/10')}`}>
                         <item.icon size={18} className={item.color.split(' ')[0]} />
                       </div>
                       <div>
-                        <p className="font-medium text-neutral-900 dark:text-white text-sm group-hover:text-brand-primary transition-colors">
+                        <p className="font-medium text-brand-forest text-sm group-hover:text-brand-primary transition-colors">
                           {item.label}
                         </p>
-                        {item.sub && <p className="text-xs text-neutral-500 dark:text-neutral-400">{item.sub}</p>}
+                        {item.sub && <p className="text-xs text-brand-muted">{item.sub}</p>}
                       </div>
                     </div>
                     {item.customRight ? item.customRight : (
-                      <ChevronRight size={18} className="text-neutral-500 dark:text-neutral-500 group-hover:text-brand-primary rtl:rotate-180" />
+                      <ChevronRight size={18} className="text-brand-muted group-hover:text-brand-primary rtl:rotate-180" />
                     )}
                   </div>
                 ))}

@@ -33,6 +33,10 @@ export const FamilyService = {
     async createFamily(adminId: string, name: string, isPaid: boolean = false): Promise<string> {
         // In production, isPaid would be verified server-side via payment provider webhook
         // For now, we trust the client (mock payment gate)
+        const existingFamilies = await this.getMyFamilies(adminId);
+        if (existingFamilies.length > 0) {
+            throw new Error("You can only belong to one family.");
+        }
 
         const inviteCode = generateInviteCode();
 
@@ -150,6 +154,11 @@ export const FamilyService = {
     },
 
     async joinViaInviteCode(inviteCode: string, userId: string): Promise<string> {
+        const existingFamilies = await this.getMyFamilies(userId);
+        if (existingFamilies.length > 0) {
+            throw new Error("You are already in a family.");
+        }
+
         const family = await this.findFamilyByInviteCode(inviteCode);
         if (!family) throw new Error("Invalid invite code");
 

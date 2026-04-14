@@ -228,11 +228,11 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
                     </button>
                 </div>
 
-                <div className="grid grid-cols-7 gap-2 text-center text-xs overflow-x-auto">
+                    <div className="grid grid-cols-7 gap-2 text-center text-xs overflow-x-auto min-w-[520px] sm:min-w-0">
                     {/* Header Row */}
-                    <div className="font-medium text-gray-500">{t('duo_prayer')}</div>
-                    <div className="col-span-3 font-medium text-emerald-600">{t('duo_you')} ({myTodayCount}/5)</div>
-                    <div className="col-span-3 font-medium text-blue-600">{partnerProfile?.nickname || t('duo_partner')} ({partnerTodayCount}/5)</div>
+                    <div className="font-medium text-brand-muted">{t('duo_prayer')}</div>
+                    <div className="col-span-3 font-medium text-brand-primary">{t('duo_you')} ({myTodayCount}/5)</div>
+                    <div className="col-span-3 font-medium text-brand-secondary">{partnerProfile?.nickname || t('duo_partner')} ({partnerTodayCount}/5)</div>
 
                     {/* Prayer Rows */}
                     {PRAYER_ORDER.map(prayer => {
@@ -241,7 +241,7 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
 
                         return (
                             <React.Fragment key={prayer}>
-                                <div className="py-2 font-medium text-gray-700 dark:text-gray-300 text-left">
+                                <div className="py-2 font-medium text-brand-forest text-left">
                                     {PRAYER_DISPLAY[prayer as keyof typeof PRAYER_DISPLAY]}
                                 </div>
                                 <div className="col-span-3 py-2 flex items-center justify-center gap-2">
@@ -263,20 +263,20 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
                 {/* My Stats */}
                 <div className="bg-brand-surface p-6 rounded-2xl shadow-sm border border-brand-border">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-bold">{t('duo_you')}</div>
+                        <div className="w-10 h-10 bg-brand-primary/10 rounded-full flex items-center justify-center text-brand-primary font-bold">{t('duo_you')}</div>
                         <h3 className="font-bold text-brand-forest">{t('duo_my_progress')}</h3>
                     </div>
                     <div className="flex justify-between items-center text-center">
                         <div>
                             <p className="text-3xl font-bold text-brand-forest">{myStats?.totalPrayersLogged ?? 0}</p>
-                            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('duo_total_prayers')}</p>
+                            <p className="text-xs text-brand-muted tracking-wide">{t('duo_total_prayers')}</p>
                         </div>
-                        <div className="h-8 w-px bg-gray-100"></div>
+                        <div className="h-8 w-px bg-brand-border"></div>
                         <div>
                             <p className="text-3xl font-bold text-brand-forest flex items-center gap-1">
                                 {myStats?.currentStreak ?? 0} <Flame size={16} className="text-amber-500" />
                             </p>
-                            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('duo_streak')}</p>
+                            <p className="text-xs text-brand-muted tracking-wide">{t('duo_streak')}</p>
                         </div>
                     </div>
                 </div>
@@ -284,27 +284,27 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
                 {/* Partner Stats */}
                 <div className="bg-brand-surface p-6 rounded-2xl shadow-sm border border-brand-border">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                        <div className="w-10 h-10 bg-brand-secondary/10 rounded-full flex items-center justify-center text-brand-secondary font-bold">
                             <User size={20} />
                         </div>
                         <div>
                             <h3 className="font-bold text-brand-forest">{partnerProfile?.nickname || t('duo_partner')}</h3>
                             {partnerProfile?.bio && (
-                                <p className="text-xs text-gray-500 truncate max-w-[150px]">{partnerProfile.bio}</p>
+                                <p className="text-xs text-brand-muted truncate max-w-[150px]">{partnerProfile.bio}</p>
                             )}
                         </div>
                     </div>
                     <div className="flex justify-between items-center text-center">
                         <div>
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white">{partnerStats?.totalPrayersLogged ?? 0}</p>
-                            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('duo_total_prayers')}</p>
+                            <p className="text-3xl font-bold text-brand-forest">{partnerStats?.totalPrayersLogged ?? 0}</p>
+                            <p className="text-xs text-brand-muted tracking-wide">{t('duo_total_prayers')}</p>
                         </div>
-                        <div className="h-8 w-px bg-gray-100"></div>
+                        <div className="h-8 w-px bg-brand-border"></div>
                         <div>
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-1">
+                            <p className="text-3xl font-bold text-brand-forest flex items-center gap-1">
                                 {partnerStats?.currentStreak ?? 0} <Flame size={16} className="text-amber-500" />
                             </p>
-                            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('duo_streak')}</p>
+                            <p className="text-xs text-brand-muted tracking-wide">{t('duo_streak')}</p>
                         </div>
                     </div>
                 </div>
@@ -312,8 +312,8 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
 
             {/* Partner's Social Links (if any) */}
             {partnerProfile?.socialLinks && partnerProfile.socialLinks.length > 0 && (
-                <div className="bg-white dark:bg-emerald-900/50 p-4 rounded-2xl border border-emerald-100 dark:border-white/10">
-                    <h4 className="font-bold text-gray-900 dark:text-white mb-3">{t('duo_contact_info')}</h4>
+                <div className="bg-brand-surface p-4 rounded-2xl border border-brand-border">
+                    <h4 className="font-bold text-brand-forest mb-3">{t('duo_contact_info')}</h4>
                     <div className="flex flex-wrap gap-2">
                         {partnerProfile.socialLinks.map((link, idx) => (
                             <a
@@ -321,7 +321,7 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
                                 href={link.handle.startsWith('http') ? link.handle : `https://${link.handle}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-white/10 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
+                                className="flex items-center gap-2 px-3 py-2 bg-brand-subtle rounded-lg text-sm text-brand-forest hover:bg-brand-primary/10 transition-colors"
                             >
                                 {getSocialIcon(link.platform)}
                                 <span>{link.platform}</span>
@@ -336,37 +336,37 @@ export const DuoDashboard: React.FC<DuoDashboardProps> = ({ partnership, onPartn
                 <button
                     onClick={handlePoke}
                     disabled={poking}
-                    className="bg-white dark:bg-emerald-900 border-2 border-emerald-100 dark:border-white/10 hover:border-emerald-300 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all"
+                    className="bg-brand-surface border-2 border-brand-border hover:border-brand-primary/40 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all"
                 >
-                    <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-800 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-brand-primary/10 rounded-full flex items-center justify-center text-brand-primary group-hover:scale-110 transition-transform">
                         <Bell size={24} />
                     </div>
-                    <span className="font-bold text-emerald-900 dark:text-emerald-100">{t('duo_send_reminder')}</span>
+                    <span className="font-bold text-brand-forest">{t('duo_send_reminder')}</span>
                 </button>
 
                 <button
                     onClick={() => setShowEndConfirm(true)}
-                    className="bg-white dark:bg-red-900/30 border-2 border-red-100 dark:border-red-500/30 hover:border-red-300 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all"
+                    className="bg-brand-surface border-2 border-red-200 hover:border-red-300 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all"
                 >
-                    <div className="w-12 h-12 bg-red-50 dark:bg-red-900/50 rounded-full flex items-center justify-center text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-600 group-hover:scale-110 transition-transform">
                         <UserX size={24} />
                     </div>
-                    <span className="font-bold text-red-700 dark:text-red-300">{t('duo_end_partnership')}</span>
+                    <span className="font-bold text-red-700">{t('duo_end_partnership')}</span>
                 </button>
             </div>
 
             {/* End Partnership Confirmation Modal */}
             {showEndConfirm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 max-w-sm w-full shadow-xl">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('duo_end_confirm_title')}</h3>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    <div className="bg-brand-surface border border-brand-border rounded-2xl p-6 max-w-sm w-full shadow-xl">
+                        <h3 className="text-xl font-bold text-brand-forest mb-2">{t('duo_end_confirm_title')}</h3>
+                        <p className="text-brand-muted mb-6">
                             {t('duo_end_confirm_desc')}
                         </p>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowEndConfirm(false)}
-                                className="flex-1 px-4 py-3 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
+                                className="flex-1 px-4 py-3 bg-brand-subtle text-brand-forest rounded-xl font-bold hover:bg-brand-primary/10 transition-colors"
                             >
                                 {t('cancel' as any)}
                             </button>

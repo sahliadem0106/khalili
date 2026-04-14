@@ -17,7 +17,7 @@ export const QadaTracker: React.FC<QadaTrackerProps> = ({ stats }) => {
   return (
     <div className="space-y-4 mb-6">
       {/* Qada Stats Card */}
-      <Card className="!bg-brand-surface/40 border border-white/10">
+      <Card className="!bg-brand-surface border border-brand-border">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-neutral-900">{t('missedPrayers')}</h3>
           <span className="text-xs font-medium text-brand-primary bg-brand-primary/10 px-2 py-1 rounded-md">
@@ -31,7 +31,7 @@ export const QadaTracker: React.FC<QadaTrackerProps> = ({ stats }) => {
               <span className="text-neutral-500">{t('progress')}</span>
               <span className="font-medium text-neutral-900">{stats.madeUp} / {stats.totalMissed}</span>
             </div>
-            <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-brand-subtle rounded-full overflow-hidden">
               <div
                 className="h-full bg-brand-primary rounded-full transition-all duration-500"
                 style={{ width: `${percentage}%` }}
@@ -41,25 +41,25 @@ export const QadaTracker: React.FC<QadaTrackerProps> = ({ stats }) => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-red-500/10 rounded-xl p-3 flex items-center space-x-3 rtl:space-x-reverse border border-red-500/20">
-            <AlertCircle size={18} className="text-red-400" />
+          <div className="bg-red-50 dark:bg-red-500/10 rounded-xl p-3 flex items-center space-x-3 rtl:space-x-reverse border border-red-200 dark:border-red-500/20">
+            <AlertCircle size={18} className="text-red-600 dark:text-red-400" />
             <div>
-              <p className="text-xs text-red-300 font-medium uppercase">{t('pending')}</p>
-              <p className="text-lg font-bold text-red-400">{stats.totalMissed - stats.madeUp}</p>
+              <p className="text-xs text-red-600 dark:text-red-300 font-medium uppercase">{t('pending')}</p>
+              <p className="text-lg font-bold text-red-600 dark:text-red-400">{stats.totalMissed - stats.madeUp}</p>
             </div>
           </div>
-          <div className="bg-blue-500/10 rounded-xl p-3 flex items-center space-x-3 rtl:space-x-reverse border border-blue-500/20">
-            <CheckCircle2 size={18} className="text-blue-400" />
+          <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl p-3 flex items-center space-x-3 rtl:space-x-reverse border border-blue-200 dark:border-blue-500/20">
+            <CheckCircle2 size={18} className="text-blue-600 dark:text-blue-400" />
             <div>
-              <p className="text-xs text-blue-300 font-medium uppercase">{t('completed')}</p>
-              <p className="text-lg font-bold text-blue-400">{stats.madeUp}</p>
+              <p className="text-xs text-blue-600 dark:text-blue-300 font-medium uppercase">{t('completed')}</p>
+              <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{stats.madeUp}</p>
             </div>
           </div>
         </div>
       </Card>
 
       {/* Travel Mode Card */}
-      <Card className={`transition-all duration-300 ${isTravelMode ? 'bg-brand-primary text-white' : 'bg-brand-surface/40 text-neutral-900 border border-white/10'}`}>
+      <Card className={`transition-all duration-300 ${isTravelMode ? 'bg-brand-primary text-white' : 'bg-brand-surface text-neutral-900 border border-brand-border'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <div className={`p-2 rounded-full ${isTravelMode ? 'bg-white/20' : 'bg-neutral-100'}`}>

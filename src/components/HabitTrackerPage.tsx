@@ -58,29 +58,29 @@ export const HabitTrackerPage: React.FC<HabitTrackerPageProps> = ({ onBack }) =>
     return (
         <div className="min-h-screen bg-brand-background">
             {/* Header */}
-            <div className="bg-brand-surface/80 backdrop-blur-xl border-b border-white/5 text-neutral-900 px-4 py-4 sticky top-0 z-20">
+            <div className="bg-brand-surface/90 backdrop-blur-xl border-b border-brand-border text-brand-forest px-4 py-4 sticky top-0 z-20">
                 <div className="flex items-center justify-between mb-4">
-                    <button onClick={onBack} className="p-2 -ml-2 text-neutral-400 hover:bg-white/5 hover:text-neutral-900 rounded-full">
+                    <button onClick={onBack} className="p-2 -ml-2 text-brand-muted hover:bg-brand-subtle hover:text-brand-forest rounded-full">
                         <ArrowLeft size={20} />
                     </button>
                     {t('habit_tracker_title')}
                     <button
                         onClick={() => setShowTemplates(true)}
-                        className="p-2 text-neutral-400 hover:bg-white/5 hover:text-neutral-900 rounded-full"
+                        className="p-2 text-brand-muted hover:bg-brand-subtle hover:text-brand-forest rounded-full"
                     >
                         <BookOpen size={20} />
                     </button>
                 </div>
 
                 {/* View Navigation */}
-                <div className="flex space-x-1 rtl:space-x-reverse bg-black/20 p-1 rounded-xl">
+                <div className="flex space-x-1 rtl:space-x-reverse bg-brand-subtle p-1 rounded-xl border border-brand-border">
                     {views.map(v => (
                         <button
                             key={v.id}
                             onClick={() => setView(v.id)}
                             className={`flex-1 flex items-center justify-center space-x-2 rtl:space-x-reverse py-2 px-3 rounded-lg text-sm font-medium transition-all ${view === v.id
                                 ? 'bg-brand-surface text-brand-primary shadow-sm'
-                                : 'text-neutral-400 hover:bg-white/5'
+                                : 'text-brand-muted hover:bg-brand-surface'
                                 }`}
                         >
                             {v.icon}
@@ -159,10 +159,10 @@ const TodayView: React.FC<{
     return (
         <div className="space-y-4">
             {/* Progress Card */}
-            <div className="bg-brand-surface/40 backdrop-blur-md border border-white/5 rounded-2xl p-4 shadow-sm">
+            <div className="bg-brand-surface border border-brand-border rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                     <div>
-                        <p className="text-sm text-neutral-400">{t('today_progress')}</p>
+                        <p className="text-sm text-brand-muted">{t('today_progress')}</p>
                         <p className="text-2xl font-bold text-brand-primary">
                             {progress.completed}/{progress.total}
                         </p>
@@ -172,7 +172,7 @@ const TodayView: React.FC<{
                             <circle
                                 cx="18" cy="18" r="16"
                                 fill="none"
-                                stroke="rgba(255,255,255,0.1)"
+                                stroke="rgba(148,163,184,0.25)"
                                 strokeWidth="3"
                             />
                             <circle
@@ -194,7 +194,7 @@ const TodayView: React.FC<{
             {/* Add Button */}
             <button
                 onClick={onAdd}
-                className="w-full py-3 border-2 border-dashed border-white/10 rounded-xl text-neutral-400 hover:border-brand-primary hover:text-brand-primary transition-colors flex items-center justify-center space-x-2 rtl:space-x-reverse"
+                className="w-full py-3 border-2 border-dashed border-brand-border rounded-xl text-brand-muted hover:border-brand-primary hover:text-brand-primary transition-colors flex items-center justify-center space-x-2 rtl:space-x-reverse"
             >
                 <Plus size={18} />
                 <span>{t('new_habit')}</span>
@@ -208,7 +208,7 @@ const TodayView: React.FC<{
                     return (
                         <div
                             key={habit.id}
-                            className={`bg-brand-surface/40 backdrop-blur-sm rounded-xl p-4 shadow-sm border transition-all ${completed ? 'border-brand-primary/30 bg-brand-primary/10' : 'border-white/5'
+                            className={`bg-brand-surface rounded-xl p-4 shadow-sm border transition-all ${completed ? 'border-brand-primary/30 bg-brand-primary/10' : 'border-brand-border'
                                 }`}
                         >
                             <div className="flex items-center space-x-3 rtl:space-x-reverse">
@@ -216,7 +216,7 @@ const TodayView: React.FC<{
                                     onClick={() => toggleHabit(habit.id)}
                                     className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${completed
                                         ? 'bg-brand-primary text-white scale-110'
-                                        : 'bg-white/5 text-neutral-400 hover:bg-brand-primary/20 hover:text-brand-primary'
+                                        : 'bg-brand-subtle text-brand-muted hover:bg-brand-primary/20 hover:text-brand-primary'
                                         }`}
                                 >
                                     {completed ? <Check size={18} /> : <span className="text-lg">{habit.icon || '✓'}</span>}
@@ -323,20 +323,20 @@ const CalendarView: React.FC<{ habits: Habit[] }> = ({ habits }) => {
     return (
         <div className="space-y-4">
             {/* Month Navigation */}
-            <div className="flex items-center justify-between bg-brand-surface/40 backdrop-blur-md border border-white/5 rounded-xl p-3 shadow-sm">
-                <button onClick={prevMonth} className="p-2 hover:bg-white/5 rounded-full text-neutral-400 hover:text-white">
+            <div className="flex items-center justify-between bg-brand-surface border border-brand-border rounded-xl p-3 shadow-sm">
+                <button onClick={prevMonth} className="p-2 hover:bg-brand-subtle rounded-full text-brand-muted hover:text-brand-forest">
                     <ChevronLeft size={20} />
                 </button>
                 <h3 className="font-bold text-neutral-900">
                     {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </h3>
-                <button onClick={nextMonth} className="p-2 hover:bg-white/5 rounded-full text-neutral-400 hover:text-white">
+                <button onClick={nextMonth} className="p-2 hover:bg-brand-subtle rounded-full text-brand-muted hover:text-brand-forest">
                     <ChevronRight size={20} />
                 </button>
             </div>
 
             {/* Calendar Grid */}
-            <div className="bg-brand-surface/40 backdrop-blur-md border border-white/5 rounded-xl p-4 shadow-sm">
+            <div className="bg-brand-surface border border-brand-border rounded-xl p-4 shadow-sm">
                 {/* Day Names */}
                 <div className="grid grid-cols-7 gap-1 mb-2">
                     {dayNames.map((day, i) => (
@@ -454,11 +454,11 @@ const StatsView: React.FC<{ habits: Habit[] }> = ({ habits }) => {
         <div className="space-y-4">
             {/* Summary Cards */}
             <div className="grid grid-cols-2 gap-3">
-                <div className="bg-brand-surface/40 backdrop-blur-md border border-white/5 rounded-xl p-4 shadow-sm">
+                <div className="bg-brand-surface border border-brand-border rounded-xl p-4 shadow-sm">
                     <p className="text-xs text-neutral-400">{t('total_completions')}</p>
                     <p className="text-2xl font-bold text-brand-primary">{totalCompletions}</p>
                 </div>
-                <div className="bg-brand-surface/40 backdrop-blur-md border border-white/5 rounded-xl p-4 shadow-sm">
+                <div className="bg-brand-surface border border-brand-border rounded-xl p-4 shadow-sm">
                     <p className="text-xs text-neutral-400">{t('avg_completion')}</p>
                     <p className="text-2xl font-bold text-brand-secondary">{avgCompletionRate}%</p>
                 </div>
@@ -469,7 +469,7 @@ const StatsView: React.FC<{ habits: Habit[] }> = ({ habits }) => {
                 {stats.map(stat => {
                     const habit = habits.find(h => h.id === stat.id);
                     return (
-                        <div key={stat.id} className="bg-brand-surface/40 backdrop-blur-md border border-white/5 rounded-xl p-4 shadow-sm">
+                        <div key={stat.id} className="bg-brand-surface border border-brand-border rounded-xl p-4 shadow-sm">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center space-x-2 rtl:space-x-reverse">
                                     <span className="text-lg">{habit?.icon || '✓'}</span>
