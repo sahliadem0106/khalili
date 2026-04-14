@@ -168,7 +168,7 @@ export const AdhanOverlay: React.FC<AdhanOverlayProps> = ({
                                     onClick={handleManualPlay}
                                     className="w-full rounded-2xl bg-brand-primary text-white font-bold text-lg h-14 flex items-center justify-center hover:bg-brand-primary/90 transition-all active:scale-95 border border-white/10"
                                 >
-                                    {t('tap_to_play_adhan' as any) || 'Tap to play Adhan'}
+                                    Tap to play Adhan
                                 </button>
                             )}
                             <button
