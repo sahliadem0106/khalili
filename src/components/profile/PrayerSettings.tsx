@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { ArrowLeft, Clock, MapPin, Check } from 'lucide-react';
 import { CALCULATION_METHOD_OPTIONS, prayerTimesService, PrayerTimesSettings } from '../../services/PrayerTimesService';
 

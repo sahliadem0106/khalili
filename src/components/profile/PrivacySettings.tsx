@@ -1,23 +1,59 @@
-import React, { useState } from 'react';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { ArrowLeft, Eye, EyeOff, Shield, Users } from 'lucide-react';
 
 interface PrivacySettingsProps {
     onBack: () => void;
 }
 
+const PRIVACY_STORAGE_KEY = 'khalil_privacy_settings';
+
+interface PrivacySettingsData {
+    shareStreak: boolean;
+    sharePrayers: boolean;
+    shareHeartState: boolean;
+    publicProfile: boolean;
+}
+
+const DEFAULT_SETTINGS: PrivacySettingsData = {
+    shareStreak: true,
+    sharePrayers: true,
+    shareHeartState: false,
+    publicProfile: false,
+};
+
+function loadPrivacySettings(): PrivacySettingsData {
+    try {
+        const stored = localStorage.getItem(PRIVACY_STORAGE_KEY);
+        if (stored) {
+            return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
+        }
+    } catch (e) {
+        console.error('Failed to load privacy settings:', e);
+    }
+    return { ...DEFAULT_SETTINGS };
+}
+
+function savePrivacySettings(settings: PrivacySettingsData): void {
+    try {
+        localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(settings));
+    } catch (e) {
+        console.error('Failed to save privacy settings:', e);
+    }
+}
+
 export const PrivacySettings: React.FC<PrivacySettingsProps> = ({ onBack }) => {
     const { language, t } = useLanguage();
 
-    // NOTE: Simulated state for Rakib/Privacy settings
-    const [settings, setSettings] = useState({
-        shareStreak: true,
-        sharePrayers: true,
-        shareHeartState: false,
-        publicProfile: false,
-    });
+    // Load persisted settings on mount
+    const [settings, setSettings] = useState<PrivacySettingsData>(loadPrivacySettings);
 
-    const toggle = (key: keyof typeof settings) => {
+    // Persist to localStorage whenever settings change
+    useEffect(() => {
+        savePrivacySettings(settings);
+    }, [settings]);
+
+    const toggle = (key: keyof PrivacySettingsData) => {
         setSettings(prev => ({ ...prev, [key]: !prev[key] }));
     };
 

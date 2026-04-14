@@ -65,25 +65,41 @@ export function useGoals(): UseGoalsReturn {
     // Create goal
     const createGoal = useCallback(async (goal: Omit<Goal, 'id' | 'currentCount' | 'streak' | 'longestStreak' | 'lastLogDate' | 'createdAt' | 'updatedAt' | 'status'>) => {
         const newGoal = await goalsService.createGoal(goal);
+        if (!newGoal) {
+            setError('Sign in to use Goals');
+            throw new Error('Sign in to use Goals');
+        }
         setGoals(prev => [newGoal, ...prev]);
         return newGoal;
     }, []);
 
     // Update goal
     const updateGoal = useCallback(async (goalId: string, updates: Partial<Goal>) => {
-        await goalsService.updateGoal(goalId, updates);
+        const ok = await goalsService.updateGoal(goalId, updates);
+        if (!ok) {
+            setError('Sign in to use Goals');
+            return;
+        }
         setGoals(prev => prev.map(g => g.id === goalId ? { ...g, ...updates } : g));
     }, []);
 
     // Delete goal
     const deleteGoal = useCallback(async (goalId: string) => {
-        await goalsService.deleteGoal(goalId);
+        const ok = await goalsService.deleteGoal(goalId);
+        if (!ok) {
+            setError('Sign in to use Goals');
+            return;
+        }
         setGoals(prev => prev.filter(g => g.id !== goalId));
     }, []);
 
     // Log progress
     const logProgress = useCallback(async (goalId: string, count: number, note?: string) => {
-        await goalsService.logProgress(goalId, count, note);
+        const ok = await goalsService.logProgress(goalId, count, note);
+        if (!ok) {
+            setError('Sign in to use Goals');
+            return;
+        }
         await refreshGoals(); // Refresh to get updated stats
     }, [refreshGoals]);
 

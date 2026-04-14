@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '../../types';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { ArrowLeft, MapPin, User as UserIcon, Save, Calendar, FileText, Heart, X, Plus, Share2 } from 'lucide-react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../../services/firebase';
-import { useAuth } from '../../../hooks/useAuth';
-import { onboardingService } from '../../../services/OnboardingService';
+import { db } from '../../services/firebase';
+import { useAuth } from '../../hooks/useAuth';
+import { onboardingService } from '../../services/OnboardingService';
+import { useToast, Toast } from '../shared/Toast';
+import { AnimatePresence } from 'framer-motion';
 
 interface EditProfileProps {
     user: User;
@@ -27,9 +29,10 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
     const [newHobby, setNewHobby] = useState('');
     const [socialLinks, setSocialLinks] = useState<Array<{ platform: string; handle: string }>>([]);
     const [socialInput, setSocialInput] = useState({ platform: 'WhatsApp', handle: '' });
-    const [gender, setGender] = useState<'male' | 'female' | null>(onboardingService.getGender() || (user as any).gender || null);
+    const [gender, setGender] = useState<'male' | 'female' | null>(onboardingService.getGender() || user.gender || null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const { toast, showToast, clearToast } = useToast();
 
     // Load existing profile data from Firestore
     useEffect(() => {
@@ -118,7 +121,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
             onBack();
         } catch (error) {
             console.error('Failed to save profile:', error);
-            alert('Failed to save profile. Please try again.');
+            showToast('Failed to save profile. Please try again.', 'error');
         } finally {
             setSaving(false);
         }
@@ -375,6 +378,10 @@ export const EditProfile: React.FC<EditProfileProps> = ({ user, onUpdate, onBack
                     </div>
                 </div>
             </div>
+
+            <AnimatePresence>
+                {toast && <Toast {...toast} onDismiss={clearToast} />}
+            </AnimatePresence>
         </div>
     );
 };

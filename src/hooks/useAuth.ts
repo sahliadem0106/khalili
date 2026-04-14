@@ -17,12 +17,13 @@ interface UseAuthReturn {
     user: UserProfile | null;
 
     // Actions
-    signInWithEmail: (email: string, password: string) => Promise<void>;
-    signUpWithEmail: (email: string, password: string, displayName?: string) => Promise<void>;
+
     signInWithGoogle: () => Promise<void>;
     signOut: () => Promise<void>;
-    resetPassword: (email: string) => Promise<void>;
+
     updateSettings: (settings: Partial<UserSettings>) => Promise<void>;
+    updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+    uploadAvatar: (file: File) => Promise<string>;
 
     // Error handling
     error: string | null;
@@ -39,29 +40,42 @@ export function useAuth(): UseAuthReturn {
         return unsubscribe;
     }, []);
 
-    // Sign in with email
-    const signInWithEmail = useCallback(async (email: string, password: string) => {
+    // ... (existing methods)
+
+    // Update profile
+    const updateProfile = useCallback(async (updates: Partial<UserProfile>) => {
         setError(null);
         try {
-            await authService.signInWithEmail(email, password);
+            await authService.updateProfile(updates);
         } catch (e: any) {
-            const message = getErrorMessage(e.code);
-            setError(message);
-            throw new Error(message);
+            setError('Failed to update profile');
+            throw e;
         }
     }, []);
 
-    // Sign up with email
-    const signUpWithEmail = useCallback(async (email: string, password: string, displayName?: string) => {
+    // Upload avatar
+    const uploadAvatar = useCallback(async (file: File) => {
         setError(null);
         try {
-            await authService.signUpWithEmail(email, password, displayName);
+            return await authService.uploadAvatar(file);
         } catch (e: any) {
-            const message = getErrorMessage(e.code);
-            setError(message);
-            throw new Error(message);
+            setError('Failed to upload avatar');
+            throw e;
         }
     }, []);
+
+    // Update settings
+    const updateSettings = useCallback(async (settings: Partial<UserSettings>) => {
+        setError(null);
+        try {
+            await authService.updateSettings(settings);
+        } catch (e: any) {
+            setError('Failed to update settings');
+            throw e;
+        }
+    }, []);
+
+
 
     // Sign in with Google
     const signInWithGoogle = useCallback(async () => {
@@ -86,28 +100,9 @@ export function useAuth(): UseAuthReturn {
         }
     }, []);
 
-    // Reset password
-    const resetPassword = useCallback(async (email: string) => {
-        setError(null);
-        try {
-            await authService.resetPassword(email);
-        } catch (e: any) {
-            const message = getErrorMessage(e.code);
-            setError(message);
-            throw new Error(message);
-        }
-    }, []);
 
-    // Update settings
-    const updateSettings = useCallback(async (settings: Partial<UserSettings>) => {
-        setError(null);
-        try {
-            await authService.updateSettings(settings);
-        } catch (e: any) {
-            setError('Failed to update settings');
-            throw e;
-        }
-    }, []);
+
+
 
     // Clear error
     const clearError = useCallback(() => {
@@ -118,12 +113,13 @@ export function useAuth(): UseAuthReturn {
         isLoading: authState.status === 'loading',
         isAuthenticated: authState.status === 'authenticated',
         user: authState.status === 'authenticated' ? authState.user : null,
-        signInWithEmail,
-        signUpWithEmail,
+
         signInWithGoogle,
         signOut,
-        resetPassword,
+
         updateSettings,
+        updateProfile,
+        uploadAvatar,
         error,
         clearError,
     };

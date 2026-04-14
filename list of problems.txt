@@ -1,0 +1,109 @@
+GoalsService wired to Auth
+goalsService.setUserId(uid) now called on login and setUserId(null) on logout inside AuthService.initAuthListener(). Goals fully functional for authenticated users.
+Fixed
+BadgeService wired to PrayerLogService
+BadgeService.updateStat('prayers_completed', 1) and updateStat('prayer_streak', ...) now called after every logged prayer. Badges can now be earned.
+Fixed
+BadgeService wired to TasbihLogService
+BadgeService.updateStat('tasbih_count', count) called after every tasbih session. Tasbih badges will now trigger correctly.
+Fixed
+Firebase Cloud Function for push notifications
+A real functions/index.js now exists using onDocumentCreated('notifications/{id}'). Reads fcmTokens array and calls sendEachForMulticast(). Stale token cleanup included.
+Fixed
+Lectures page uses real content
+LecturesPage now imports contentService.getVideos() — real YouTube thumbnails and real video IDs. No more example.com or via.placeholder.com.
+Fixed
+Notification polling replaced with onSnapshot
+subscribeToNotifications() now uses Firestore onSnapshot() for real-time delivery instead of a 30-second poll. Much cheaper on reads and truly instant.
+Fixed
+Study calendar tab implemented
+Calendar is now a real CalendarTab component — no longer "coming soon". Renders from existing focus session data.
+Fixed
+Zakat calculator with live metal prices
+Full calculator with live price fetching from metalpriceapi.com, fallback hardcoded prices, Nisab calculation for both gold and silver standards, and a proper env variable.
+Fixed
+BadgeToastProvider added to App
+New BadgeToastProvider component polls for isNew badges and shows an animated toast. Badge unlock is now visible to the user.
+Fixed
+Onboarding skip for existing users
+OnboardingFlow now fetches the Firestore profile on sign-in and checks for gender + firstName + onboardingCompleted. Existing users on a new device are skipped properly.
+Fixed
+Firestore security rules hardened
+Rules now enforce ownership on requests, partnerships, groups, notifications, reflections. No more open allow read, write: if request.auth != null for sensitive collections.
+Fixed
+Firestore indexes added
+9 composite indexes defined in firestore.indexes.json for partner profiles, prayer logs, partnerships, requests, challenges, notifications. Queries will not hit index errors in production.
+Fixed
+AdhanContext extracted properly
+Adhan state is now a proper React context with de-duplication logic (same prayer won't trigger twice per day) and per-prayer notification enable/disable checks.
+Fixed
+GoalsService logout cleanup
+goalsService.setUserId(null) is now called on sign-out, so goals data is cleared properly when a user logs out.
+Fixed
+Fixed — 3 remaining bugs
+
+Fixed — Bug 1 — Double notify in AuthService.updateProfile()
+The duplicate lines are still there. Lines 476-477 of AuthService.ts set this.currentUser and call notifyListeners() twice in a row. Every settings save triggers two re-renders across the whole app. Delete the second pair of identical lines.
+Fixed
+Bug 2 — FCM token stored as single field, Cloud Function expects an array
+PushNotificationService.saveTokenToFirestore() still writes fcmToken: token (a string) to Firestore. But your new Cloud Function reads userData.fcmTokens (an array) and calls sendEachForMulticast({ tokens: fcmTokens }). The token will be saved but never read — push notifications will silently fail on mobile. Fix: change saveTokenToFirestore to use FieldValue.arrayUnion(token) to write into an fcmTokens array, matching what the Cloud Function expects.
+Fixed
+Bug 3 — GoalsService still throws on unauthenticated guest users
+GoalsService still throws "User not authenticated" if userId is null. This is fine for logged-in users (now wired correctly), but it means any guest user who visits the Goals screen will see a silent crash. Add a graceful empty-state return instead of a throw when this.userId is null, so guest users see an "Sign in to use Goals" prompt rather than an error.
+Fixed
+Remaining partial features (not broken, but incomplete)
+
+Quran settings UI
+Settings modal still shows "Quran settings coming soon". The services (TafsirService, QuranAudioService) are fully implemented — the settings UI just needs to be wired to them.
+Fixed
+LecturesService data source
+The LecturesService class still has 5 sample lectures with via.placeholder.com speaker photos and fake thumbnails. The LecturesPage was fixed to use ContentService instead — but LecturesService itself remains stale. Not a user-facing problem right now, but cleanup needed before using it.
+Deferred (intentionally ignored)
+Prayer log historical sync
+Cloud sync still only uploads today's prayers. On a new device, past prayer history isn't restored from Firestore. Affects streak accuracy after device switch.
+Fixed
+Background adhan on mobile (web)
+Prayer alerts still use window.setTimeout scheduling. Works only while the browser tab is open. Native Capacitor build needs @capacitor/local-notifications for background wake-up.
+Fixed (Android-first via Capacitor local notifications)
+Quran audio continuous play
+Auto-advance to next verse requires the caller to provide totalAyahsInSurah. Page-based reading mode doesn't always have this value, so surah-level playback can stall at certain pages.
+Fixed
+BadgeService — study minutes badge
+Study sessions trigger badges via BadgeService.updateStat('study_minutes', duration) — but it's not clear if the StudyService timer calls this. Tasbih and Prayer are wired; Study badge wiring needs verification.
+Fixed (verified in StudyService.addFocusSession)
+Social / partner badges
+Badges for partners_connected and circles_joined require BadgeService.updateStat() to be called from PartnerService / SuhbaService on success. Not yet wired.
+Fixed
+
+Remaining broken-parts priority queue
+1) End-to-end Android verification for local-notification scheduling + cancel behavior
+Status: Code hardening done (native permission tracking + POST_NOTIFICATIONS manifest + Android local schedule/cancel). Device verification still required.
+2) Confirm historical prayer restore on fresh device/login with real Firestore data
+Status: Sync flow bug fixed (migration now explicitly imports full cloud prayer history and no longer skips migration sync due to in-progress guard). Device verification still required.
+3) Optional reliability hardening for timezone/day rollover edge cases in scheduled prayer notifications
+Status: Fixed in code. Notifications now re-check and re-schedule on day rollover, app foreground return, and focus events (plus periodic minute checks). Device verification still required.
+Ready to run? Deployment checklist
+
+Fix Bug 1 — double notify
+Delete 2 lines in AuthService.updateProfile(). 30-second fix.
+Fixed
+Fix Bug 2 — FCM token array
+Change saveTokenToFirestore to use FieldValue.arrayUnion(token) writing to fcmTokens.
+Fixed
+Copy .env.example → .env and fill in Firebase keys
+Required for app to boot. VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, etc.
+Required
+Deploy Cloud Function
+cd functions && npm install && firebase deploy --only functions
+Required
+Deploy Firestore rules + indexes
+firebase deploy --only firestore
+Required
+Build and test
+npm run build — no TypeScript errors expected, but verify Lottie animation JSON imports exist at the paths referenced in OnboardingFlow.
+Verify
+VAPID key for web push
+Set VITE_FIREBASE_VAPID_KEY in .env for browser-level notification permission to work on web.
+Verify
+Metal price API key (Zakat)
+Set VITE_METAL_PRICE_API_KEY for live gold/silver prices. Falls back gracefully without it — not a blocker.

@@ -1,0 +1,514 @@
+// KHALILI — BACKEND EXPORT (Cloud Functions)
+// Generated: 2026-04-14T11:46:06.619Z
+
+
+=================================================================
+FILE: functions\.eslintrc.js
+=================================================================
+
+module.exports = {
+  env: {
+    es6: true,
+    node: true,
+  },
+  parserOptions: {
+    "ecmaVersion": 2018,
+  },
+  extends: [
+    "eslint:recommended",
+    "google",
+  ],
+  rules: {
+    "no-restricted-globals": ["error", "name", "length"],
+    "prefer-arrow-callback": "error",
+    "quotes": ["error", "double", {"allowTemplateLiterals": true}],
+  },
+  overrides: [
+    {
+      files: ["**/*.spec.*"],
+      env: {
+        mocha: true,
+      },
+      rules: {},
+    },
+  ],
+  globals: {},
+};
+
+
+=================================================================
+FILE: functions\criticalNotificationTypes.js
+=================================================================
+
+const CRITICAL_PUSH_TYPES = [
+  "partner_request",
+  "invite",
+  "request_accepted",
+  "request_rejected",
+];
+
+module.exports = {
+  CRITICAL_PUSH_TYPES,
+};
+
+
+=================================================================
+FILE: functions\index.js
+=================================================================
+
+const {onDocumentCreated} = require("firebase-functions/v2/firestore");
+const {setGlobalOptions} = require("firebase-functions/v2");
+const admin = require("firebase-admin");
+const {CRITICAL_PUSH_TYPES} = require("./criticalNotificationTypes");
+
+setGlobalOptions({ maxInstances: 10 });
+admin.initializeApp();
+
+const CRITICAL_PUSH_TYPE_SET = new Set(CRITICAL_PUSH_TYPES);
+
+/**
+ * Triggered when a new document is added to the "notifications" collection.
+ * This function fetches the recipient's FCM token from their user document
+ * and sends a push notification using Firebase Cloud Messaging.
+ */
+exports.sendPushNotification = onDocumentCreated("notifications/{notificationId}", async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
+    const notificationData = snap.data();
+    const toUserId = notificationData.toUserId;
+    const type = notificationData.type || "unknown";
+
+    if (!CRITICAL_PUSH_TYPE_SET.has(type)) {
+        console.log(`Skipping non-critical notification type for push: ${type}`);
+        return;
+    }
+
+    if (!toUserId) {
+        console.log("No recipient user ID (toUserId) found in notification.");
+        return;
+    }
+
+    try {
+        // Fetch recipient's user document to get FCM tokens
+        const userDoc = await admin.firestore().collection("users").doc(toUserId).get();
+        if (!userDoc.exists) {
+            console.log(`Recipient user profile (${toUserId}) not found.`);
+            return;
+        }
+
+        const userData = userDoc.data();
+        const fcmTokens = userData.fcmTokens;
+
+        if (!fcmTokens || !Array.isArray(fcmTokens) || fcmTokens.length === 0) {
+            console.log(`No active FCM tokens found for user ${toUserId}. Notification unhandled by FCM.`);
+            return;
+        }
+
+        console.log(`Found ${fcmTokens.length} tokens for user ${toUserId}. Sending FCM...`);
+
+        // Prepare the payload
+        const payload = {
+            notification: {
+                title: type === "partner_request" ? "New Partner Request" : "New Notification",
+                body: notificationData.message || "You have a new message.",
+            },
+            data: {
+                type,
+                fromUserId: notificationData.fromUserId || "",
+                notificationId: snap.id,
+                click_action: "FLUTTER_NOTIFICATION_CLICK" // Optional: useful for cross-platform
+            }
+        };
+
+        // Send to all registered devices for this user
+        const response = await admin.messaging().sendEachForMulticast({
+            tokens: fcmTokens,
+            notification: payload.notification,
+            data: payload.data
+        });
+
+        console.log(`Successfully sent ${response.successCount} messages; Failed ${response.failureCount}.`);
+
+        // Optional: Clean up stale tokens if they failed with specific error codes
+        if (response.failureCount > 0) {
+            const tokensToRemove = [];
+            response.responses.forEach((resp, idx) => {
+                if (!resp.success) {
+                    const errCode = resp.error?.code;
+                    if (errCode === 'messaging/invalid-registration-token' ||
+                        errCode === 'messaging/registration-token-not-registered') {
+                        tokensToRemove.push(fcmTokens[idx]);
+                    }
+                }
+            });
+
+            if (tokensToRemove.length > 0) {
+                await admin.firestore().collection("users").doc(toUserId).update({
+                    fcmTokens: admin.firestore.FieldValue.arrayRemove(...tokensToRemove)
+                });
+                console.log(`Removed ${tokensToRemove.length} invalid tokens.`);
+            }
+        }
+
+    } catch (error) {
+        console.error("Error sending push notification:", error);
+    }
+});
+
+
+=================================================================
+FILE: functions\package.json
+=================================================================
+
+{
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "24"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^13.6.0",
+    "firebase-functions": "^7.0.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.4.1"
+  },
+  "private": true
+}
+
+
+=================================================================
+FILE: firestore.rules
+=================================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isGroupMember(groupId) {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/groups/$(groupId)).data.members.hasAny([request.auth.uid]);
+    }
+
+    function isPartnershipMember(partnershipId) {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/partnerships/$(partnershipId)).data.users.hasAny([request.auth.uid]);
+    }
+
+    function isGroupAdmin(groupId) {
+      return request.auth != null && (
+        get(/databases/$(database)/documents/groups/$(groupId)).data.adminId == request.auth.uid ||
+        (
+          'coAdmins' in get(/databases/$(database)/documents/groups/$(groupId)).data &&
+          get(/databases/$(database)/documents/groups/$(groupId)).data.coAdmins.hasAny([request.auth.uid])
+        )
+      );
+    }
+    // Users collection
+    match /users/{userId} {
+      // Only the document owner can read their full profile (including FCM tokens, email)
+      // Other authenticated users can read only via publicProfiles or partner-specific lookups
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // Prayer logs subcollection - Owner writes, partners can read
+      match /prayerLogs/{logId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Broadcasts (for Suhba circle broadcasts)
+    match /broadcasts/{broadcastId} {
+      // Only members of the group can read; only the sender can create
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.fromUserId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.fromUserId;
+    }
+    
+    // Partner profiles (for marketplace) — public read for discovery, owner-only write
+    match /partnerProfiles/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Fallback partner_profiles collection (used in RequestsCenter)
+    match /partner_profiles/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Requests collection (for connection requests - duo, family, suhba)
+    match /requests/{requestId} {
+      // Anyone authenticated can read requests addressed to them or sent by them
+      allow read: if request.auth != null && (
+        resource.data.fromUserId == request.auth.uid || 
+        resource.data.toUserId == request.auth.uid
+      );
+      // Only the sender can create a request; fromUserId must match auth
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.fromUserId;
+      // Only recipient can accept/reject, and only by changing status from pending
+      allow update: if request.auth != null &&
+        resource.data.toUserId == request.auth.uid &&
+        resource.data.status == 'pending' &&
+        request.resource.data.status in ['accepted', 'rejected'] &&
+        request.resource.data.diff(resource.data).changedKeys().hasOnly(['status']);
+      allow delete: if request.auth != null && resource.data.fromUserId == request.auth.uid;
+    }
+    
+    // Partnerships (duo partnerships) — only members can read/write
+    match /partnerships/{partnershipId} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.users;
+      allow create: if request.auth != null && request.auth.uid in request.resource.data.users;
+      allow update: if request.auth != null && request.auth.uid in resource.data.users;
+      allow delete: if request.auth != null && request.auth.uid in resource.data.users;
+    }
+    
+    // Groups (Suhba circles & Family groups) — only members can read/write
+    match /groups/{groupId} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.members;
+      allow create: if request.auth != null && request.auth.uid in request.resource.data.members;
+      allow update: if request.auth != null && request.auth.uid in resource.data.members;
+      allow delete: if request.auth != null && (
+        request.auth.uid == resource.data.createdBy ||
+        request.auth.uid == resource.data.adminId
+      );
+    }
+    
+    // Invites (shareable invite links) — public read for landing pages, auth required to write
+    match /invites/{inviteId} {
+      allow read: if true; // Public read required for invite landing pages
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null && (
+        request.auth.uid == resource.data.createdBy ||
+        request.auth.uid == resource.data.inviterId
+      );
+    }
+    
+    // Challenges (family challenges) — only group members can access
+    match /challenges/{challengeId} {
+      allow read: if request.auth != null && isGroupMember(resource.data.groupId);
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.createdBy &&
+        isGroupAdmin(request.resource.data.groupId);
+      allow update: if request.auth != null && isGroupMember(resource.data.groupId);
+      allow delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+    }
+    
+    // Social Share Requests — only involved parties
+    match /socialShareRequests/{requestId} {
+      allow read: if request.auth != null && (
+        resource.data.fromUserId == request.auth.uid || 
+        resource.data.toUserId == request.auth.uid
+      );
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.fromUserId;
+      // Only recipient can accept/dismiss, and only status may change
+      allow update: if request.auth != null &&
+        resource.data.toUserId == request.auth.uid &&
+        resource.data.status == 'pending' &&
+        request.resource.data.status in ['accepted', 'dismissed'] &&
+        request.resource.data.diff(resource.data).changedKeys().hasOnly(['status']);
+      allow delete: if request.auth != null && resource.data.fromUserId == request.auth.uid;
+    }
+    
+    // Notifications — only the recipient can read/delete, only the sender can create
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null && resource.data.toUserId == request.auth.uid;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.fromUserId;
+      allow update: if request.auth != null && resource.data.toUserId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.toUserId == request.auth.uid;
+    }
+
+    // Social notification policy rules (local scheduler source of truth)
+    match /socialNotificationPolicies/{policyId} {
+      allow read: if request.auth != null && (
+        (resource.data.audience.type == 'user' && request.auth.uid in resource.data.audience.userIds) ||
+        (resource.data.audience.type == 'group' && isGroupMember(resource.data.audience.groupId)) ||
+        (resource.data.audience.type == 'partnership' && isPartnershipMember(resource.data.audience.partnershipId))
+      );
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.ownerId &&
+        (
+          (request.resource.data.audience.type == 'user' && request.resource.data.audience.userIds.size() > 0) ||
+          (request.resource.data.audience.type == 'group' && isGroupMember(request.resource.data.audience.groupId)) ||
+          (request.resource.data.audience.type == 'partnership' && isPartnershipMember(request.resource.data.audience.partnershipId))
+        );
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+    
+    // Reflections/Journal entries — owner-only access (including nested entries)
+    match /reflections/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      match /entries/{entryId} {
+        // FIX: Inherit ownership check from parent — was previously open to any authenticated user
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
+
+
+=================================================================
+FILE: firestore.indexes.json
+=================================================================
+
+{
+    "indexes": [
+        {
+            "collectionGroup": "partnerProfiles",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "gender", "order": "ASCENDING" },
+                { "fieldPath": "isPublic", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "prayerLogs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "userId", "order": "ASCENDING" },
+                { "fieldPath": "date", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "challenges",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "groupId", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "requests",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "toUserId", "order": "ASCENDING" },
+                { "fieldPath": "status", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "requests",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "fromUserId", "order": "ASCENDING" },
+                { "fieldPath": "status", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "partnerships",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "members", "arrayConfig": "CONTAINS" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "groups",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "members", "arrayConfig": "CONTAINS" },
+                { "fieldPath": "type", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "broadcasts",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "groupId", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "notifications",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "toUserId", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "socialNotificationPolicies",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "enabled", "order": "ASCENDING" },
+                { "fieldPath": "audience.type", "order": "ASCENDING" },
+                { "fieldPath": "audience.userIds", "arrayConfig": "CONTAINS" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "socialNotificationPolicies",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "enabled", "order": "ASCENDING" },
+                { "fieldPath": "audience.type", "order": "ASCENDING" },
+                { "fieldPath": "audience.groupId", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "socialNotificationPolicies",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "enabled", "order": "ASCENDING" },
+                { "fieldPath": "audience.type", "order": "ASCENDING" },
+                { "fieldPath": "audience.partnershipId", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        }
+    ],
+    "fieldOverrides": []
+}
+
+=================================================================
+FILE: firebase.json
+=================================================================
+
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}

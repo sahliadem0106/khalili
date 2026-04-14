@@ -2,6 +2,7 @@
  * QuranAudioService - Quran audio playback using Quran.com API
  * Provides verse-by-verse and chapter recitation audio
  */
+import { MOCK_SURAHS } from '../constants';
 
 // =================== TYPES ===================
 
@@ -103,6 +104,12 @@ class QuranAudioService {
         repeatMode: 'none',
     };
     private reciters: Reciter[] = POPULAR_RECITERS;
+    private verseAudioUrlCache: Map<string, string> = new Map();
+
+    private resolveSurahAyahCount(surahNumber: number, fallback?: number): number {
+        if (fallback && fallback > 0) return fallback;
+        return MOCK_SURAHS.find((s) => s.number === surahNumber)?.numberOfAyahs || 0;
+    }
 
     constructor() {
         this.loadSettings();
@@ -169,18 +176,15 @@ class QuranAudioService {
             // Map API response to our Reciter interface
             // API returns: { id, reciter_name, style, translated_name, url_prefix }
             if (data.recitations) {
-                this.reciters = data.recitations.map((r: any) => {
-                    const local = POPULAR_RECITERS.find(pr => pr.id === r.id);
-                    return {
-                        id: r.id,
-                        name: r.reciter_name,
-                        englishName: r.translated_name?.name || r.reciter_name,
-                        arabicName: r.reciter_name,
-                        style: r.style,
-                        translatedName: r.translated_name,
-                        urlPrefix: r.url_prefix || local?.urlPrefix
-                    };
-                });
+                this.reciters = data.recitations.map((r: any) => ({
+                    id: r.id,
+                    name: r.reciter_name,
+                    englishName: r.translated_name?.name || r.reciter_name,
+                    arabicName: r.reciter_name, // API might not give arabic name directly in this endpoint sometimes
+                    style: r.style,
+                    translatedName: r.translated_name,
+                    urlPrefix: r.url_prefix
+                }));
                 return this.reciters;
             }
             return POPULAR_RECITERS;
@@ -210,13 +214,56 @@ class QuranAudioService {
         return `${AUDIO_CDN}/${surahPadded}${ayahPadded}.mp3`; // Some default common path? Or maybe fail
     }
 
+    private normalizeAudioUrl(url: string): string {
+        if (!url) return '';
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+        if (url.startsWith('//')) {
+            return `https:${url}`;
+        }
+        if (url.startsWith('/')) {
+            return `https://verses.quran.com${url}`;
+        }
+        return `https://verses.quran.com/${url}`;
+    }
+
+    private async resolvePlayableVerseAudioUrl(
+        surahNumber: number,
+        ayahNumber: number,
+        reciterId: number = this.settings.reciterId
+    ): Promise<string> {
+        const verseKey = `${surahNumber}:${ayahNumber}`;
+        const cacheKey = `${reciterId}_${verseKey}`;
+        const cached = this.verseAudioUrlCache.get(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/recitations/${reciterId}/by_ayah/${verseKey}`);
+            if (response.ok) {
+                const data = await response.json();
+                const apiUrl = data?.audio_files?.[0]?.url;
+                if (apiUrl) {
+                    const normalized = this.normalizeAudioUrl(apiUrl);
+                    this.verseAudioUrlCache.set(cacheKey, normalized);
+                    return normalized;
+                }
+            }
+        } catch (error) {
+            console.warn(`Falling back to static audio URL for ${verseKey}:`, error);
+        }
+
+        const fallback = this.getVerseAudioUrl(surahNumber, ayahNumber, reciterId);
+        this.verseAudioUrlCache.set(cacheKey, fallback);
+        return fallback;
+    }
+
     /**
      * Play a specific verse
      */
     async playVerse(surahNumber: number, ayahNumber: number): Promise<void> {
         if (!this.audioElement) return;
-
-        const url = this.getVerseAudioUrl(surahNumber, ayahNumber);
+        const url = await this.resolvePlayableVerseAudioUrl(surahNumber, ayahNumber);
 
         this.updateState({
             currentSurah: surahNumber,
@@ -238,12 +285,18 @@ class QuranAudioService {
     /**
      * Play next verse
      */
-    async playNextVerse(totalAyahsInSurah: number): Promise<void> {
+    async playNextVerse(totalAyahsInSurah?: number): Promise<void> {
         if (this.state.currentSurah === null || this.state.currentAyah === null) return;
+
+        const resolvedAyahCount = this.resolveSurahAyahCount(this.state.currentSurah, totalAyahsInSurah);
+        if (resolvedAyahCount <= 0) {
+            this.pause();
+            return;
+        }
 
         const nextAyah = this.state.currentAyah + 1;
 
-        if (nextAyah <= totalAyahsInSurah) {
+        if (nextAyah <= resolvedAyahCount) {
             await this.playVerse(this.state.currentSurah, nextAyah);
         } else {
             // End of surah
@@ -273,9 +326,34 @@ class QuranAudioService {
             if (this.state.currentSurah && this.state.currentAyah) {
                 this.playVerse(this.state.currentSurah, this.state.currentAyah);
             }
+        } else if (this.state.repeatMode === 'surah') {
+            // Continue within surah, then restart at ayah 1 after last ayah.
+            if (this.state.currentSurah && this.state.currentAyah) {
+                const ayahCount = this.resolveSurahAyahCount(this.state.currentSurah);
+                if (ayahCount > 0 && this.state.currentAyah >= ayahCount) {
+                    this.playVerse(this.state.currentSurah, 1);
+                } else {
+                    this.playNextVerse(ayahCount);
+                }
+            }
         } else {
-            // For now, just stop. Continuous play would need surah ayah count.
-            this.updateState({ isPlaying: false });
+            // Default behavior depends on user settings.
+            if (!this.settings.autoPlay) {
+                this.updateState({ isPlaying: false });
+                return;
+            }
+
+            // Auto-advance to the next verse within the same surah.
+            if (this.state.currentSurah) {
+                const ayahCount = this.resolveSurahAyahCount(this.state.currentSurah);
+                if (ayahCount > 0) {
+                    this.playNextVerse(ayahCount);
+                } else {
+                    this.updateState({ isPlaying: false });
+                }
+            } else {
+                this.updateState({ isPlaying: false });
+            }
         }
     }
 

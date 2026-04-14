@@ -18,6 +18,13 @@ interface PrayerListProps {
 
 const PRAYER_ORDER = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
+// Extended prayer type with computed fields from real prayer times
+interface EnhancedPrayer extends Prayer {
+  realTime?: Date;
+  isNext?: boolean;
+  isShuruk?: boolean;
+}
+
 // Prayer background images
 const PRAYER_IMAGES: Record<string, string> = {
   fajr: '/images/prayers/Fajr.jpg',
@@ -37,7 +44,7 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
   const prayersWithRealTimes = useMemo(() => {
     if (!prayerTimes) return prayers;
 
-    const result: any[] = [];
+    const result: EnhancedPrayer[] = [];
 
     prayers.forEach(prayer => {
       const prayerId = prayer.id.toLowerCase();
@@ -62,7 +69,7 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
           arabicName: 'الشروق',
           time: prayerTimesService.formatTime(prayerTimes.sunrise, false),
           realTime: prayerTimes.sunrise,
-          status: 'display', // Special status for non-loggable
+          status: PrayerStatus.Display, // Special status for non-loggable
           isShuruk: true, // Flag to identify this is Shuruk
           isNext: nextPrayer?.name.toLowerCase() === 'sunrise',
         });
@@ -118,9 +125,9 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
       </div>
 
       {prayersWithRealTimes.map((prayer) => {
-        const isNextPrayer = (prayer as any).isNext;
+        const isNextPrayer = prayer.isNext;
         const isPast = hasPassed(prayer);
-        const isShuruk = (prayer as any).isShuruk;
+        const isShuruk = prayer.isShuruk;
 
         return (
           <div
@@ -143,8 +150,8 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
             />
             {/* No overlay - full image visibility */}
 
-            <div className="relative p-4 flex items-center justify-between z-10">
-              <div className="flex items-center space-x-4 rtl:space-x-reverse">
+            <div className="relative p-4 flex items-center justify-between z-10 gap-3">
+              <div className="flex items-center space-x-3 sm:space-x-4 rtl:space-x-reverse min-w-0 flex-1">
                 {/* Status Bar */}
                 <div className={`
                   w-1.5 h-10 rounded-full transition-colors duration-300
@@ -155,9 +162,9 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
                       : 'bg-brand-primary'}
                 `}></div>
 
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                    <span className={`font-bold ${isPast && prayer.status === PrayerStatus.Upcoming ? 'text-brand-muted/80' : 'text-brand-forest'}`}>
+                    <span className={`font-bold truncate ${isPast && prayer.status === PrayerStatus.Upcoming ? 'text-brand-muted/80' : 'text-brand-forest'}`}>
                       {['ar', 'ur'].includes(language) ? prayer.arabicName : prayer.name}
                     </span>
                     <span className="text-xs text-brand-muted/70 font-arabic hidden sm:inline-block">
@@ -165,7 +172,7 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
                     </span>
                     {isNextPrayer && (
                       <span className="text-[10px] bg-brand-primary text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-sm animate-in fade-in">
-                        {t('next_prayer')}
+                        {t('next_prayer' as any)}
                       </span>
                     )}
                   </div>
@@ -185,7 +192,7 @@ export const PrayerList: React.FC<PrayerListProps> = ({ prayers, onPrayerClick }
                 )}
                 {/* Pen/Edit Icon - Hide for Shuruk */}
                 {!isShuruk && (
-                  <div className={`p-1.5 rounded-full transition-colors ${prayer.journalEntry
+                <div className={`hidden sm:block p-1.5 rounded-full transition-colors ${prayer.journalEntry
                     ? 'bg-brand-primary/10 text-brand-primary'
                     : 'bg-gray-50 text-gray-300 group-hover:bg-brand-primary/5 group-hover:text-brand-primary/60'
                     }`}>

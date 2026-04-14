@@ -2,7 +2,7 @@
  * usePrayerTimes - React hook for prayer times with real-time updates
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
     prayerTimesService,
     CalculatedPrayerTimes,
@@ -13,7 +13,7 @@ import {
 import { locationService, UserLocation } from '../services/LocationService';
 import { notificationService } from '../services/NotificationService';
 
-interface UsePrayerTimesReturn {
+export interface UsePrayerTimesReturn {
     // Prayer times data
     prayerTimes: CalculatedPrayerTimes | null;
     hijriDate: HijriDate | null;
@@ -22,7 +22,7 @@ interface UsePrayerTimesReturn {
         time: Date;
         remaining: number;
         formattedRemaining: string;
-    } | null;
+    } | null; // null after Isha until midnight
 
     // Location data
     location: UserLocation | null;
@@ -49,6 +49,7 @@ export function usePrayerTimes(): UsePrayerTimesReturn {
     const [locationLoading, setLocationLoading] = useState(false);
     const [locationError, setLocationError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const lastNotificationScheduleKeyRef = useRef<string | null>(null);
 
     // Load saved data on mount
     useEffect(() => {
@@ -81,12 +82,6 @@ export function usePrayerTimes(): UsePrayerTimesReturn {
             const hijri = prayerTimesService.toHijriDate(new Date());
             setHijriDate(hijri);
 
-            // Schedule notifications
-            const notifSettings = notificationService.getSettings();
-            if (notifSettings.enabled && notificationService.getPermissionStatus() === 'granted') {
-                notificationService.schedulePrayerNotifications(times);
-            }
-
             // Start real-time countdown updates
             prayerTimesService.startCountdown(location, settings);
 
@@ -104,6 +99,77 @@ export function usePrayerTimes(): UsePrayerTimesReturn {
             setPrayerTimes(null);
         }
     }, [location, settings]);
+
+    // Keep notifications in sync across day rollover, timezone changes, and app resume.
+    useEffect(() => {
+        if (!location || !prayerTimes) return;
+
+        const scheduleIfNeeded = (force: boolean = false) => {
+            const notifSettings = notificationService.getSettings();
+            const permission = notificationService.getPermissionStatus();
+            const dateKey = prayerTimes.date.toISOString().split('T')[0];
+            const scheduleKey = JSON.stringify({
+                dateKey,
+                timezone: location.timezone,
+                enabled: notifSettings.enabled,
+                prayerNotifications: notifSettings.prayerNotifications,
+                missedPrayerReminder: notifSettings.missedPrayerReminder,
+                missedReminderDelayMinutes: notifSettings.missedReminderDelayMinutes,
+                permission,
+            });
+
+            if (!notifSettings.enabled || permission !== 'granted') {
+                lastNotificationScheduleKeyRef.current = scheduleKey;
+                return;
+            }
+
+            if (force || lastNotificationScheduleKeyRef.current !== scheduleKey) {
+                notificationService.schedulePrayerNotifications(prayerTimes);
+                lastNotificationScheduleKeyRef.current = scheduleKey;
+            }
+        };
+
+        // Initial schedule for current render state.
+        scheduleIfNeeded();
+
+        // Re-check periodically to handle midnight rollover while app stays open.
+        const intervalId = window.setInterval(() => {
+            const refreshedTimes = prayerTimesService.getTodaysTimes(location, settings);
+            const newDateKey = refreshedTimes.date.toISOString().split('T')[0];
+            const currentDateKey = prayerTimes.date.toISOString().split('T')[0];
+
+            if (newDateKey !== currentDateKey) {
+                setPrayerTimes(refreshedTimes);
+                setHijriDate(prayerTimesService.toHijriDate(new Date()));
+                scheduleIfNeeded(true);
+            }
+        }, 60 * 1000);
+
+        // Re-schedule when app becomes active again (timezone/clock may have changed).
+        const onVisible = () => {
+            if (document.visibilityState === 'visible') {
+                const refreshedTimes = prayerTimesService.getTodaysTimes(location, settings);
+                setPrayerTimes(refreshedTimes);
+                setHijriDate(prayerTimesService.toHijriDate(new Date()));
+                scheduleIfNeeded(true);
+            }
+        };
+        const onFocus = () => {
+            const refreshedTimes = prayerTimesService.getTodaysTimes(location, settings);
+            setPrayerTimes(refreshedTimes);
+            setHijriDate(prayerTimesService.toHijriDate(new Date()));
+            scheduleIfNeeded(true);
+        };
+
+        document.addEventListener('visibilitychange', onVisible);
+        window.addEventListener('focus', onFocus);
+
+        return () => {
+            window.clearInterval(intervalId);
+            document.removeEventListener('visibilitychange', onVisible);
+            window.removeEventListener('focus', onFocus);
+        };
+    }, [location, prayerTimes, settings]);
 
     // Refresh location from GPS
     const refreshLocation = useCallback(async () => {

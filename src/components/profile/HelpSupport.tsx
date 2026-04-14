@@ -1,18 +1,21 @@
 import React from 'react';
 import { ArrowLeft, Mail, MessageCircle, ExternalLink, Heart } from 'lucide-react';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface HelpSupportProps {
     onBack: () => void;
 }
 
+// Read version from package.json at build time via Vite's define
+const APP_VERSION = __APP_VERSION__ ?? '0.2.0';
+
 export const HelpSupport: React.FC<HelpSupportProps> = ({ onBack }) => {
     const { language, t } = useLanguage();
 
     const LINKS = [
-        { icon: MessageCircle, label: t('profile_contact_support'), sub: 'support@muslimdaily.app', action: () => window.open('mailto:support@muslimdaily.app') },
-        { icon: ExternalLink, label: t('profile_privacy_policy'), sub: 'muslimdaily.app/privacy', action: () => window.open('https://muslimdaily.app/privacy') },
-        { icon: ExternalLink, label: t('profile_terms'), sub: 'muslimdaily.app/terms', action: () => window.open('https://muslimdaily.app/terms') },
+        { icon: MessageCircle, label: t('profile_contact_support'), sub: 'support@khalili.app', action: () => window.open('mailto:support@khalili.app') },
+        { icon: ExternalLink, label: t('profile_privacy_policy'), sub: 'khalili.app/privacy', action: () => window.open('https://khalili.app/privacy') },
+        { icon: ExternalLink, label: t('profile_terms'), sub: 'khalili.app/terms', action: () => window.open('https://khalili.app/terms') },
     ];
 
     return (
@@ -34,8 +37,8 @@ export const HelpSupport: React.FC<HelpSupportProps> = ({ onBack }) => {
                     <div className="w-20 h-20 bg-gradient-to-br from-brand-primary to-brand-secondary rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-brand-primary/20">
                         <Heart className="text-white fill-white/20" size={40} />
                     </div>
-                    <h3 className="text-xl font-bold text-brand-forest">Muslim Daily</h3>
-                    <p className="text-neutral-500">{t('app_version')} 2.4.0</p>
+                    <h3 className="text-xl font-bold text-brand-forest">Khalili</h3>
+                    <p className="text-neutral-500">{t('app_version' as any)} {APP_VERSION}</p>
                 </div>
 
                 <div className="space-y-3">

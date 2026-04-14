@@ -1,13 +1,9 @@
 /**
  * Firebase Configuration
  * 
- * IMPORTANT: Replace the placeholder values below with your actual Firebase project credentials.
- * You can find these in the Firebase Console:
- * 1. Go to https://console.firebase.google.com
- * 2. Select your project (or create one)
- * 3. Click the gear icon > Project settings
- * 4. Scroll to "Your apps" and click the web icon (</>)
- * 5. Register your app and copy the config
+ * Environment variables are required — see .env.example for documentation.
+ * If any variable is missing, the app will fail immediately at startup
+ * with a clear error message instead of silently using invalid config.
  */
 
 import { initializeApp, FirebaseApp } from 'firebase/app';
@@ -15,15 +11,27 @@ import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 
-// Firebase configuration - REPLACE WITH YOUR OWN VALUES
+// Validate required environment variables
+function requireEnv(name: string): string {
+    const value = import.meta.env[name];
+    if (!value) {
+        throw new Error(
+            `Missing required environment variable: ${name}. ` +
+            `Copy .env.example to .env and fill in your Firebase project credentials.`
+        );
+    }
+    return value;
+}
+
+// Firebase configuration — all values are required
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_API_KEY",
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "YOUR_PROJECT.firebaseapp.com",
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "YOUR_PROJECT_ID",
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "YOUR_PROJECT.appspot.com",
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "YOUR_SENDER_ID",
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || "YOUR_APP_ID",
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "YOUR_MEASUREMENT_ID",
+    apiKey: requireEnv('VITE_FIREBASE_API_KEY'),
+    authDomain: requireEnv('VITE_FIREBASE_AUTH_DOMAIN'),
+    projectId: requireEnv('VITE_FIREBASE_PROJECT_ID'),
+    storageBucket: requireEnv('VITE_FIREBASE_STORAGE_BUCKET'),
+    messagingSenderId: requireEnv('VITE_FIREBASE_MESSAGING_SENDER_ID'),
+    appId: requireEnv('VITE_FIREBASE_APP_ID'),
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || undefined,
 };
 
 // Initialize Firebase
@@ -39,12 +47,9 @@ try {
     storage = getStorage(app);
 } catch (error) {
     console.error('Firebase initialization error:', error);
-    // Create mock instances for development without Firebase
-    app = {} as FirebaseApp;
-    auth = {} as Auth;
-    db = {} as Firestore;
-    storage = {} as FirebaseStorage;
+    throw error;
 }
 
 export { app, auth, db, storage };
 export default app;
+

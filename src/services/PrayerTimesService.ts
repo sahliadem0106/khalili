@@ -63,7 +63,7 @@ export interface CalculatedPrayerTimes {
     name: string;
     time: Date;
     remaining: number; // seconds
-  };
+  } | null; // null when all prayers completed for today (after Isha until midnight)
 }
 
 export interface HijriDate {
@@ -115,6 +115,75 @@ const PRAYER_NAMES = {
   maghrib: { en: 'Maghrib', ar: 'المغرب' },
   isha: { en: 'Isha', ar: 'العشاء' },
 };
+
+// Country code to calculation method mapping (auto-detect based on location)
+const COUNTRY_CALCULATION_METHODS: Record<string, CalculationMethodName> = {
+  // Saudi Arabia and Gulf
+  'SA': 'UmmAlQura',
+  'AE': 'Dubai',
+  'KW': 'Kuwait',
+  'QA': 'Qatar',
+  'BH': 'UmmAlQura',
+  'OM': 'UmmAlQura',
+  'YE': 'UmmAlQura',
+  // Egypt and North Africa
+  'EG': 'Egyptian',
+  'LY': 'Egyptian',
+  'SD': 'Egyptian',
+  // Turkey and Central Asia
+  'TR': 'Turkey',
+  'AZ': 'Turkey',
+  // Iran
+  'IR': 'Tehran',
+  // Pakistan and South Asia
+  'PK': 'Karachi',
+  'BD': 'Karachi',
+  'IN': 'Karachi',
+  'AF': 'Karachi',
+  // Southeast Asia
+  'MY': 'Singapore',
+  'SG': 'Singapore',
+  'ID': 'Singapore',
+  'BN': 'Singapore',
+  // North America
+  'US': 'NorthAmerica',
+  'CA': 'NorthAmerica',
+  'MX': 'NorthAmerica',
+  // Europe (Muslim World League)
+  'GB': 'MuslimWorldLeague',
+  'DE': 'MuslimWorldLeague',
+  'FR': 'MuslimWorldLeague',
+  'NL': 'MuslimWorldLeague',
+  'BE': 'MuslimWorldLeague',
+  'ES': 'MuslimWorldLeague',
+  'IT': 'MuslimWorldLeague',
+  'SE': 'MuslimWorldLeague',
+  'NO': 'MuslimWorldLeague',
+  'DK': 'MuslimWorldLeague',
+  'AT': 'MuslimWorldLeague',
+  'CH': 'MuslimWorldLeague',
+  // North Africa
+  'MA': 'MuslimWorldLeague',
+  'DZ': 'MuslimWorldLeague',
+  'TN': 'MuslimWorldLeague',
+  // Levant
+  'JO': 'MuslimWorldLeague',
+  'LB': 'MuslimWorldLeague',
+  'SY': 'MuslimWorldLeague',
+  'PS': 'MuslimWorldLeague',
+  'IQ': 'MuslimWorldLeague',
+  // Australia
+  'AU': 'MuslimWorldLeague',
+  'NZ': 'MuslimWorldLeague',
+};
+
+/**
+ * Get the recommended calculation method for a country code
+ */
+export function getMethodForCountry(countryCode: string): CalculationMethodName {
+  const code = countryCode.toUpperCase();
+  return COUNTRY_CALCULATION_METHODS[code] || 'MuslimWorldLeague';
+}
 
 // =================== DEFAULT SETTINGS ===================
 
@@ -217,52 +286,35 @@ class PrayerTimesService {
 
   /**
    * Get the next upcoming prayer
+   * Returns null after Isha until midnight (user can only log today's prayers)
    */
   private getNextPrayer(prayerTimes: PrayerTimes, now: Date = new Date()): {
     name: string;
     time: Date;
     remaining: number;
-  } {
+  } | null {
     try {
       const nextPrayer = prayerTimes.nextPrayer(now);
 
       let nextTime: Date;
       let prayerName: string;
 
-      // Map Prayer enum to string names (using string keys to avoid TS issues)
-      const prayerEnumToName: { [key: number]: string } = {
-        0: 'fajr',      // Prayer.Fajr
-        1: 'sunrise',   // Prayer.Sunrise
-        2: 'dhuhr',     // Prayer.Dhuhr
-        3: 'asr',       // Prayer.Asr
-        4: 'maghrib',   // Prayer.Maghrib
-        5: 'isha',      // Prayer.Isha
-      };
-
-      if (nextPrayer === Prayer.None || nextPrayer === undefined || nextPrayer === null) {
-        // After Isha, next is tomorrow's Fajr
-        // Use current location's coordinates from prayerTimes
-        const tomorrow = addDays(now, 1);
-        try {
-          // Create new prayer times for tomorrow using default calculation
-          const tomorrowTimes = new PrayerTimes(
-            new Coordinates(0, 0), // Will use default
-            tomorrow,
-            CalculationMethod.MuslimWorldLeague()
-          );
-          nextTime = tomorrowTimes.fajr;
-        } catch {
-          // Fallback: estimate tomorrow's Fajr as 5:00 AM
-          nextTime = new Date(tomorrow);
-          nextTime.setHours(5, 0, 0, 0);
+      // adhan library returns 'none' if all prayers for the day have passed
+      if (nextPrayer === 'none' || nextPrayer === undefined || nextPrayer === null) {
+        // Double check: if it's early morning (before Fajr), next IS Fajr today.
+        if (now < prayerTimes.fajr) {
+          nextTime = prayerTimes.fajr;
+          prayerName = 'fajr';
+        } else {
+          // Past Isha - return null until midnight
+          // User can only log prayers for today, so we don't show tomorrow's Fajr
+          return null;
         }
-        prayerName = 'fajr';
       } else {
-        const timeForPrayer = prayerTimes.timeForPrayer(nextPrayer);
+        // nextPrayer is a string like 'fajr', 'dhuhr', etc.
+        const timeForPrayer = prayerTimes.timeForPrayer(nextPrayer as any);
         nextTime = timeForPrayer || new Date();
-
-        // Use safe mapping instead of Prayer[nextPrayer].toLowerCase()
-        prayerName = prayerEnumToName[nextPrayer] || 'fajr';
+        prayerName = nextPrayer;
       }
 
       return {
@@ -272,14 +324,7 @@ class PrayerTimesService {
       };
     } catch (error) {
       console.error('Error calculating next prayer:', error);
-      // Return safe default
-      const defaultTime = new Date();
-      defaultTime.setHours(defaultTime.getHours() + 1);
-      return {
-        name: 'fajr',
-        time: defaultTime,
-        remaining: 3600,
-      };
+      return null;
     }
   }
 

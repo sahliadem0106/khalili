@@ -52,7 +52,7 @@ export const HabitTrackerPage: React.FC<HabitTrackerPageProps> = ({ onBack }) =>
     const views: { id: View; icon: React.ReactNode; label: string; labelAr: string }[] = [
         { id: 'today', icon: <Check size={18} />, label: t('study_today'), labelAr: 'اليوم' },
         { id: 'calendar', icon: <Calendar size={18} />, label: t('study_calendar'), labelAr: 'التقويم' },
-        { id: 'stats', icon: <BarChart3 size={18} />, label: t('habit_stats'), labelAr: 'الإحصائيات' },
+        { id: 'stats', icon: <BarChart3 size={18} />, label: 'Stats', labelAr: 'الإحصائيات' },
     ];
 
     return (
@@ -718,7 +718,7 @@ const TemplatesModal: React.FC<{
                                     <p className="text-xs text-neutral-400">
                                         {template.frequency === 'daily'
                                             ? (t('habit_daily'))
-                                            : template.days?.map(d => new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG' : language, { weekday: 'short' }).format(new Date(2000, 0, d + 2))).join(', ')}
+                                            : template.days?.map(d => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d]).join(', ')}
                                     </p>
                                 </div>
                             </div>

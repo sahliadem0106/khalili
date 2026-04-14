@@ -55,9 +55,10 @@ const STORAGE_KEY_TRANSLATION = 'khalil_translation';
 // Popular tafsir sources
 export const POPULAR_TAFSIRS: TafsirSource[] = [
     { id: 169, name: 'Tafsir Ibn Kathir', authorName: 'Ibn Kathir', slug: 'en-tafisr-ibn-kathir', languageName: 'english', translatedName: { name: 'Tafsir Ibn Kathir', languageName: 'english' } },
-    { id: 168, name: "Ma'arif al-Qur'an", authorName: 'Mufti Muhammad Shafi', slug: 'en-tafsir-maarif-ul-quran', languageName: 'english', translatedName: { name: "Ma'arif al-Qur'an", languageName: 'english' } },
-    { id: 817, name: 'Tazkirul Quran', authorName: 'Maulana Wahid Uddin Khan', slug: 'tazkirul-quran-en', languageName: 'english', translatedName: { name: 'Tazkirul Quran', languageName: 'english' } },
+    { id: 164, name: 'Tafsir al-Jalalayn', authorName: 'Al-Jalalayn', slug: 'ar-tafsir-al-jalalayn', languageName: 'arabic', translatedName: { name: 'تفسير الجلالين', languageName: 'arabic' } },
     { id: 91, name: 'Tafhim al-Quran', authorName: 'Sayyid Abul Ala Maududi', slug: 'en-tafsir-maududi', languageName: 'english', translatedName: { name: 'Tafhim al-Quran', languageName: 'english' } },
+    { id: 168, name: 'Al-Mukhtasar', authorName: 'Markaz Tafsir', slug: 'ar-tafseer-al-mukhtasar', languageName: 'arabic', translatedName: { name: 'المختصر في تفسير القرآن', languageName: 'arabic' } },
+    { id: 92, name: "Ma'ariful Quran", authorName: 'Mufti Muhammad Shafi', slug: 'en-tafsir-maarif-ul-quran', languageName: 'english', translatedName: { name: "Ma'ariful Quran", languageName: 'english' } },
 ];
 
 // Popular translations
@@ -72,9 +73,33 @@ export const POPULAR_TRANSLATIONS: TranslationSource[] = [
 // =================== SERVICE CLASS ===================
 
 class TafsirService {
-    private selectedTafsirId: number = 168; // Default: Ma'arif al-Qur'an (169 is broken)
+    private selectedTafsirId: number = 169; // Default: Ibn Kathir
     private selectedTranslationId: number = 131; // Default: Clear Quran
     private cache: Map<string, any> = new Map();
+
+    private sanitizeApiText(rawText: string): string {
+        if (!rawText) return '';
+        let text = rawText;
+
+        const decodeEntities = (value: string): string => {
+            if (typeof document === 'undefined') return value;
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = value;
+            return textarea.value;
+        };
+
+        // Decode encoded entities, then strip any HTML tags that remain.
+        text = decodeEntities(text);
+        text = decodeEntities(text);
+        text = text.replace(/<[^>]*>/g, ' ');
+
+        // Remove noisy bracket artifacts occasionally returned by API payloads.
+        text = text.replace(/\[\s*\/?span[^\]]*\]/gi, ' ');
+        text = text.replace(/\[\s*<[^>]+>\s*\]/g, ' ');
+        text = text.replace(/<\/?span[^>]*>/gi, ' ');
+
+        return text.replace(/\s+/g, ' ').trim();
+    }
 
     constructor() {
         this.loadSettings();
@@ -140,32 +165,51 @@ class TafsirService {
         }
 
         try {
-            const response = await fetch(
-                `${API_BASE_URL}/quran/tafsirs/${tafsirId}?verse_key=${verseKey}`
-            );
+            const fallbackOrder = [
+                tafsirId,
+                this.selectedTafsirId,
+                169, // Ibn Kathir (EN)
+                164, // Jalalayn (AR)
+                91,  // Maududi (EN)
+            ].filter((id, index, arr) => arr.indexOf(id) === index);
 
-            if (!response.ok) throw new Error('Failed to fetch tafsir');
+            for (const candidateTafsirId of fallbackOrder) {
+                const candidateCacheKey = `tafsir_${candidateTafsirId}_${verseKey}`;
+                if (this.cache.has(candidateCacheKey)) {
+                    return this.cache.get(candidateCacheKey);
+                }
 
-            const data = await response.json();
+                const response = await fetch(
+                    `${API_BASE_URL}/quran/tafsirs/${candidateTafsirId}?verse_key=${verseKey}`
+                );
 
-            if (data.tafsir) {
+                if (!response.ok) {
+                    continue;
+                }
+
+                const data = await response.json();
+                const tafsirEntry = data?.tafsirs?.[0] || data?.tafsir || null;
+                if (!tafsirEntry?.text) {
+                    continue;
+                }
+
                 const content: TafsirContent = {
-                    tafsirId,
-                    tafsirName: data.tafsir.resource_name || 'Unknown',
+                    tafsirId: candidateTafsirId,
+                    tafsirName: tafsirEntry.resource_name || 'Unknown',
                     verseKey,
-                    text: data.tafsir.text || '',
-                    languageId: data.tafsir.language_id,
-                    resourceId: data.tafsir.resource_id,
+                    text: this.sanitizeApiText(tafsirEntry.text || ''),
+                    languageId: tafsirEntry.language_id || 0,
+                    resourceId: tafsirEntry.resource_id || candidateTafsirId,
                 };
 
-                this.cache.set(cacheKey, content);
+                this.cache.set(candidateCacheKey, content);
                 return content;
             }
 
             return null;
         } catch (error) {
             console.error(`Failed to fetch tafsir for ${verseKey}:`, error);
-            throw error; // Propagate error to hook
+            return null;
         }
     }
 
@@ -223,7 +267,7 @@ class TafsirService {
                 const translation: Translation = {
                     id: data.translations[0].id,
                     resourceId: data.translations[0].resource_id,
-                    text: data.translations[0].text,
+                    text: this.sanitizeApiText(data.translations[0].text),
                     verseKey,
                 };
 
@@ -323,9 +367,7 @@ class TafsirService {
             const savedTranslation = localStorage.getItem(STORAGE_KEY_TRANSLATION);
 
             if (savedTafsir) {
-                const parsed = parseInt(savedTafsir, 10);
-                // Migrate broken Ibn Kathir (169) to Ma'arif (168)
-                this.selectedTafsirId = (parsed === 169) ? 168 : parsed;
+                this.selectedTafsirId = parseInt(savedTafsir, 10);
             }
             if (savedTranslation) {
                 this.selectedTranslationId = parseInt(savedTranslation, 10);

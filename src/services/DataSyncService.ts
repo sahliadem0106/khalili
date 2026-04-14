@@ -181,6 +181,21 @@ class DataSyncService {
     }
 
     /**
+     * Get full prayer log history for current user
+     */
+    async getAllPrayerLogs(): Promise<PrayerLog[]> {
+        if (!this.userId) throw new Error('User not authenticated');
+
+        const q = query(
+            this.getPrayerLogsRef(),
+            orderBy('date', 'desc')
+        );
+
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => this.docToPrayerLog(doc));
+    }
+
+    /**
      * Calculate prayer statistics
      */
     async calculateStats(): Promise<{
@@ -239,6 +254,7 @@ class DataSyncService {
             const today = new Date().toISOString().split('T')[0];
             const batch = writeBatch(db);
 
+            // Sync today's active UI state
             for (const prayer of localPrayers) {
                 const id = `${today}_${prayer.name.toLowerCase()}`;
                 const docRef = doc(this.getPrayerLogsRef(), id);
@@ -249,10 +265,33 @@ class DataSyncService {
                     prayerName: prayer.name.toLowerCase(),
                     status: prayer.status,
                     scheduledTime: prayer.time,
-                    completedTime: prayer.status !== 'pending' ? new Date().toISOString() : null,
-                    khushuLevel: prayer.khushu || null,
-                    barrier: prayer.barrier || null,
-                    journal: prayer.reflection || null,
+                    completedTime: (prayer.status !== 'upcoming' && prayer.status !== 'upcoming' as any) ? new Date().toISOString() : null,
+                    khushuLevel: null,
+                    barrier: null,
+                    journal: null,
+                    location: null,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                }, { merge: true });
+            }
+
+            // Sync past 30 days of history from PrayerLogService
+            const { prayerLogService } = await import('./PrayerLogService');
+            const historyLogs = prayerLogService.getLogsForDays(30);
+
+            for (const log of historyLogs) {
+                const id = `${log.date}_${log.prayerId.toLowerCase()}`;
+                const docRef = doc(this.getPrayerLogsRef(), id);
+                batch.set(docRef, {
+                    id: id,
+                    date: log.date,
+                    prayerName: log.prayerId.toLowerCase(),
+                    status: log.status,
+                    scheduledTime: null, // Since history log doesn't carry scheduled time directly
+                    completedTime: log.completedAt,
+                    khushuLevel: log.khushuLevel || null,
+                    barrier: log.barrier || null,
+                    journal: null,
                     location: null,
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp(),

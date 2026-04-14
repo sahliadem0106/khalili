@@ -10,6 +10,7 @@ export enum PrayerStatus {
   Late = 'late',
   Missed = 'missed',
   QadaDone = 'qada_done',
+  Display = 'display',
 }
 
 export type BarrierType = 'sleep' | 'work' | 'forgetfulness' | 'travel' | 'procrastination' | 'none';
@@ -25,6 +26,8 @@ export interface Prayer {
   journalEntry?: string;
   khushuRating?: number; // 1-5 scale
   barrier?: BarrierType;
+  realTime?: Date;
+  isShuruk?: boolean;
 }
 
 export interface User {
@@ -33,6 +36,8 @@ export interface User {
   hijriDate: string;
   avatar: string;
   currentHeartState?: HeartCondition;
+  streak?: number;
+  level?: number;
   gender?: 'male' | 'female';
 }
 
@@ -155,14 +160,4 @@ export interface RakibGroup {
   consistency: number; // percentage
   streak: number;
   currentUserRole: PartnerRole;
-}
-
-export interface UserSettings {
-  notifications: {
-    prayers: boolean;
-    adhkar: boolean;
-    updates: boolean;
-  };
-  theme: 'light' | 'dark' | 'system';
-  language: 'en' | 'ar';
 }

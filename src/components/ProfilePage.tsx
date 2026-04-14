@@ -21,6 +21,7 @@ import { SyncIndicator } from './SyncIndicator';
 import { DEFAULT_USER_SETTINGS } from '../services/AuthService';
 import { LocalisationSettings } from './settings/LocalisationSettings';
 import { BadgesSection } from './profile/BadgesSection';
+import { useToast, Toast } from './shared/Toast';
 
 interface ProfilePageProps {
   user: User;
@@ -40,12 +41,22 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
   const [activeView, setActiveView] = useState<ViewState>('main');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isLangModalOpen, setIsLangModalOpen] = useState(false);
+  const { toast, showToast, clearToast } = useToast();
+  const formFullName = `${(firebaseUser as any)?.firstName || ''} ${(firebaseUser as any)?.lastName || ''}`.trim();
+  const resolvedDisplayName = formFullName || user.name || firebaseUser?.displayName || 'User';
+  const genderAvatar =
+    firebaseUser?.gender === 'female'
+      ? '/womenicon.png'
+      : firebaseUser?.gender === 'male'
+        ? '/manicon.png'
+        : '';
+  const resolvedAvatar = user.avatar || genderAvatar || firebaseUser?.photoURL || '';
 
   // --- SUB-COMPONENTS ---
 
   // 1. ACCOUNT SETTINGS - Enhanced with nickname, age, about, hobbies
   const AccountView = () => {
-    const [name, setName] = useState(user.name || firebaseUser?.displayName || '');
+    const [name, setName] = useState(firebaseUser?.displayName || user.name || '');
     const [nickname, setNickname] = useState('');
     const [age, setAge] = useState<number | ''>('');
     const [about, setAbout] = useState('');
@@ -116,7 +127,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
         setActiveView('main');
       } catch (error) {
         console.error(error);
-        alert("Failed to update profile");
+        showToast('Failed to update profile', 'error');
       } finally {
         setIsSaving(false);
       }
@@ -138,7 +149,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
           <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors">
             <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600 dark:text-neutral-400" />
           </button>
-          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">{t('profile_edit')}</h2>
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Edit Profile</h2>
         </div>
 
         {/* Avatar Section */}
@@ -146,8 +157,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
           <div className="relative group">
             <div className={`w-32 h-32 rounded-full p-1 bg-gradient-to-br from-brand-primary to-brand-teal shadow-xl shadow-brand-primary/20 ${isLoading ? 'animate-pulse' : ''}`}>
               <div className="w-full h-full rounded-full bg-white dark:bg-neutral-900 overflow-hidden relative">
-                {user.avatar ? (
-                  <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                {resolvedAvatar ? (
+                  <img src={resolvedAvatar} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-neutral-100 dark:bg-neutral-800 text-neutral-400">
                     <UserIcon size={48} />
@@ -161,7 +172,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
         <div className="space-y-5">
           {/* Display Name */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">{t('profile_full_name')}</label>
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Full Name</label>
             <div className="relative group">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand-primary transition-colors">
                 <UserIcon size={20} />
@@ -171,15 +182,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400"
-                placeholder={t('profile_full_name_ph')}
+                placeholder="Your full name"
               />
             </div>
           </div>
 
           {/* Nickname & Age Row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">{t('profile_nickname')}</label>
+              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Nickname</label>
               <div className="relative group">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand-primary transition-colors">
                   <Hash size={18} />
@@ -189,12 +200,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
                   className="w-full pl-11 pr-4 py-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400"
-                  placeholder={t('profile_inline_nickname_ph')}
+                  placeholder="Ali"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">{t('profile_age')}</label>
+              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Age</label>
               <div className="relative group">
                 <input
                   type="number"
@@ -209,7 +220,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
 
           {/* Email (Read-only) */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">{t('profile_email')}</label>
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">Email Address</label>
             <div className="relative opacity-70">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
                 <Mail size={20} />
@@ -225,7 +236,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
 
           {/* About Me */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">{t('profile_about_me')}</label>
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider ml-1">About Me</label>
             <div className="relative group">
               <div className="absolute left-4 top-5 text-neutral-400 group-focus-within:text-brand-primary transition-colors">
                 <FileText size={20} />
@@ -235,7 +246,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                 onChange={(e) => setAbout(e.target.value.slice(0, 200))}
                 rows={4}
                 className="w-full pl-12 pr-4 py-4 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50 outline-none transition-all resize-none font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400 leading-relaxed"
-                placeholder={t('profile_about_me_ph_inline')}
+                placeholder="Share a bit about yourself..."
               />
               <div className="absolute bottom-3 right-4 text-[10px] font-medium text-neutral-400">
                 {about.length}/200
@@ -266,7 +277,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                   </span>
                 ))}
                 {hobbies.length === 0 && (
-                  <span className="text-sm text-neutral-400 italic py-1">{t('profile_hobbies_empty')}</span>
+                  <span className="text-sm text-neutral-400 italic py-1">No hobbies added yet</span>
                 )}
               </div>
 
@@ -278,7 +289,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                     onChange={(e) => setNewHobby(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleAddHobby()}
                     className="flex-1 bg-transparent border-b-2 border-neutral-200 dark:border-neutral-700 focus:border-brand-primary py-2 px-1 outline-none transition-colors text-sm"
-                    placeholder={t('profile_hobbies_ph')}
+                    placeholder="Type a hobby and press Enter..."
                   />
                   <button
                     onClick={handleAddHobby}
@@ -303,9 +314,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
             {isSaving ? (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>{t('profile_saving')}</span>
+                <span>Saving...</span>
               </div>
-            ) : t('profile_save_changes')}
+            ) : 'Save Changes'}
           </Button>
         </div>
       </div >
@@ -318,7 +329,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
 
     const handleReset = async () => {
       // Password reset not supported in Google-only auth
-      alert("Password reset is managed by Google.");
+      showToast('Password reset is managed by Google.', 'info');
     };
 
     return (
@@ -327,7 +338,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
           <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10">
             <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600" />
           </button>
-          <h2 className="text-xl font-bold text-neutral-900">{t('profile_security')}</h2>
+          <h2 className="text-xl font-bold text-neutral-900">Password & Security</h2>
         </div>
 
         <div className="p-5 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-start gap-4">
@@ -335,14 +346,14 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
             <Key size={24} />
           </div>
           <div>
-            <h3 className="font-bold text-indigo-900">{t('profile_password_management')}</h3>
-            <p className="text-sm text-indigo-700/80 mt-1">{t('profile_password_desc')}</p>
+            <h3 className="font-bold text-indigo-900">Password Management</h3>
+            <p className="text-sm text-indigo-700/80 mt-1">We don't store your password directly. You can request a secure reset link.</p>
           </div>
         </div>
 
         <div className="pt-4">
           <Button fullWidth variant="outline" onClick={handleReset} disabled={resetSent} className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 h-14">
-            {resetSent ? t('profile_password_sent') : t('profile_password_send')}
+            {resetSent ? 'Reset Link Sent to Email' : 'Send Password Reset Email'}
           </Button>
         </div>
       </div>
@@ -375,7 +386,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
           <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10">
             <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600 dark:text-neutral-400" />
           </button>
-          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">{t('profile_notifications')}</h2>
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Notifications</h2>
         </div>
 
         <div className="flex items-center justify-between p-4 bg-white dark:bg-brand-surface rounded-2xl border border-neutral-100 dark:border-white/5 shadow-sm">
@@ -384,8 +395,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
               <Bell size={20} />
             </div>
             <div>
-              <p className="font-bold text-neutral-800 dark:text-white">{t('profile_push_notifications')}</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">{t('profile_push_notifications_desc')}</p>
+              <p className="font-bold text-neutral-800 dark:text-white">Push Notifications</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Master switch for all alerts</p>
             </div>
           </div>
           <div
@@ -398,12 +409,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
 
         {/* Prayer Alerts - Always show but grey out when disabled */}
         <div className={`space-y-3 ${!enabled ? 'opacity-50 pointer-events-none' : 'animate-in fade-in slide-in-from-top-2'}`}>
-          <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider ml-2">{t('profile_prayer_alerts')}</h3>
+          <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider ml-2">Prayer Alerts</h3>
           {Object.entries(reminders).map(([key, val]) => (
             <div key={key} className="flex items-center justify-between p-4 bg-white dark:bg-brand-surface rounded-xl border border-neutral-100 dark:border-white/5">
               <span className="capitalize font-medium text-neutral-700 dark:text-neutral-200">{key}</span>
               <div
-                onClick={() => enabled && togglePrayer(key as any)}
+                onClick={() => enabled && togglePrayer(key as keyof typeof reminders)}
                 className={`w-10 h-6 rounded-full transition-colors relative ${enabled ? 'cursor-pointer' : 'cursor-not-allowed'} ${val ? 'bg-brand-forest' : 'bg-neutral-200 dark:bg-neutral-700'}`}
               >
                 <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform ${val ? 'left-5' : 'left-1'}`}></div>
@@ -462,37 +473,47 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
       </div>
     );
 
-    const SETTINGS_SECTIONS = [
+    interface SettingsItem {
+      icon: React.ElementType;
+      label: string;
+      sub?: string;
+      color: string;
+      view?: ViewState;
+      action?: () => void;
+      customRight?: React.ReactNode;
+    }
+
+    const SETTINGS_SECTIONS: { title: string; items: SettingsItem[] }[] = [
       {
         title: t('section_account'),
         items: [
-          { icon: UserIcon, label: t('profile_personal_info'), sub: t('profile_personal_info_desc'), color: "text-blue-600 bg-blue-50", view: 'account' },
+          { icon: UserIcon, label: "Personal Information", sub: "Name, Email, Avatar", color: "text-blue-600 bg-blue-50", view: 'account' },
         ]
       },
       {
         title: "Achievements",
         items: [
-          { icon: Trophy, label: t('profile_badges_stats'), sub: t('profile_badges_desc'), color: "text-amber-600 bg-amber-50", view: 'achievements' },
+          { icon: Trophy, label: "My Badges & Stats", sub: "View your progress", color: "text-amber-600 bg-amber-50", view: 'achievements' },
         ]
       },
       {
         title: t('section_prayer'),
         items: [
-          { icon: MapPin, label: t('profile_location_settings'), sub: t('profile_location_desc'), color: "text-red-600 bg-red-50", view: 'localisation' },
+          { icon: MapPin, label: "Location Settings", sub: "View coordinates, refresh GPS", color: "text-red-600 bg-red-50", view: 'localisation' },
         ]
       },
       {
         title: t('section_notifications'),
         items: [
-          { icon: Bell, label: t('profile_push_notifications'), sub: t('profile_notifications_desc'), color: "text-amber-600 bg-amber-50", view: 'notifications' },
+          { icon: Bell, label: "Push Notifications", sub: "Prayers, Reminders, Updates", color: "text-amber-600 bg-amber-50", view: 'notifications' },
         ]
       },
       {
         title: t('section_app'),
         items: [
           {
-            icon: Palette, // Changed from Globe to Palette for visual distinction if allowed, or keep Globe for language
-            label: t('profile_appearance'),
+            icon: Palette,
+            label: "Appearance",
             customRight: <div className="w-48"><ThemeSwitcher /></div>,
             color: "text-purple-600 bg-purple-50",
             action: () => { } // No-op, controlled by switcher
@@ -514,21 +535,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
         {isAuthenticated && (
           <div id="profile-user-card" className="flex items-center space-x-4 rtl:space-x-reverse p-5 glass-panel mt-4">
             <div className="w-16 h-16 rounded-full relative flex-shrink-0">
-              {user.avatar ? (
+              {resolvedAvatar ? (
                 <img
-                  src={user.avatar}
-                  alt={user.name || 'User'}
+                  src={resolvedAvatar}
+                  alt={resolvedDisplayName}
                   className="w-full h-full rounded-full object-cover border-2 border-brand-primary/20"
                 />
               ) : (
                 <div className="w-full h-full rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary text-xl font-bold">
-                  {(user.name || 'U').charAt(0)}
+                  {resolvedDisplayName.charAt(0)}
                 </div>
               )}
               <div className="absolute bottom-0 right-0 rtl:right-auto rtl:left-0 bg-brand-primary w-4 h-4 rounded-full border-2 border-brand-surface shadow-sm"></div>
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-neutral-900 dark:text-white truncate">{user.name || 'User'}</h2>
+              <h2 className="text-lg font-bold text-neutral-900 dark:text-white truncate">{resolvedDisplayName}</h2>
               <p className="text-sm text-neutral-400 truncate">{firebaseUser?.email}</p>
               <div className="mt-1">
                 <SyncIndicator
@@ -581,7 +602,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                     key={i}
                     onClick={() => {
                       if (item.action) item.action();
-                      // @ts-ignore
                       else if (item.view) setActiveView(item.view);
                     }}
                     className="flex items-center justify-between p-4 border-b border-white/5 last:border-0 cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors group"
@@ -597,7 +617,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                         {item.sub && <p className="text-xs text-neutral-500 dark:text-neutral-400">{item.sub}</p>}
                       </div>
                     </div>
-                    {/* @ts-ignore */}
                     {item.customRight ? item.customRight : (
                       <ChevronRight size={18} className="text-neutral-500 dark:text-neutral-500 group-hover:text-brand-primary rtl:rotate-180" />
                     )}
@@ -618,10 +637,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
             <button
               onClick={() => {
                 localStorage.removeItem('khalil_onboarding');
-                alert('Onboarding reset! Refresh the page to see onboarding again.');
+                showToast('Onboarding reset! Refreshing...', 'info');
                 window.location.reload();
               }}
-              className="w-full py-2 text-xs text-gray-400 hover:text-gray-600 underline"
+                    className="w-full py-2 text-xs text-brand-muted hover:text-brand-forest underline"
             >
               🧪 Reset Onboarding (Test)
             </button>
@@ -632,7 +651,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
                 console.log('[ProfilePage] Test Adhan button clicked');
                 onTestAdhan?.();
               }}
-              className="w-full py-2 text-xs text-gray-400 hover:text-gray-600 underline"
+                    className="w-full py-2 text-xs text-brand-muted hover:text-brand-forest underline"
             >
               🔔 Test Adhan Alert
             </button>
@@ -809,6 +828,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
           }
         }}
       />
+
+      <AnimatePresence>
+        {toast && <Toast {...toast} onDismiss={clearToast} />}
+      </AnimatePresence>
     </div>
   );
 };

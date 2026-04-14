@@ -20,7 +20,7 @@ import { useQuranAudio } from '../hooks/useQuranAudio';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface QuranAudioPlayerProps {
-    totalAyahsInSurah: number;
+    totalAyahsInSurah?: number;
     surahName: string;
     onClose?: () => void;
 }
@@ -70,8 +70,8 @@ export const QuranAudioPlayer: React.FC<QuranAudioPlayerProps> = ({
     }
 
     return (
-        <div className="fixed bottom-20 left-0 right-0 z-40 px-4 pb-safe-area animate-in slide-in-from-bottom duration-300">
-            <div className="max-w-md mx-auto bg-white rounded-2xl shadow-2xl shadow-black/20 border border-neutral-line overflow-hidden">
+        <div className="fixed bottom-20 left-0 right-0 z-40 px-3 sm:px-4 pb-safe-area animate-in slide-in-from-bottom duration-300">
+            <div className="max-w-md mx-auto bg-brand-surface rounded-2xl shadow-2xl shadow-black/20 border border-brand-border overflow-hidden">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-brand-forest to-brand-teal px-4 py-3 flex items-center justify-between">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
@@ -98,16 +98,16 @@ export const QuranAudioPlayer: React.FC<QuranAudioPlayerProps> = ({
                 </div>
 
                 {/* Reciter Display */}
-                <div className="px-4 py-2 border-b border-neutral-line bg-neutral-50/50">
+                <div className="px-4 py-2 border-b border-brand-border bg-brand-subtle/60">
                     <button
                         onClick={() => setShowReciterMenu(!showReciterMenu)}
                         className="flex items-center space-x-2 rtl:space-x-reverse text-sm"
                     >
-                        <User size={14} className="text-neutral-muted" />
-                        <span className="text-neutral-primary font-medium">
+                        <User size={14} className="text-brand-muted" />
+                        <span className="text-brand-forest font-medium truncate max-w-[180px] sm:max-w-[220px]">
                             {currentReciter?.englishName || 'Select Reciter'}
                         </span>
-                        <ChevronDown size={14} className={`text-neutral-muted transition-transform ${showReciterMenu ? 'rotate-180' : ''}`} />
+                        <ChevronDown size={14} className={`text-brand-muted transition-transform ${showReciterMenu ? 'rotate-180' : ''}`} />
                     </button>
 
                     {/* Reciter Dropdown */}
@@ -122,11 +122,11 @@ export const QuranAudioPlayer: React.FC<QuranAudioPlayerProps> = ({
                                     }}
                                     className={`w-full text-start px-3 py-2 rounded-lg text-sm transition-colors ${reciter.id === currentReciter?.id
                                         ? 'bg-brand-mint text-brand-forest font-medium'
-                                        : 'hover:bg-neutral-100 text-neutral-primary'
+                                        : 'hover:bg-brand-subtle text-brand-forest'
                                         }`}
                                 >
                                     <p>{reciter.englishName}</p>
-                                    <p className="text-xs text-neutral-muted font-arabic">{reciter.arabicName}</p>
+                                    <p className="text-xs text-brand-muted font-arabic">{reciter.arabicName}</p>
                                 </button>
                             ))}
                         </div>
@@ -136,7 +136,7 @@ export const QuranAudioPlayer: React.FC<QuranAudioPlayerProps> = ({
                 {/* Progress Bar */}
                 <div className="px-4 pt-3">
                     <div
-                        className="h-1.5 bg-neutral-200 rounded-full overflow-hidden cursor-pointer"
+                        className="h-1.5 bg-brand-border rounded-full overflow-hidden cursor-pointer"
                         onClick={(e) => {
                             const rect = e.currentTarget.getBoundingClientRect();
                             const x = e.clientX - rect.left;
@@ -149,7 +149,7 @@ export const QuranAudioPlayer: React.FC<QuranAudioPlayerProps> = ({
                             style={{ width: `${progress}%` }}
                         />
                     </div>
-                    <div className="flex justify-between mt-1 text-xs text-neutral-muted">
+                    <div className="flex justify-between mt-1 text-xs text-brand-muted">
                         <span>{formatTime(currentTime)}</span>
                         <span>{formatTime(duration)}</span>
                     </div>
@@ -161,13 +161,13 @@ export const QuranAudioPlayer: React.FC<QuranAudioPlayerProps> = ({
                     <div className="relative">
                         <button
                             onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-                            className="text-xs font-medium text-neutral-muted hover:text-brand-forest transition-colors px-2 py-1 rounded bg-neutral-100"
+                            className="text-xs font-medium text-brand-muted hover:text-brand-forest transition-colors px-2 py-1 rounded bg-brand-subtle"
                         >
                             {settings.playbackSpeed}x
                         </button>
 
                         {showSpeedMenu && (
-                            <div className="absolute bottom-full left-0 mb-2 bg-white rounded-xl shadow-lg border border-neutral-line py-2 min-w-[80px]">
+                            <div className="absolute bottom-full left-0 mb-2 bg-brand-surface rounded-xl shadow-lg border border-brand-border py-2 min-w-[80px]">
                                 {[0.5, 0.75, 1, 1.25, 1.5, 2].map(speed => (
                                     <button
                                         key={speed}
@@ -175,7 +175,7 @@ export const QuranAudioPlayer: React.FC<QuranAudioPlayerProps> = ({
                                             setPlaybackSpeed(speed);
                                             setShowSpeedMenu(false);
                                         }}
-                                        className={`w-full px-3 py-1.5 text-sm text-start hover:bg-neutral-50 ${settings.playbackSpeed === speed ? 'text-brand-forest font-medium' : 'text-neutral-primary'
+                                        className={`w-full px-3 py-1.5 text-sm text-start hover:bg-brand-subtle ${settings.playbackSpeed === speed ? 'text-brand-forest font-medium' : 'text-brand-forest'
                                             }`}
                                     >
                                         {speed}x
@@ -190,7 +190,7 @@ export const QuranAudioPlayer: React.FC<QuranAudioPlayerProps> = ({
                         <button
                             onClick={playPreviousVerse}
                             disabled={currentAyah <= 1}
-                            className="p-2 text-neutral-500 hover:text-brand-forest disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="p-2 text-brand-muted hover:text-brand-forest disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                             <SkipBack size={22} />
                         </button>
@@ -211,8 +211,8 @@ export const QuranAudioPlayer: React.FC<QuranAudioPlayerProps> = ({
 
                         <button
                             onClick={() => playNextVerse(totalAyahsInSurah)}
-                            disabled={currentAyah >= totalAyahsInSurah}
-                            className="p-2 text-neutral-500 hover:text-brand-forest disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            disabled={Boolean(totalAyahsInSurah) && currentAyah >= (totalAyahsInSurah || 0)}
+                            className="p-2 text-brand-muted hover:text-brand-forest disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                             <SkipForward size={22} />
                         </button>
@@ -228,7 +228,7 @@ export const QuranAudioPlayer: React.FC<QuranAudioPlayerProps> = ({
                         }}
                         className={`p-2 rounded-lg transition-colors ${repeatMode !== 'none'
                             ? 'text-brand-forest bg-brand-mint'
-                            : 'text-neutral-400 hover:text-brand-forest'
+                            : 'text-brand-muted hover:text-brand-forest'
                             }`}
                     >
                         <Repeat size={18} />

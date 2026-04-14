@@ -4,6 +4,8 @@
  */
 
 import { CalculatedPrayerTimes } from './PrayerTimesService';
+import { Capacitor } from '@capacitor/core';
+import { AppNotificationType } from '../constants/notificationTypes';
 
 // =================== TYPES ===================
 
@@ -19,6 +21,15 @@ export interface NotificationSettings {
     missedPrayerReminder: boolean;
     missedReminderDelayMinutes: number;
     soundEnabled: boolean;
+    adhanOverlayEnabled: boolean;
+    adhanSoundEnabled: boolean;
+    socialNotificationDelivery: {
+        socialRuleSyncEnabled: boolean;
+        mutedScopes: Array<'partner' | 'family' | 'suhba'>;
+        quietHoursEnabled: boolean;
+        quietHoursStart: string;
+        quietHoursEnd: string;
+    };
 }
 
 export interface NotificationTiming {
@@ -31,6 +42,7 @@ export type NotificationPermissionStatus = 'granted' | 'denied' | 'default' | 'u
 // =================== CONSTANTS ===================
 
 const STORAGE_KEY = 'khalil_notification_settings';
+const NATIVE_PERMISSION_KEY = 'khalil_native_notification_permission';
 
 const TIMING_OFFSETS: Record<NotificationTiming['timing'], number> = {
     atTime: 0,
@@ -85,30 +97,58 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
     missedPrayerReminder: true,
     missedReminderDelayMinutes: 30,
     soundEnabled: true,
+    adhanOverlayEnabled: true,
+    adhanSoundEnabled: true,
+    socialNotificationDelivery: {
+        socialRuleSyncEnabled: true,
+        mutedScopes: [],
+        quietHoursEnabled: false,
+        quietHoursStart: '22:00',
+        quietHoursEnd: '06:00',
+    },
 };
 
 // =================== SERVICE CLASS ===================
 
 class NotificationService {
     private scheduledTimeouts: Map<string, number> = new Map();
+    private nativeScheduledIds: Map<string, number> = new Map();
     private settings: NotificationSettings = DEFAULT_NOTIFICATION_SETTINGS;
+    private nativePermissionStatus: NotificationPermissionStatus = 'default';
 
     constructor() {
         this.loadSettings();
+        this.loadNativePermissionStatus();
     }
 
     /**
      * Check if notifications are supported
      */
     isSupported(): boolean {
-        return 'Notification' in window;
+        return this.isNativeAndroid() || ('Notification' in window);
+    }
+
+    private isNativeAndroid(): boolean {
+        return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
+    }
+
+    private getNativeNotificationId(id: string): number {
+        // Stable positive 32-bit integer for Capacitor local notifications.
+        let hash = 0;
+        for (let i = 0; i < id.length; i++) {
+            hash = (hash * 31 + id.charCodeAt(i)) | 0;
+        }
+        return Math.abs(hash) + 1;
     }
 
     /**
      * Get current permission status
      */
     getPermissionStatus(): NotificationPermissionStatus {
-        if (!this.isSupported()) {
+        if (this.isNativeAndroid()) {
+            return this.nativePermissionStatus;
+        }
+        if (!('Notification' in window)) {
             return 'unsupported';
         }
         return Notification.permission as NotificationPermissionStatus;
@@ -118,11 +158,20 @@ class NotificationService {
      * Request notification permission from user
      */
     async requestPermission(): Promise<NotificationPermissionStatus> {
-        if (!this.isSupported()) {
-            return 'unsupported';
-        }
-
         try {
+            if (this.isNativeAndroid()) {
+                const { LocalNotifications } = await import('@capacitor/local-notifications');
+                const result = await LocalNotifications.requestPermissions();
+                const status: NotificationPermissionStatus = result.display === 'granted' ? 'granted' : 'denied';
+                this.nativePermissionStatus = status;
+                localStorage.setItem(NATIVE_PERMISSION_KEY, status);
+                return status;
+            }
+
+            if (!this.isSupported()) {
+                return 'unsupported';
+            }
+
             const result = await Notification.requestPermission();
             return result as NotificationPermissionStatus;
         } catch (error) {
@@ -132,19 +181,41 @@ class NotificationService {
     }
 
     /**
-     * Show a notification immediately
+     * Show a notification immediately.
+     * Prefers ServiceWorker-based notifications for persistence.
      */
-    show(title: string, options?: NotificationOptions): Notification | null {
-        if (!this.isSupported() || Notification.permission !== 'granted') {
+    async show(title: string, options?: NotificationOptions): Promise<Notification | null> {
+        const permission = this.getPermissionStatus();
+        if (!this.isSupported() || permission !== 'granted') {
             console.warn('Notifications not available or permission not granted');
             return null;
         }
 
         try {
+            if (this.isNativeAndroid()) {
+                // For native local notifications, immediate display can be simulated as near-immediate schedule.
+                const id = `instant_${Date.now()}`;
+                await this.schedule(id, title, options?.body || '', new Date(Date.now() + 1000));
+                return null;
+            }
+
+            // Prefer Service Worker registration for persistent notifications
+            const swReg = await this.getServiceWorkerRegistration();
+            if (swReg) {
+                await swReg.showNotification(title, {
+                    icon: '/favicon.ico',
+                    badge: '/favicon.ico',
+                    requireInteraction: true,
+                    ...options,
+                });
+                return null; // SW notifications don't return Notification objects
+            }
+
+            // Fallback: basic Notification API (dies with tab)
             const notification = new Notification(title, {
-                icon: '/favicon.ico', // Use app icon
+                icon: '/favicon.ico',
                 badge: '/favicon.ico',
-                requireInteraction: true, // Keep notification until user interacts
+                requireInteraction: true,
                 ...options,
             });
 
@@ -159,16 +230,31 @@ class NotificationService {
     }
 
     /**
-     * Schedule a notification for a future time
+     * Get Service Worker registration (if available).
      */
-    schedule(
+    private async getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration | null> {
+        if (!('serviceWorker' in navigator)) return null;
+        try {
+            return await navigator.serviceWorker.ready;
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Schedule a notification for a future time.
+     * Uses setTimeout as the trigger mechanism, but shows via ServiceWorker
+     * for persistence. Note: setTimeout timers still die when the tab closes.
+     * For true background scheduling, a push notification server (FCM) is needed.
+     */
+    async schedule(
         id: string,
         title: string,
         body: string,
         scheduledTime: Date
-    ): void {
+    ): Promise<void> {
         // Cancel any existing notification with this ID
-        this.cancel(id);
+        await this.cancel(id);
 
         const now = new Date();
         const delay = scheduledTime.getTime() - now.getTime();
@@ -178,10 +264,41 @@ class NotificationService {
             return;
         }
 
+        if (this.isNativeAndroid()) {
+            try {
+                if (this.nativePermissionStatus !== 'granted') {
+                    const permission = await this.requestPermission();
+                    if (permission !== 'granted') {
+                        return;
+                    }
+                }
+                const { LocalNotifications } = await import('@capacitor/local-notifications');
+                const nativeId = this.getNativeNotificationId(id);
+                await LocalNotifications.schedule({
+                    notifications: [
+                        {
+                            id: nativeId,
+                            title,
+                            body,
+                            schedule: { at: scheduledTime },
+                            extra: { tag: id },
+                        },
+                    ],
+                });
+                this.nativeScheduledIds.set(id, nativeId);
+                return;
+            } catch (error) {
+                console.error('Failed native notification schedule, falling back to timeout:', error);
+            }
+        }
+
+        // Cap setTimeout at ~24 days (2^31-1 ms) to avoid overflow
+        const safeDelay = Math.min(delay, 2147483647);
+
         const timeoutId = window.setTimeout(() => {
             this.show(title, { body, tag: id });
             this.scheduledTimeouts.delete(id);
-        }, delay);
+        }, safeDelay);
 
         this.scheduledTimeouts.set(id, timeoutId);
     }
@@ -189,22 +306,44 @@ class NotificationService {
     /**
      * Cancel a scheduled notification
      */
-    cancel(id: string): void {
+    async cancel(id: string): Promise<void> {
         const timeoutId = this.scheduledTimeouts.get(id);
         if (timeoutId) {
             window.clearTimeout(timeoutId);
             this.scheduledTimeouts.delete(id);
+        }
+
+        const nativeId = this.nativeScheduledIds.get(id);
+        if (nativeId) {
+            try {
+                const { LocalNotifications } = await import('@capacitor/local-notifications');
+                await LocalNotifications.cancel({ notifications: [{ id: nativeId }] });
+            } catch (error) {
+                console.error('Failed to cancel native notification:', error);
+            }
+            this.nativeScheduledIds.delete(id);
         }
     }
 
     /**
      * Cancel all scheduled notifications
      */
-    cancelAll(): void {
+    async cancelAll(): Promise<void> {
         this.scheduledTimeouts.forEach((timeoutId) => {
             window.clearTimeout(timeoutId);
         });
         this.scheduledTimeouts.clear();
+
+        if (this.nativeScheduledIds.size > 0) {
+            try {
+                const { LocalNotifications } = await import('@capacitor/local-notifications');
+                const notifications = Array.from(this.nativeScheduledIds.values()).map((id) => ({ id }));
+                await LocalNotifications.cancel({ notifications });
+            } catch (error) {
+                console.error('Failed to cancel all native notifications:', error);
+            }
+            this.nativeScheduledIds.clear();
+        }
     }
 
     /**
@@ -276,7 +415,7 @@ class NotificationService {
             return false;
         }
 
-        const notification = this.show('Test Notification', {
+        const notification = await this.show('Test Notification', {
             body: 'Notifications are working! 🎉',
             tag: 'test',
         });
@@ -291,12 +430,35 @@ class NotificationService {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
-                this.settings = { ...DEFAULT_NOTIFICATION_SETTINGS, ...JSON.parse(saved) };
+                const parsed = JSON.parse(saved);
+                this.settings = {
+                    ...DEFAULT_NOTIFICATION_SETTINGS,
+                    ...parsed,
+                    prayerNotifications: {
+                        ...DEFAULT_NOTIFICATION_SETTINGS.prayerNotifications,
+                        ...(parsed.prayerNotifications || {}),
+                    },
+                    socialNotificationDelivery: {
+                        ...DEFAULT_NOTIFICATION_SETTINGS.socialNotificationDelivery,
+                        ...(parsed.socialNotificationDelivery || {}),
+                    },
+                };
             }
         } catch (e) {
             console.error('Failed to load notification settings:', e);
         }
         return this.settings;
+    }
+
+    private loadNativePermissionStatus(): void {
+        try {
+            const stored = localStorage.getItem(NATIVE_PERMISSION_KEY);
+            if (stored === 'granted' || stored === 'denied' || stored === 'default') {
+                this.nativePermissionStatus = stored;
+            }
+        } catch (e) {
+            console.error('Failed to load native notification permission status:', e);
+        }
     }
 
     /**
@@ -327,6 +489,117 @@ class NotificationService {
     ): void {
         this.settings[key] = value;
         this.saveSettings(this.settings);
+    }
+
+    // =================== PARTNER NOTIFICATIONS ===================
+
+    /**
+     * Show a partner/group notification (reminder, broadcast, etc.)
+     */
+    showPartnerNotification(title: string, body: string, data?: { type?: string; fromUser?: string }): void {
+        this.show(title, {
+            body,
+            tag: `partner-${Date.now()}`,
+            data,
+        });
+    }
+
+    /**
+     * Mark a notification as delivered in Firestore
+     */
+    async markAsDelivered(notificationId: string): Promise<void> {
+        try {
+            // Dynamic import to avoid circular dependency
+            const { doc, updateDoc, Timestamp } = await import('firebase/firestore');
+            const { db } = await import('./firebase');
+
+            await updateDoc(doc(db, 'notifications', notificationId), {
+                delivered: true,
+                deliveredAt: Timestamp.now()
+            });
+        } catch (error) {
+            console.error('Failed to mark notification as delivered:', error);
+        }
+    }
+
+    /**
+     * Subscribe to notifications for a user using polling (optimized from real-time)
+     * Polls every 30 seconds instead of real-time listener to reduce Firebase reads
+     * Returns unsubscribe function
+     */
+    subscribeToNotifications(
+        userId: string,
+        onNotification: (notification: { id: string; message: string; type: string; fromUserId: string }) => void
+    ): () => void {
+        let unsubscribe = () => {};
+
+        const setupListener = async () => {
+            try {
+                const { collection, query, where, doc, updateDoc, Timestamp, onSnapshot } = await import('firebase/firestore');
+                const { db } = await import('./firebase');
+
+                const q = query(
+                    collection(db, 'notifications'),
+                    where('toUserId', '==', userId),
+                    where('delivered', '==', false)
+                );
+
+                unsubscribe = onSnapshot(q, (snapshot) => {
+                    snapshot.docChanges().forEach(async (change) => {
+                        if (change.type === 'added') {
+                            const data = change.doc.data();
+                            const notification = {
+                                id: change.doc.id,
+                                message: data.message || 'New notification',
+                                type: data.type || 'reminder',
+                                fromUserId: data.fromUserId || '',
+                            };
+
+                            // Show browser notification
+                            this.showPartnerNotification(
+                                this.getNotificationTitle(notification.type),
+                                notification.message,
+                                { type: notification.type, fromUser: notification.fromUserId }
+                            );
+
+                            // Mark as delivered
+                            await updateDoc(doc(db, 'notifications', notification.id), {
+                                delivered: true,
+                                deliveredAt: Timestamp.now()
+                            });
+
+                            // Callback
+                            onNotification(notification);
+                        }
+                    });
+                }, (error) => {
+                    console.error('Notification snapshot listener error:', error);
+                });
+
+            } catch (error) {
+                console.error('Failed to setup notifications listener:', error);
+            }
+        };
+
+        setupListener();
+
+        return () => unsubscribe();
+    }
+
+    /**
+     * Get title based on notification type
+     */
+    private getNotificationTitle(type: string): string {
+        const typeTitleMap: Partial<Record<AppNotificationType, string>> = {
+            adhan_reminder: '🕌 Prayer Reminder',
+            reminder: '⏰ Partner Reminder',
+            broadcast: '📢 Circle Broadcast',
+            invite: '👋 New Invitation',
+            partner_request: '🤝 Partner Request',
+            request_accepted: '✅ Request Accepted',
+            request_rejected: '❌ Request Rejected',
+        };
+        return typeTitleMap[type as AppNotificationType] || '🔔 New Notification';
     }
 }
 

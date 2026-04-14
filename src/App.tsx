@@ -1,47 +1,51 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Header } from '../components/Header';
-import { PrayerCard } from '../components/PrayerCard';
-import { QuickActions } from '../components/QuickActions';
-import { PrayerList } from '../components/PrayerList';
-import { AnalyticsPage } from '../components/AnalyticsPage';
-import { BottomNav } from '../components/BottomNav';
-import { TasbihPage } from '../components/TasbihPage';
-import { QiblaFinder } from '../components/QiblaFinder';
-import { QadaTracker } from '../components/QadaTracker';
-import { LecturesPage } from '../components/LecturesPage';
-import { ProfilePage } from '../components/ProfilePage';
-import { DailyDuaWidget } from '../components/DailyDuaWidget';
-import { PrayerDetailModal } from '../components/PrayerDetailModal';
-import { PartnersPage } from '../pages/PartnersPage';
-import { DuaPage } from '../components/DuaPage';
-import { QuranReader } from '../components/QuranReader';
-import { GuidedTour, TourStep } from '../components/GuidedTour';
+import { Header } from './components/Header';
+import { PrayerCard } from './components/PrayerCard';
+import { QuickActions } from './components/QuickActions';
+import { PrayerList } from './components/PrayerList';
+import { AnalyticsPage } from './components/AnalyticsPage';
+import { BottomNav } from './components/BottomNav';
+import { TasbihPage } from './components/TasbihPage';
+import { QiblaFinder } from './components/QiblaFinder';
+import { QadaTracker } from './components/QadaTracker';
+import { LecturesPage } from './components/LecturesPage';
+import { ProfilePage } from './components/ProfilePage';
+import { DailyDuaWidget } from './components/DailyDuaWidget';
+import { PrayerDetailModal } from './components/PrayerDetailModal';
+import { PartnersPage } from './pages/PartnersPage';
+import { DuaPage } from './components/DuaPage';
+import { QuranReader } from './components/QuranReader';
+import { GuidedTour, TourStep } from './components/GuidedTour';
 
-import { NotificationPermission } from '../components/NotificationPermission';
-import { StudySpacePage } from '../components/StudySpacePage';
-import { HabitTrackerPage } from '../components/HabitTrackerPage';
-import { ContentHubPage } from '../components/ContentHubPage';
-import { LanguageProvider, useLanguage } from '../contexts/LanguageContext';
-import { INITIAL_PRAYERS } from '../constants';
-import { Prayer, PrayerStatus, ActionId, HeartCondition, User } from '../types';
+import { NotificationPermission } from './components/NotificationPermission';
+import { StudySpacePage } from './components/StudySpacePage';
+import { HabitTrackerPage } from './components/HabitTrackerPage';
+import { ContentHubPage } from './components/ContentHubPage';
+import { ZakatCalculator } from './components/ZakatCalculator';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { INITIAL_PRAYERS } from './constants';
+import { Prayer, PrayerStatus, ActionId, HeartCondition, User } from './types';
 import { Sparkles, ArrowLeft } from 'lucide-react';
-import { useQada } from '../hooks/useQada';
-import { useAuth } from '../hooks/useAuth';
+import { useQada } from './hooks/useQada';
+import { useAuth } from './hooks/useAuth';
 import { getDoc, doc, getDocFromServer } from 'firebase/firestore';
-import { db } from '../services/firebase';
-import { usePrayerTimes } from '../hooks/usePrayerTimes';
-import { useSyncManager } from '../hooks/useSyncManager';
-import { localStorageService } from '../services/LocalStorageService';
-import { dataSyncService } from '../services/DataSyncService';
-import { onboardingService } from '../services/OnboardingService';
-import { authService } from '../services/AuthService';
-import { OnboardingFlow } from '../components/onboarding/OnboardingFlow';
+import { db } from './services/firebase';
+import { usePrayerTimes } from './hooks/usePrayerTimes';
+import { useSyncManager } from './hooks/useSyncManager';
+import { localStorageService } from './services/LocalStorageService';
+import { dataSyncService } from './services/DataSyncService';
+import { onboardingService } from './services/OnboardingService';
+import { authService } from './services/AuthService';
+import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AdhanProvider, useAdhan } from '../contexts/AdhanContext';
-import { AdhanManager } from '../components/AdhanManager';
-import { AdhanOverlay } from '../components/AdhanOverlay';
-import { PartnerService } from '../services/PartnerService';
+import { AdhanProvider, useAdhan } from './contexts/AdhanContext';
+import { AdhanManager } from './components/AdhanManager';
+import { AdhanOverlay } from './components/AdhanOverlay';
+import { PartnerService } from './services/PartnerService';
+import { BadgeToastProvider } from './components/BadgeToastProvider';
+import { socialNotificationScheduler } from './services/SocialNotificationScheduler';
+import { socialNotificationMigrationService } from './services/SocialNotificationMigrationService';
 
 // User data from localStorage instead of mock
 const getStoredUser = () => {
@@ -77,6 +81,21 @@ const AppContent: React.FC = () => {
     };
   });
 
+  useEffect(() => {
+    if (!firebaseUser) return;
+    const genderFallbackAvatar =
+      firebaseUser.gender === 'female'
+        ? '/womenicon.png'
+        : firebaseUser.gender === 'male'
+          ? '/manicon.png'
+          : '';
+    setUser(prev => ({
+      ...prev,
+      name: prev.name || firebaseUser.displayName || 'User',
+      avatar: prev.avatar || genderFallbackAvatar || firebaseUser.photoURL || '',
+    }));
+  }, [firebaseUser?.uid, firebaseUser?.displayName, firebaseUser?.photoURL]);
+
   const { state: adhanState, dismissAdhan, triggerTestAdhan } = useAdhan();
 
   // Sync manager for offline-first operation
@@ -98,26 +117,37 @@ const AppContent: React.FC = () => {
       return;
     }
 
-    let recipientId: string | undefined;
+    let recipientIds: string[] = [];
 
     if (target === 'partner') {
       try {
         const partnership = await PartnerService.getActivePartnership(currentUserId);
         if (partnership) {
-          recipientId = partnership.users.find((u: string) => u !== currentUserId);
+          const partnerId = partnership.users.find((u: string) => u !== currentUserId);
+          if (partnerId) recipientIds.push(partnerId);
         }
       } catch (e) {
         console.error("[App] Failed to fetch partner:", e);
       }
     } else {
-      // TODO: Implement Family/Circle lookup
+      // Family or Circle lookup
+      try {
+        const typeMapping = target === 'family' ? 'family' : 'suhba';
+        const group = await PartnerService.getUserGroup(currentUserId, typeMapping) as any;
+        if (group && group.members) {
+            // Remove the current user from the blast
+            recipientIds = group.members.filter((id: string) => id !== currentUserId);
+        }
+      } catch (e) {
+         console.error(`[App] Failed to fetch ${target} group:`, e);
+      }
     }
 
-    if (recipientId) {
-      await PartnerService.sendAdhanReminder(currentUserId, recipientId, adhanState.prayerName);
-      console.log(`[App] Reminder sent to ${recipientId}`);
+    if (recipientIds.length > 0) {
+      await PartnerService.sendAdhanReminder(currentUserId, recipientIds, adhanState.prayerName);
+      console.log(`[App] Reminder sent to ${recipientIds.length} recipients in ${target}.`);
     } else {
-      console.log(`[App] No active ${target} found to send reminder.`);
+      console.log(`[App] No active ${target} members found to send reminder.`);
     }
 
     // Redirect to relevant section
@@ -194,10 +224,24 @@ const AppContent: React.FC = () => {
         const remoteGender = data.gender; // May be null
         const isRemoteProfileComplete = !!remoteGender;
 
+        const fullNameFromForm = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+        const resolvedName =
+          fullNameFromForm ||
+          data.displayName ||
+          data.nickname ||
+          firebaseUser.displayName ||
+          'User';
+        const genderFallbackAvatar =
+          data.gender === 'female'
+            ? '/womenicon.png'
+            : data.gender === 'male'
+              ? '/manicon.png'
+              : '';
+
         setUser(prev => ({
           ...prev,
-          name: data.displayName || firebaseUser.displayName || 'User',
-          avatar: data.photoURL || firebaseUser.photoURL || '',
+          name: resolvedName,
+          avatar: data.photoURL || genderFallbackAvatar || firebaseUser.photoURL || '',
           streak: data.streak || firebaseUser.stats?.currentStreak || 0,
           level: data.level || 1,
           gender: remoteGender || prev.gender, // We still populate 'user' state nicely for UI
@@ -233,13 +277,19 @@ const AppContent: React.FC = () => {
     if (isAuthenticated && firebaseUser) {
       dataSyncService.setUserId(firebaseUser.uid);
       fetchUserData();
+      (async () => {
+        await socialNotificationMigrationService.migrateLegacyNotifications(firebaseUser.uid);
+        socialNotificationScheduler.startAutoRefresh(firebaseUser.uid);
+      })().catch(console.error);
 
       // Register for push notifications (async, non-blocking)
-      import('../services/PushNotificationService').then(({ pushNotificationService }) => {
+      import('./services/PushNotificationService').then(({ pushNotificationService }) => {
         pushNotificationService.register(firebaseUser.uid).catch(console.error);
       });
     } else {
       dataSyncService.setUserId(null);
+      socialNotificationScheduler.stopAutoRefresh();
+      socialNotificationScheduler.clearAllScheduled().catch(console.error);
     }
   }, [isAuthenticated, firebaseUser, fetchUserData]);
 
@@ -430,6 +480,7 @@ const AppContent: React.FC = () => {
       case 'study': handleTabChange('study'); break;
       case 'habits': handleTabChange('habits'); break;
       case 'content': handleTabChange('content'); break;
+      case 'zakat': handleTabChange('zakat'); break;
       default: break;
     }
   };
@@ -552,6 +603,7 @@ const AppContent: React.FC = () => {
       case 'study': content = <StudySpacePage onBack={() => setActiveTab('home')} />; break;
       case 'habits': content = <HabitTrackerPage onBack={() => setActiveTab('home')} />; break;
       case 'content': content = <ContentHubPage onBack={() => setActiveTab('home')} />; break;
+      case 'zakat': content = <div className="flex flex-col animate-in fade-in"><button onClick={() => setActiveTab('home')} className="self-start mb-4 p-2 bg-neutral-100 rounded-full dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-600 dark:text-neutral-400"><path d="m15 18-6-6 6-6"/></svg></button><ZakatCalculator /></div>; break;
       case 'home':
       default:
         content = (
@@ -720,13 +772,14 @@ const AppContent: React.FC = () => {
   );
 };
 
-import { ThemeProvider } from '../contexts/ThemeContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 const App: React.FC = () => {
   return (
     <ThemeProvider>
       <LanguageProvider>
         <AdhanProvider>
+          <BadgeToastProvider />
           <AppContent />
         </AdhanProvider>
       </LanguageProvider>

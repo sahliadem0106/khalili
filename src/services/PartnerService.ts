@@ -1,349 +1,520 @@
-/**
- * PartnerService - Real partner connections via Firebase
- */
 
 import {
     collection,
     doc,
     setDoc,
     getDoc,
-    getDocs,
-    updateDoc,
-    deleteDoc,
     query,
     where,
-    orderBy,
-    onSnapshot,
-    serverTimestamp,
+    getDocs,
+    addDoc,
+    updateDoc,
     Timestamp,
-    or,
+    arrayUnion,
+    onSnapshot
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { db } from '../services/firebase';
+import { PartnerProfile, Partnership, PartnerRequest, RequestType, SocialShareRequest, PartnerNotification } from '../types/partner';
+import { socialNotificationPolicyService } from './SocialNotificationPolicyService';
+import { CRITICAL_LIVE_NOTIFICATION_TYPES, CriticalLiveNotificationType } from '../constants/notificationTypes';
+import { planLimitService } from './PlanLimitService';
 
-// =================== TYPES ===================
+const updateSocialBadgeStat = (metric: 'partners_connected' | 'circles_joined', value: number): void => {
+    import('./BadgeService')
+        .then(({ BadgeService }) => {
+            BadgeService.updateStat(metric, value);
+        })
+        .catch((error) => {
+            console.error(`Failed to update ${metric} badge stat:`, error);
+        });
+};
 
-export type PartnershipStatus = 'pending' | 'accepted' | 'blocked';
-export type ShareLevel = 'minimal' | 'standard' | 'full';
+const PARTNER_REQUEST_NOTIFICATION_TYPE: CriticalLiveNotificationType =
+    CRITICAL_LIVE_NOTIFICATION_TYPES[0];
 
-export interface Partner {
-    partnershipId: string;
-    odUserId: string;
-    odUserName: string;
-    odUserPhoto: string | null;
-    shareLevel: ShareLevel;
-    status: PartnershipStatus;
-    currentStreak: number;
-    todayStatus: {
-        fajr: boolean;
-        dhuhr: boolean;
-        asr: boolean;
-        maghrib: boolean;
-        isha: boolean;
-    };
-    lastActive: Date | null;
-    createdAt: Date;
-}
-
-export interface PartnerRequest {
-    id: string;
-    fromUserId: string;
-    fromUserName: string;
-    fromUserPhoto: string | null;
-    toUserId: string;
-    message: string | null;
-    status: PartnershipStatus;
-    createdAt: Date;
-}
-
-export interface Partnership {
-    id: string;
-    user1Id: string;
-    user2Id: string;
-    user1ShareLevel: ShareLevel;
-    user2ShareLevel: ShareLevel;
-    status: PartnershipStatus;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-// =================== CONSTANTS ===================
-
-const PARTNERSHIPS_COLLECTION = 'partnerships';
-const PARTNER_REQUESTS_COLLECTION = 'partnerRequests';
-
-// =================== SERVICE CLASS ===================
-
-class PartnerService {
-    private userId: string | null = null;
-    private unsubscribers: (() => void)[] = [];
-    private partnersListeners: Set<(partners: Partner[]) => void> = new Set();
-    private requestsListeners: Set<(requests: PartnerRequest[]) => void> = new Set();
-
-    /**
-     * Set current user ID
-     */
-    setUserId(userId: string | null): void {
-        this.userId = userId;
-
-        // Cleanup existing listeners
-        this.unsubscribers.forEach(unsub => unsub());
-        this.unsubscribers = [];
-
-        // Setup new listeners if authenticated
-        if (userId) {
-            this.setupRealtimeListeners();
-        }
+// Helper to generate random QR code ID
+const generateRandomId = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
+    return result;
+};
 
-    /**
-     * Setup real-time listeners for partnerships
-     */
-    private setupRealtimeListeners(): void {
-        if (!this.userId) return;
+export const PartnerService = {
+    // --- Profile Management ---
 
-        // Listen to partnerships where user is involved
-        const partnershipsQuery = query(
-            collection(db, PARTNERSHIPS_COLLECTION),
-            or(
-                where('user1Id', '==', this.userId),
-                where('user2Id', '==', this.userId)
-            )
+    async createOrUpdateProfile(userId: string, profileData: Partial<PartnerProfile>) {
+        const profileRef = doc(db, 'partnerProfiles', userId);
+
+        // Generate QR code ID if not exists
+        const existingProfile = await getDoc(profileRef);
+        const qrCodeId = existingProfile.exists() && existingProfile.data().qrCodeId
+            ? existingProfile.data().qrCodeId
+            : generateRandomId();
+
+        await setDoc(profileRef, {
+            ...profileData,
+            userId,
+            qrCodeId,
+            lastActive: Timestamp.now(),
+        }, { merge: true });
+
+        return qrCodeId;
+    },
+
+    // --- Group Management ---
+    async getUserGroup(userId: string, type: 'family' | 'suhba') {
+        const q = query(
+            collection(db, 'groups'),
+            where('members', 'array-contains', userId),
+            where('type', '==', type)
         );
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) return null;
+        return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+    },
 
-        const unsubPartnerships = onSnapshot(partnershipsQuery, async (snapshot) => {
-            const partners: Partner[] = [];
-
-            for (const docSnap of snapshot.docs) {
-                const data = docSnap.data();
-                if (data.status !== 'accepted') continue;
-
-                const partnerId = data.user1Id === this.userId ? data.user2Id : data.user1Id;
-                const partnerShareLevel = data.user1Id === this.userId
-                    ? data.user2ShareLevel
-                    : data.user1ShareLevel;
-
-                // Get partner profile
-                const partnerProfile = await this.getPartnerProfile(partnerId);
-
-                if (partnerProfile) {
-                    partners.push({
-                        partnershipId: docSnap.id,
-                        odUserId: partnerId,
-                        odUserName: partnerProfile.displayName || 'Anonymous',
-                        odUserPhoto: partnerProfile.photoURL,
-                        shareLevel: partnerShareLevel,
-                        status: data.status,
-                        currentStreak: partnerProfile.stats?.currentStreak || 0,
-                        todayStatus: await this.getPartnerTodayStatus(partnerId),
-                        lastActive: partnerProfile.lastActive,
-                        createdAt: (data.createdAt as Timestamp)?.toDate() || new Date(),
-                    });
-                }
+    // --- Adhan Reminders ---
+    async sendAdhanReminder(senderId: string, recipientIds: string | string[], prayerName: string) {
+        try {
+            const ids = Array.isArray(recipientIds) ? recipientIds : [recipientIds];
+            const limitCheck = await planLimitService.consume(senderId, 'social_policies_created_per_day', ids.length);
+            if (!limitCheck.allowed) {
+                throw new Error('Daily reminder limit reached. Please try again tomorrow.');
             }
 
-            this.notifyPartnersListeners(partners);
-        });
+            const batch = ids.map((id) =>
+                socialNotificationPolicyService.createPrayerReminderPolicy(
+                    senderId,
+                    'partner',
+                    { type: 'user', userIds: [id] },
+                    prayerName as any,
+                    `Time for ${prayerName} prayer! Let's pray together.`
+                )
+            );
 
-        this.unsubscribers.push(unsubPartnerships);
+            await Promise.all(batch);
+            return true;
+        } catch (error) {
+            console.error('Error sending adhan reminder:', error);
+            return false;
+        }
+    },
 
-        // Listen to pending requests
-        const requestsQuery = query(
-            collection(db, PARTNER_REQUESTS_COLLECTION),
-            where('toUserId', '==', this.userId),
-            where('status', '==', 'pending')
+    async getProfile(userId: string): Promise<PartnerProfile | null> {
+        const profileRef = doc(db, 'partnerProfiles', userId);
+        const snap = await getDoc(profileRef);
+        return snap.exists() ? (snap.data() as PartnerProfile) : null;
+    },
+
+    // --- QR Code System ---
+
+    async getProfileByQRCode(qrCodeId: string): Promise<PartnerProfile | null> {
+        const q = query(
+            collection(db, 'partnerProfiles'),
+            where('qrCodeId', '==', qrCodeId.toUpperCase())
+        );
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) return null;
+        return snapshot.docs[0].data() as PartnerProfile;
+    },
+
+    async getUserQRCode(userId: string): Promise<string | null> {
+        const profile = await this.getProfile(userId);
+        return profile?.qrCodeId || null;
+    },
+
+    // --- Marketplace ("Lost Lamb") ---
+
+    async searchPublicProfiles(filters: {
+        gender: 'male' | 'female';
+        minAge?: number;
+        maxAge?: number;
+        country?: string;
+        city?: string;
+        hobbies?: string[];
+        maxDistanceKm?: number;
+        userLocation?: { lat: number; lon: number };
+    }): Promise<PartnerProfile[]> {
+        const profilesRef = collection(db, 'partnerProfiles');
+        let q = query(
+            profilesRef,
+            where('isPublic', '==', true),
+            where('gender', '==', filters.gender)
         );
 
-        const unsubRequests = onSnapshot(requestsQuery, (snapshot) => {
-            const requests: PartnerRequest[] = snapshot.docs.map(docSnap => {
-                const data = docSnap.data();
-                return {
-                    id: docSnap.id,
-                    fromUserId: data.fromUserId,
-                    fromUserName: data.fromUserName,
-                    fromUserPhoto: data.fromUserPhoto,
-                    toUserId: data.toUserId,
-                    message: data.message,
-                    status: data.status,
-                    createdAt: (data.createdAt as Timestamp)?.toDate() || new Date(),
-                };
+        const snapshot = await getDocs(q);
+        let profiles = snapshot.docs.map(d => d.data() as PartnerProfile);
+
+        // Filter partnered users when permitted. Marketplace reads can run
+        // without partnerships access depending on security rules state.
+        try {
+            const partnershipsSnapshot = await getDocs(
+                query(collection(db, 'partnerships'), where('status', '==', 'active'))
+            );
+            const partneredUserIds = new Set<string>();
+            partnershipsSnapshot.docs.forEach(doc => {
+                const data = doc.data();
+                if (data.users) {
+                    data.users.forEach((uid: string) => partneredUserIds.add(uid));
+                }
             });
 
-            this.notifyRequestsListeners(requests);
-        });
+            profiles = profiles.filter(p => !partneredUserIds.has(p.userId));
+        } catch (error) {
+            console.warn('Skipping partnership exclusion due to restricted access:', error);
+        }
 
-        this.unsubscribers.push(unsubRequests);
-    }
+        // Client-side filtering for additional criteria
+        if (filters.minAge) {
+            profiles = profiles.filter(p => p.age >= filters.minAge!);
+        }
+        if (filters.maxAge) {
+            profiles = profiles.filter(p => p.age <= filters.maxAge!);
+        }
+        if (filters.country) {
+            profiles = profiles.filter(p => p.location.country.toLowerCase() === filters.country!.toLowerCase());
+        }
+        if (filters.city) {
+            profiles = profiles.filter(p => p.location.city.toLowerCase().includes(filters.city!.toLowerCase()));
+        }
+        if (filters.hobbies && filters.hobbies.length > 0) {
+            profiles = profiles.filter(p =>
+                p.hobbies?.some(h => filters.hobbies!.includes(h.toLowerCase()))
+            );
+        }
 
-    /**
-     * Send partner request
-     */
-    async sendPartnerRequest(toUserId: string, message?: string): Promise<void> {
-        if (!this.userId) throw new Error('Not authenticated');
+        // Distance filtering using Haversine formula
+        if (filters.maxDistanceKm && filters.userLocation) {
+            const { lat: userLat, lon: userLon } = filters.userLocation;
 
-        // Get current user profile
-        const userDoc = await getDoc(doc(db, 'users', this.userId));
-        const userData = userDoc.data();
+            // Haversine distance calculation
+            const toRad = (deg: number) => deg * (Math.PI / 180);
+            const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+                const R = 6371; // Earth's radius in km
+                const dLat = toRad(lat2 - lat1);
+                const dLon = toRad(lon2 - lon1);
+                const a = Math.sin(dLat / 2) ** 2 +
+                    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            };
 
-        const requestRef = doc(collection(db, PARTNER_REQUESTS_COLLECTION));
-        await setDoc(requestRef, {
-            fromUserId: this.userId,
-            fromUserName: userData?.displayName || 'User',
-            fromUserPhoto: userData?.photoURL || null,
+            profiles = profiles.filter(p => {
+                if (!p.location?.latitude || !p.location?.longitude) return false;
+                const distance = haversineDistance(userLat, userLon, p.location.latitude, p.location.longitude);
+                return distance <= filters.maxDistanceKm!;
+            });
+        }
+
+        return profiles;
+    },
+
+    // --- Requests System ---
+
+    async sendRequest(fromUserId: string, toUserId: string, type: RequestType = 'duo', details?: any) {
+        // Prevent self-request
+        if (fromUserId === toUserId) throw new Error("Cannot send request to yourself");
+        const limitCheck = await planLimitService.consume(fromUserId, 'partner_requests_per_day');
+        if (!limitCheck.allowed) {
+            throw new Error('Daily partner request limit reached. Please try again tomorrow.');
+        }
+
+        // Check for existing pending request
+        const q = query(
+            collection(db, 'requests'),
+            where('fromUserId', '==', fromUserId),
+            where('toUserId', '==', toUserId),
+            where('type', '==', type),
+            where('status', '==', 'pending')
+        );
+        const existing = await getDocs(q);
+        if (!existing.empty) throw new Error("Request already pending");
+
+        // For duo, also check if partnership already exists
+        if (type === 'duo') {
+            const existingPartnership = await this.checkExistingPartnership(fromUserId, toUserId);
+            if (existingPartnership) throw new Error("Partnership already exists");
+        }
+
+        // Create the request
+        const requestRef = await addDoc(collection(db, 'requests'), {
+            fromUserId,
             toUserId,
-            message: message || null,
+            type,
             status: 'pending',
-            createdAt: serverTimestamp(),
-        });
-    }
-
-    /**
-     * Accept partner request
-     */
-    async acceptRequest(requestId: string): Promise<void> {
-        if (!this.userId) throw new Error('Not authenticated');
-
-        const requestRef = doc(db, PARTNER_REQUESTS_COLLECTION, requestId);
-        const requestDoc = await getDoc(requestRef);
-
-        if (!requestDoc.exists()) throw new Error('Request not found');
-
-        const requestData = requestDoc.data();
-
-        // Create partnership
-        const partnershipRef = doc(collection(db, PARTNERSHIPS_COLLECTION));
-        await setDoc(partnershipRef, {
-            user1Id: requestData.fromUserId,
-            user2Id: this.userId,
-            user1ShareLevel: 'standard',
-            user2ShareLevel: 'standard',
-            status: 'accepted',
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
+            timestamp: Timestamp.now(),
+            details: details || {}
         });
 
-        // Update request status
-        await updateDoc(requestRef, { status: 'accepted' });
-    }
+        // Get sender's profile for notification
+        const senderProfile = await this.getProfile(fromUserId);
+        const senderName = senderProfile?.nickname || 'Someone';
 
-    /**
-     * Decline partner request
-     */
-    async declineRequest(requestId: string): Promise<void> {
-        if (!this.userId) throw new Error('Not authenticated');
+        // Create notification for recipient
+        await addDoc(collection(db, 'notifications'), {
+            type: PARTNER_REQUEST_NOTIFICATION_TYPE,
+            fromUserId,
+            toUserId,
+            message: `${senderName} wants to connect with you as a partner`,
+            requestId: requestRef.id,
+            requestType: type,
+            timestamp: Timestamp.now(),
+            read: false,
+            delivered: false
+        });
+    },
 
-        const requestRef = doc(db, PARTNER_REQUESTS_COLLECTION, requestId);
-        await deleteDoc(requestRef);
-    }
+    async sendConnectionViaQR(fromUserId: string, qrCodeId: string): Promise<void> {
+        const targetProfile = await this.getProfileByQRCode(qrCodeId);
+        if (!targetProfile) throw new Error("Invalid QR code or user not found");
 
-    /**
-     * Remove partner
-     */
-    async removePartner(partnershipId: string): Promise<void> {
-        if (!this.userId) throw new Error('Not authenticated');
+        await this.sendRequest(fromUserId, targetProfile.userId, 'duo');
+    },
 
-        const partnershipRef = doc(db, PARTNERSHIPS_COLLECTION, partnershipId);
-        await deleteDoc(partnershipRef);
-    }
+    async getIncomingRequests(userId: string): Promise<PartnerRequest[]> {
+        const q = query(
+            collection(db, 'requests'),
+            where('toUserId', '==', userId),
+            where('status', '==', 'pending')
+        );
+        const snapshot = await getDocs(q);
 
-    /**
-     * Update share level with partner
-     */
-    async updateShareLevel(partnershipId: string, shareLevel: ShareLevel): Promise<void> {
-        if (!this.userId) throw new Error('Not authenticated');
+        // Hydrate with sender profile
+        const requests = await Promise.all(snapshot.docs.map(async d => {
+            const data = d.data();
+            const fromProfile = await this.getProfile(data.fromUserId);
+            return {
+                id: d.id,
+                ...data,
+                fromUserData: fromProfile
+            } as PartnerRequest;
+        }));
 
-        const partnershipRef = doc(db, PARTNERSHIPS_COLLECTION, partnershipId);
-        const partnershipDoc = await getDoc(partnershipRef);
+        return requests;
+    },
 
-        if (!partnershipDoc.exists()) throw new Error('Partnership not found');
+    async respondToRequest(requestId: string, action: 'accept' | 'reject') {
+        const reqRef = doc(db, 'requests', requestId);
+        const reqSnap = await getDoc(reqRef);
+        if (!reqSnap.exists()) throw new Error("Request not found");
 
-        const data = partnershipDoc.data();
-        const updateField = data.user1Id === this.userId ? 'user1ShareLevel' : 'user2ShareLevel';
+        const reqData = reqSnap.data() as PartnerRequest;
 
+        if (action === 'reject') {
+            await updateDoc(reqRef, { status: 'rejected' });
+            return;
+        }
+
+        // Accept Logic
+        if (reqData.type === 'duo') {
+            await addDoc(collection(db, 'partnerships'), {
+                users: [reqData.fromUserId, reqData.toUserId],
+                status: 'active',
+                startDate: Timestamp.now(),
+                stats: {
+                    [reqData.fromUserId]: { currentStreak: 0, lastPrayed: '', totalPrayersLogged: 0 },
+                    [reqData.toUserId]: { currentStreak: 0, lastPrayed: '', totalPrayersLogged: 0 }
+                },
+                socialShareStatus: {}
+            });
+            updateSocialBadgeStat('partners_connected', 1);
+        } else if (reqData.type === 'family' && reqData.details?.groupId) {
+            const groupRef = doc(db, 'groups', reqData.details.groupId);
+            await updateDoc(groupRef, {
+                members: arrayUnion(reqData.toUserId),
+                [`memberDetails.${reqData.toUserId}`]: {
+                    userId: reqData.toUserId,
+                    role: 'child',
+                    joinedAt: Timestamp.now()
+                }
+            });
+        } else if (reqData.type === 'suhba' && reqData.details?.groupId) {
+            const groupRef = doc(db, 'groups', reqData.details.groupId);
+            await updateDoc(groupRef, { members: arrayUnion(reqData.toUserId) });
+        }
+
+        await updateDoc(reqRef, { status: 'accepted' });
+    },
+
+    // --- Partnership Logic ---
+
+    async checkExistingPartnership(user1: string, user2: string): Promise<boolean> {
+        const partnerships = await this.getMyPartnerships(user1);
+        return partnerships.some(p => p.users.includes(user2));
+    },
+
+    async getActivePartnership(userId: string): Promise<Partnership | null> {
+        const q = query(
+            collection(db, 'partnerships'),
+            where('users', 'array-contains', userId),
+            where('status', '==', 'active')
+        );
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) return null;
+        return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Partnership;
+    },
+
+    async getMyPartnerships(userId: string): Promise<Partnership[]> {
+        const q = query(
+            collection(db, 'partnerships'),
+            where('users', 'array-contains', userId)
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Partnership));
+    },
+
+    async disconnectPartner(partnershipId: string, userId: string): Promise<void> {
+        const partnershipRef = doc(db, 'partnerships', partnershipId);
         await updateDoc(partnershipRef, {
-            [updateField]: shareLevel,
-            updatedAt: serverTimestamp(),
+            status: 'ended',
+            endedBy: userId,
+            endedAt: Timestamp.now()
         });
-    }
+    },
 
-    /**
-     * Get partner's basic profile
-     */
-    private async getPartnerProfile(userId: string): Promise<any> {
-        try {
-            const userDoc = await getDoc(doc(db, 'users', userId));
-            return userDoc.exists() ? userDoc.data() : null;
-        } catch (e) {
-            return null;
+    // Real-time listener for partner stats
+    subscribeToPartnership(partnershipId: string, callback: (partnership: Partnership) => void): () => void {
+        const partnershipRef = doc(db, 'partnerships', partnershipId);
+        return onSnapshot(partnershipRef, (snap) => {
+            if (snap.exists()) {
+                callback({ id: snap.id, ...snap.data() } as Partnership);
+            }
+        });
+    },
+
+    async updateMyStats(partnershipId: string, userId: string, stats: Partial<Partnership['stats'][string]>) {
+        const partnershipRef = doc(db, 'partnerships', partnershipId);
+        await updateDoc(partnershipRef, {
+            [`stats.${userId}`]: stats
+        });
+    },
+
+    // --- Custom Reminders ---
+
+    async sendCustomReminder(partnershipId: string, fromUserId: string, toUserId: string, message: string) {
+        const limitCheck = await planLimitService.consume(fromUserId, 'social_policies_created_per_day');
+        if (!limitCheck.allowed) {
+            throw new Error('Daily reminder limit reached. Please try again tomorrow.');
         }
-    }
+        await socialNotificationPolicyService.createOneTimePolicy(
+            fromUserId,
+            'partner',
+            { type: 'partnership', partnershipId },
+            'Partner Reminder',
+            message,
+            new Date(Date.now() + 60 * 1000)
+        );
+    },
 
-    /**
-     * Get partner's today prayer status (simplified)
-     */
-    private async getPartnerTodayStatus(userId: string): Promise<Partner['todayStatus']> {
-        // This would fetch from prayerLogs subcollection based on share level
-        // For now, return default
-        return {
-            fajr: false,
-            dhuhr: false,
-            asr: false,
-            maghrib: false,
-            isha: false,
-        };
-    }
+    async getMyNotifications(userId: string): Promise<PartnerNotification[]> {
+        const q = query(
+            collection(db, 'notifications'),
+            where('toUserId', '==', userId)
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as PartnerNotification));
+    },
 
-    /**
-     * Generate invite link/code
-     */
-    generateInviteCode(): string {
-        if (!this.userId) throw new Error('Not authenticated');
-        // Simple encoding of user ID
-        return btoa(this.userId).replace(/=/g, '');
-    }
+    async markNotificationRead(notificationId: string) {
+        const notifRef = doc(db, 'notifications', notificationId);
+        await updateDoc(notifRef, { read: true });
+    },
 
-    /**
-     * Parse invite code
-     */
-    parseInviteCode(code: string): string | null {
-        try {
-            return atob(code + '=='.slice(0, (4 - code.length % 4) % 4));
-        } catch {
-            return null;
+    // --- Social Share System (3-day rule) ---
+
+    async canRequestSocialShare(partnershipId: string): Promise<boolean> {
+        const partnershipRef = doc(db, 'partnerships', partnershipId);
+        const snap = await getDoc(partnershipRef);
+        if (!snap.exists()) return false;
+
+        const partnership = snap.data() as Partnership;
+        const startDate = partnership.startDate.toDate();
+        const daysSinceStart = (Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+
+        return daysSinceStart >= 3;
+    },
+
+    async sendSocialShareRequest(partnershipId: string, fromUserId: string, message?: string) {
+        const canRequest = await this.canRequestSocialShare(partnershipId);
+        if (!canRequest) throw new Error("Must be partners for at least 3 days");
+
+        // Get partner's user ID
+        const partnershipRef = doc(db, 'partnerships', partnershipId);
+        const snap = await getDoc(partnershipRef);
+        if (!snap.exists()) throw new Error("Partnership not found");
+
+        const partnership = snap.data() as Partnership;
+        const toUserId = partnership.users.find(u => u !== fromUserId);
+        if (!toUserId) throw new Error("Partner not found");
+
+        // Check for existing pending request
+        const q = query(
+            collection(db, 'socialShareRequests'),
+            where('partnershipId', '==', partnershipId),
+            where('fromUserId', '==', fromUserId),
+            where('status', '==', 'pending')
+        );
+        const existing = await getDocs(q);
+        if (!existing.empty) throw new Error("Social share request already pending");
+
+        await addDoc(collection(db, 'socialShareRequests'), {
+            partnershipId,
+            fromUserId,
+            toUserId,
+            status: 'pending',
+            message: message || "Let's connect on social media!",
+            timestamp: Timestamp.now()
+        });
+
+        // Update partnership
+        await updateDoc(partnershipRef, {
+            'socialShareStatus.requestedBy': fromUserId,
+            'socialShareStatus.requestedAt': Timestamp.now()
+        });
+    },
+
+    async getSocialShareRequests(userId: string): Promise<SocialShareRequest[]> {
+        const q = query(
+            collection(db, 'socialShareRequests'),
+            where('toUserId', '==', userId),
+            where('status', '==', 'pending')
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as SocialShareRequest));
+    },
+
+    async respondToSocialShareRequest(requestId: string, action: 'accept' | 'dismiss') {
+        const reqRef = doc(db, 'socialShareRequests', requestId);
+        const reqSnap = await getDoc(reqRef);
+        if (!reqSnap.exists()) throw new Error("Social share request not found");
+
+        const reqData = reqSnap.data() as SocialShareRequest;
+
+        if (action === 'dismiss') {
+            await updateDoc(reqRef, { status: 'dismissed' });
+            return;
         }
-    }
 
-    /**
-     * Subscribe to partners list changes
-     */
-    subscribeToPartners(listener: (partners: Partner[]) => void): () => void {
-        this.partnersListeners.add(listener);
-        return () => this.partnersListeners.delete(listener);
-    }
+        // Accept: update both request and partnership
+        await updateDoc(reqRef, { status: 'accepted' });
 
-    /**
-     * Subscribe to partner requests
-     */
-    subscribeToRequests(listener: (requests: PartnerRequest[]) => void): () => void {
-        this.requestsListeners.add(listener);
-        return () => this.requestsListeners.delete(listener);
-    }
+        const partnershipRef = doc(db, 'partnerships', reqData.partnershipId);
+        await updateDoc(partnershipRef, {
+            'socialShareStatus.acceptedBy': arrayUnion(reqData.toUserId)
+        });
+    },
 
-    private notifyPartnersListeners(partners: Partner[]): void {
-        this.partnersListeners.forEach(listener => listener(partners));
-    }
+    // Check if social share was accepted (for showing confirmation message)
+    async checkSocialShareAccepted(partnershipId: string, userId: string): Promise<boolean> {
+        const partnershipRef = doc(db, 'partnerships', partnershipId);
+        const snap = await getDoc(partnershipRef);
+        if (!snap.exists()) return false;
 
-    private notifyRequestsListeners(requests: PartnerRequest[]): void {
-        this.requestsListeners.forEach(listener => listener(requests));
+        const partnership = snap.data() as Partnership;
+        const acceptedBy = partnership.socialShareStatus?.acceptedBy || [];
+        return acceptedBy.some(id => id !== userId);
     }
-
-    /**
-     * Cleanup
-     */
-    destroy(): void {
-        this.unsubscribers.forEach(unsub => unsub());
-        this.unsubscribers = [];
-    }
-}
-
-// Export singleton
-export const partnerService = new PartnerService();
+};

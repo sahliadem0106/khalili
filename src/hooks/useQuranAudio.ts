@@ -29,7 +29,7 @@ interface UseQuranAudioReturn {
 
     // Actions
     playVerse: (surah: number, ayah: number) => Promise<void>;
-    playNextVerse: (totalAyahs: number) => Promise<void>;
+    playNextVerse: (totalAyahs?: number) => Promise<void>;
     playPreviousVerse: () => Promise<void>;
     pause: () => void;
     resume: () => Promise<void>;
@@ -57,7 +57,7 @@ export function useQuranAudio(): UseQuranAudioReturn {
         await quranAudioService.playVerse(surah, ayah);
     }, []);
 
-    const playNextVerse = useCallback(async (totalAyahs: number) => {
+    const playNextVerse = useCallback(async (totalAyahs?: number) => {
         await quranAudioService.playNextVerse(totalAyahs);
     }, []);
 

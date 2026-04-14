@@ -75,6 +75,10 @@ export interface TimerSettings {
     custom: { work: number; break: number };
 }
 
+export interface StreakSettings {
+    dailyGoalMinutes: number; // Minimum minutes to count as a streak day
+}
+
 // =================== CONSTANTS ===================
 
 const STORAGE_KEYS = {
@@ -86,6 +90,7 @@ const STORAGE_KEYS = {
     DECKS: 'khalil_flashcard_decks',
     CARDS: 'khalil_flashcard_cards',
     TIMER_SETTINGS: 'khalil_timer_settings',
+    STREAK_SETTINGS: 'khalil_streak_settings',
 };
 
 export const DEFAULT_COLORS = [
@@ -97,6 +102,10 @@ export const DEFAULT_TIMER_SETTINGS: TimerSettings = {
     pomodoro: { work: 25, break: 5 },
     long: { work: 50, break: 10 },
     custom: { work: 45, break: 15 },
+};
+
+export const DEFAULT_STREAK_SETTINGS: StreakSettings = {
+    dailyGoalMinutes: 30, // Default: 30 minutes to count as a streak day
 };
 
 // =================== HELPER ===================
@@ -286,6 +295,12 @@ class StudyService {
         };
         sessions.push(session);
         this.saveFocusSessions(sessions);
+
+        // Update gamification stats
+        import('./BadgeService').then(({ BadgeService }) => {
+            BadgeService.updateStat('study_minutes', duration);
+        }).catch(err => console.error('Failed to update badges', err));
+
         return session;
     }
 
@@ -484,6 +499,31 @@ class StudyService {
 
     saveTimerSettings(settings: TimerSettings): void {
         localStorage.setItem(STORAGE_KEYS.TIMER_SETTINGS, JSON.stringify(settings));
+    }
+
+    // ========== STREAK SETTINGS ==========
+
+    getStreakSettings(): StreakSettings {
+        try {
+            const data = localStorage.getItem(STORAGE_KEYS.STREAK_SETTINGS);
+            if (data) {
+                return JSON.parse(data);
+            }
+        } catch (e) {
+            console.error('Failed to load streak settings:', e);
+        }
+        return DEFAULT_STREAK_SETTINGS;
+    }
+
+    saveStreakSettings(settings: StreakSettings): void {
+        localStorage.setItem(STORAGE_KEYS.STREAK_SETTINGS, JSON.stringify(settings));
+    }
+
+    getDayFocusTime(dateStr: string): number {
+        const sessions = this.getFocusSessions();
+        return sessions
+            .filter(s => s.date === dateStr)
+            .reduce((acc, s) => acc + s.duration, 0);
     }
 }
 

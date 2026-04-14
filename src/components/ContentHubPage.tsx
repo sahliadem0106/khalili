@@ -33,7 +33,7 @@ interface ContentHubPageProps {
 }
 
 export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
-    const { language, t } = useLanguage();
+    const { language } = useLanguage();
     const [activeTab, setActiveTab] = useState<Tab>('forYou');
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState<FilterType>('all');
@@ -42,11 +42,11 @@ export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
 
     const refresh = () => forceUpdate(n => n + 1);
 
-    const tabs: { id: Tab; label: string }[] = [
-        { id: 'forYou', label: t('tab_for_you') },
-        { id: 'videos', label: t('tab_videos') },
-        { id: 'articles', label: t('tab_articles') },
-        { id: 'bookmarks', label: t('tab_saved') },
+    const tabs: { id: Tab; label: string; labelAr: string }[] = [
+        { id: 'forYou', label: 'For You', labelAr: 'لك' },
+        { id: 'videos', label: 'Videos', labelAr: 'فيديوهات' },
+        { id: 'articles', label: 'Articles', labelAr: 'مقالات' },
+        { id: 'bookmarks', label: 'Saved', labelAr: 'المحفوظة' },
     ];
 
     const getTabContent = (): ContentItem[] => {
@@ -101,33 +101,33 @@ export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50">
+        <div className="min-h-screen bg-transparent">
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-4 sticky top-0 z-20">
+            <div className="bg-brand-surface/80 backdrop-blur-xl border-b border-white/5 text-neutral-900 px-4 py-4 sticky top-0 z-20">
                 <div className="flex items-center justify-between mb-4">
-                    <button onClick={onBack} className="p-2 -ml-2 hover:bg-white/10 rounded-full">
+                    <button onClick={onBack} className="p-2 -ml-2 text-neutral-400 hover:bg-white/5 hover:text-neutral-900 rounded-full">
                         <ArrowLeft size={20} />
                     </button>
                     <h1 className="text-lg font-bold">
-                        {t('content_hub')}
+                        {language === 'ar' ? 'مركز المحتوى' : 'Content Hub'}
                     </h1>
                     <div className="w-8" />
                 </div>
 
                 {/* Search Bar */}
                 <div className="relative mb-3">
-                    <Search size={18} className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-white/60" />
+                    <Search size={18} className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-neutral-400" />
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder={t('search_content')}
-                        className="w-full pl-10 rtl:pl-3 rtl:pr-10 pr-10 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30"
+                        placeholder={language === 'ar' ? 'ابحث...' : 'Search content...'}
+                        className="w-full pl-10 rtl:pl-3 rtl:pr-10 pr-10 py-2 bg-brand-surface/40 border border-white/10 rounded-xl text-neutral-900 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                     />
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery('')}
-                            className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-white/60"
+                            className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
                         >
                             <X size={16} />
                         </button>
@@ -141,34 +141,34 @@ export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
-                                ? 'bg-white text-purple-600'
-                                : 'bg-white/10 text-white/80 hover:bg-white/20'
+                                ? 'bg-brand-surface text-brand-secondary shadow-sm'
+                                : 'bg-white/5 text-neutral-400 hover:bg-white/10'
                                 }`}
                         >
-                            {tab.label}
+                            {language === 'ar' ? tab.labelAr : tab.label}
                         </button>
                     ))}
                 </div>
             </div>
 
             {/* Category Filter */}
-            <div className="px-4 py-3 overflow-x-auto flex space-x-2 rtl:space-x-reverse bg-white border-b">
+            <div className="px-4 py-3 overflow-x-auto flex space-x-2 rtl:space-x-reverse border-b border-white/5 bg-brand-surface/20 backdrop-blur-sm">
                 <button
                     onClick={() => setCategoryFilter('all')}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${categoryFilter === 'all'
-                        ? 'bg-purple-100 text-purple-700'
-                        : 'bg-neutral-100 text-neutral-600'
+                        ? 'bg-brand-secondary/20 text-brand-secondary'
+                        : 'bg-white/5 text-neutral-400 hover:bg-white/10'
                         }`}
                 >
-                    {t('content_all')}
+                    {language === 'ar' ? 'الكل' : 'All'}
                 </button>
                 {CONTENT_CATEGORIES.map(cat => (
                     <button
                         key={cat.id}
                         onClick={() => setCategoryFilter(cat.id)}
                         className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${categoryFilter === cat.id
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-neutral-100 text-neutral-600'
+                            ? 'bg-brand-secondary/20 text-brand-secondary'
+                            : 'bg-white/5 text-neutral-400 hover:bg-white/10'
                             }`}
                     >
                         {cat.icon} {language === 'ar' ? cat.nameAr : cat.name}
@@ -209,7 +209,7 @@ export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
                 {content.length === 0 && (
                     <div className="text-center py-12 text-neutral-400">
                         <Search size={40} className="mx-auto mb-2 opacity-50" />
-                        <p>{t('no_content_found')}</p>
+                        <p>{language === 'ar' ? 'لا توجد نتائج' : 'No content found'}</p>
                     </div>
                 )}
             </div>
@@ -220,7 +220,7 @@ export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
 // =================== FEATURED SECTION ===================
 
 const FeaturedSection: React.FC<{ onSelectVideo: (v: ContentItem) => void }> = ({ onSelectVideo }) => {
-    const { language, t } = useLanguage();
+    const { language } = useLanguage();
     const featured = contentService.getFeatured().slice(0, 5);
     const recentlyViewed = contentService.getRecentlyViewed().slice(0, 5);
 
@@ -228,9 +228,9 @@ const FeaturedSection: React.FC<{ onSelectVideo: (v: ContentItem) => void }> = (
         <div className="mb-6 space-y-4">
             {/* Featured */}
             <div>
-                <h3 className="flex items-center text-sm font-bold text-neutral-700 mb-2">
-                    <Sparkles size={14} className="me-1 text-purple-500" />
-                    {t('featured')}
+                <h3 className="flex items-center text-sm font-bold text-neutral-400 mb-2">
+                    <Sparkles size={14} className="me-1 text-brand-secondary" />
+                    {language === 'ar' ? 'مميز' : 'Featured'}
                 </h3>
                 <div className="flex space-x-3 rtl:space-x-reverse overflow-x-auto pb-2 -mx-4 px-4">
                     {featured.map(item => (
@@ -249,9 +249,9 @@ const FeaturedSection: React.FC<{ onSelectVideo: (v: ContentItem) => void }> = (
             {/* Recently Viewed */}
             {recentlyViewed.length > 0 && (
                 <div>
-                    <h3 className="flex items-center text-sm font-bold text-neutral-700 mb-2">
-                        <Clock size={14} className="me-1 text-neutral-400" />
-                        {t('continue_watching')}
+                    <h3 className="flex items-center text-sm font-bold text-neutral-400 mb-2">
+                        <Clock size={14} className="me-1 text-neutral-500" />
+                        {language === 'ar' ? 'شاهدت مؤخراً' : 'Continue Watching'}
                     </h3>
                     <div className="flex space-x-3 rtl:space-x-reverse overflow-x-auto pb-2 -mx-4 px-4">
                         {recentlyViewed.map(item => (
@@ -283,10 +283,10 @@ const FeaturedCard: React.FC<{
     return (
         <button
             onClick={onSelect}
-            className={`flex-shrink-0 rounded-xl overflow-hidden bg-white shadow-sm ${small ? 'w-36' : 'w-56'
+            className={`flex-shrink-0 rounded-xl overflow-hidden bg-brand-surface/40 backdrop-blur-md border border-white/5 shadow-sm ${small ? 'w-36' : 'w-56'
                 }`}
         >
-            <div className={`relative ${small ? 'h-20' : 'h-28'} bg-neutral-200`}>
+            <div className={`relative ${small ? 'h-20' : 'h-28'} bg-black/20`}>
                 <img
                     src={item.thumbnailUrl}
                     alt={item.title}
@@ -294,7 +294,7 @@ const FeaturedCard: React.FC<{
                     onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/400x200?text=Content'; }}
                 />
                 {item.type === 'video' && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-brand-forest/30">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                         <Play size={small ? 20 : 28} fill="white" className="text-white" />
                     </div>
                 )}
@@ -305,7 +305,7 @@ const FeaturedCard: React.FC<{
                 )}
             </div>
             <div className="p-2">
-                <p className={`font-medium text-start line-clamp-2 ${small ? 'text-xs' : 'text-sm'}`}>
+                <p className={`font-medium text-start line-clamp-2 text-neutral-900 ${small ? 'text-xs' : 'text-sm'}`}>
                     {item.title}
                 </p>
                 <div className="flex items-center mt-1 text-xs text-neutral-400">
@@ -332,9 +332,9 @@ const ContentCard: React.FC<{
     const category = CONTENT_CATEGORIES.find(c => c.id === item.category);
 
     return (
-        <div className="bg-white rounded-xl overflow-hidden shadow-sm flex">
+        <div className="bg-brand-surface/40 backdrop-blur-md rounded-xl overflow-hidden shadow-sm flex border border-white/5">
             {/* Thumbnail */}
-            <button onClick={onSelect} className="relative w-28 h-24 flex-shrink-0 bg-neutral-200">
+            <button onClick={onSelect} className="relative w-28 h-24 flex-shrink-0 bg-black/20">
                 <img
                     src={item.thumbnailUrl}
                     alt={item.title}
@@ -342,13 +342,13 @@ const ContentCard: React.FC<{
                     onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/200x150?text=Content'; }}
                 />
                 {item.type === 'video' && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-brand-forest/30">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                         <Play size={24} fill="white" className="text-white" />
                     </div>
                 )}
                 {item.type === 'article' && (
-                    <div className="absolute bottom-1 right-1 bg-white/90 rounded p-0.5">
-                        <ExternalLink size={12} className="text-neutral-600" />
+                    <div className="absolute bottom-1 right-1 bg-black/70 rounded p-0.5 text-white/80">
+                        <ExternalLink size={12} className="text-white" />
                     </div>
                 )}
                 {isCompleted && (
@@ -361,13 +361,13 @@ const ContentCard: React.FC<{
             {/* Content */}
             <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
                 <button onClick={onSelect} className="text-start">
-                    <h4 className="font-medium text-sm line-clamp-2">{item.title}</h4>
+                    <h4 className="font-medium text-sm line-clamp-2 text-neutral-900">{item.title}</h4>
                     <p className="text-xs text-neutral-400 mt-1 line-clamp-1">{item.description}</p>
                 </button>
 
                 <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center space-x-2 rtl:space-x-reverse text-xs text-neutral-500">
-                        <span className="px-1.5 py-0.5 bg-neutral-100 rounded">
+                        <span className="px-1.5 py-0.5 bg-white/5 rounded">
                             {category?.icon} {language === 'ar' ? category?.nameAr : category?.name}
                         </span>
                         {item.duration && (
@@ -381,8 +381,8 @@ const ContentCard: React.FC<{
                     <button
                         onClick={(e) => { e.stopPropagation(); onBookmark(); }}
                         className={`p-1.5 rounded-full transition-colors ${isBookmarked
-                            ? 'bg-purple-100 text-purple-600'
-                            : 'text-neutral-400 hover:bg-neutral-100'
+                            ? 'bg-brand-secondary/20 text-brand-secondary'
+                            : 'text-neutral-400 hover:bg-white/5'
                             }`}
                     >
                         {isBookmarked ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
@@ -399,7 +399,7 @@ const VideoPlayer: React.FC<{
     video: ContentItem;
     onBack: () => void;
 }> = ({ video, onBack }) => {
-    const { language, t } = useLanguage();
+    const { language } = useLanguage();
     const [isBookmarked, setIsBookmarked] = useState(contentService.isBookmarked(video.id));
 
     // Extract YouTube video ID
@@ -434,9 +434,9 @@ const VideoPlayer: React.FC<{
         .slice(0, 5);
 
     return (
-        <div className="min-h-screen bg-brand-forest">
+        <div className="min-h-screen bg-black">
             {/* Video Player */}
-            <div className="relative aspect-video bg-brand-forest">
+            <div className="relative aspect-video bg-black">
                 {videoId ? (
                     <iframe
                         className="w-full h-full"
@@ -446,14 +446,14 @@ const VideoPlayer: React.FC<{
                     />
                 ) : (
                     <div className="flex items-center justify-center h-full text-white">
-                        <p>{t('video_unavailable')}</p>
+                        <p>Video unavailable</p>
                     </div>
                 )}
 
                 {/* Back Button */}
                 <button
                     onClick={onBack}
-                    className="absolute top-4 left-4 rtl:left-auto rtl:right-4 p-2 bg-brand-forest/50 rounded-full text-white z-10"
+                    className="absolute top-4 left-4 rtl:left-auto rtl:right-4 p-2 bg-black/50 rounded-full text-white z-10"
                 >
                     <ArrowLeft size={20} />
                 </button>
@@ -481,7 +481,7 @@ const VideoPlayer: React.FC<{
                     </span>
                     {video.duration && (
                         <span className="text-xs text-neutral-400">
-                            {video.duration} {t('study_minutes')}
+                            {video.duration} {language === 'ar' ? 'دقيقة' : 'min'}
                         </span>
                     )}
                 </div>
@@ -494,7 +494,7 @@ const VideoPlayer: React.FC<{
                     className="w-full mt-4 py-3 bg-green-600 text-white rounded-lg font-medium flex items-center justify-center space-x-2 rtl:space-x-reverse"
                 >
                     <CheckCircle2 size={18} />
-                    <span>{t('mark_as_watched')}</span>
+                    <span>{language === 'ar' ? 'تم المشاهدة' : 'Mark as Watched'}</span>
                 </button>
             </div>
 
@@ -502,7 +502,7 @@ const VideoPlayer: React.FC<{
             {relatedVideos.length > 0 && (
                 <div className="bg-neutral-950 px-4 py-4">
                     <h3 className="text-sm font-bold text-white mb-3">
-                        {t('related_videos')}
+                        {language === 'ar' ? 'فيديوهات مشابهة' : 'Related Videos'}
                     </h3>
                     <div className="space-y-3">
                         {relatedVideos.map(v => (
@@ -521,7 +521,7 @@ const VideoPlayer: React.FC<{
                                         className="w-full h-full object-cover"
                                         onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/200x150'; }}
                                     />
-                                    <div className="absolute inset-0 flex items-center justify-center bg-brand-forest/30">
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                                         <Play size={20} fill="white" className="text-white" />
                                     </div>
                                 </div>

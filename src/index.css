@@ -129,8 +129,6 @@
     --border-highlight: 110 231 183;
     /* Emerald 300 */
 
-    /* Global Glow for White Text */
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.2);
   }
 }
 
@@ -140,6 +138,20 @@ body {
   font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
 }
 
 /* Custom Scrollbar */
@@ -232,7 +244,7 @@ body {
 
   /* 6. 3D DEPTH & PREMIUM EFFECTS */
   .card-3d {
-    @apply relative bg-white rounded-2xl border border-gray-100/50;
+    @apply relative bg-brand-surface rounded-2xl border border-brand-border/50;
     box-shadow:
       0 4px 6px -1px rgba(0, 0, 0, 0.05),
       0 10px 15px -3px rgba(0, 0, 0, 0.05),
@@ -249,7 +261,7 @@ body {
   }
 
   .card-elevated {
-    @apply bg-white rounded-2xl;
+    @apply bg-brand-surface rounded-2xl;
     box-shadow:
       0 1px 3px 0 rgba(0, 0, 0, 0.04),
       0 4px 8px -2px rgba(0, 0, 0, 0.04),
@@ -257,13 +269,13 @@ body {
   }
 
   .glass-premium {
-    @apply backdrop-blur-xl border border-white/20;
+    @apply backdrop-blur-xl border border-brand-border/40;
     background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.9) 0%,
-        rgba(255, 255, 255, 0.75) 100%);
+        rgba(var(--bg-surface), 0.92) 0%,
+        rgba(var(--bg-surface), 0.78) 100%);
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
   }
 
   .depth-1 {

@@ -129,8 +129,8 @@ class GoalsService {
     /**
      * Create a new goal
      */
-    async createGoal(goal: Omit<Goal, 'id' | 'currentCount' | 'streak' | 'longestStreak' | 'lastLogDate' | 'createdAt' | 'updatedAt' | 'status'>): Promise<Goal> {
-        if (!this.userId) throw new Error('User not authenticated');
+    async createGoal(goal: Omit<Goal, 'id' | 'currentCount' | 'streak' | 'longestStreak' | 'lastLogDate' | 'createdAt' | 'updatedAt' | 'status'>): Promise<Goal | null> {
+        if (!this.userId) return null;
 
         const docRef = doc(this.getGoalsRef());
         const newGoal: Goal = {
@@ -160,7 +160,7 @@ class GoalsService {
      * Get all goals
      */
     async getGoals(): Promise<Goal[]> {
-        if (!this.userId) throw new Error('User not authenticated');
+        if (!this.userId) return [];
 
         const q = query(this.getGoalsRef(), orderBy('createdAt', 'desc'));
         const snapshot = await getDocs(q);
@@ -179,21 +179,22 @@ class GoalsService {
     /**
      * Update a goal
      */
-    async updateGoal(goalId: string, updates: Partial<Goal>): Promise<void> {
-        if (!this.userId) throw new Error('User not authenticated');
+    async updateGoal(goalId: string, updates: Partial<Goal>): Promise<boolean> {
+        if (!this.userId) return false;
 
         const docRef = doc(this.getGoalsRef(), goalId);
         await updateDoc(docRef, {
             ...updates,
             updatedAt: serverTimestamp(),
         });
+        return true;
     }
 
     /**
      * Log progress for a goal
      */
-    async logProgress(goalId: string, count: number, note?: string): Promise<void> {
-        if (!this.userId) throw new Error('User not authenticated');
+    async logProgress(goalId: string, count: number, note?: string): Promise<boolean> {
+        if (!this.userId) return false;
 
         const today = new Date().toISOString().split('T')[0];
         const logRef = doc(this.getGoalLogsRef(goalId), today);
@@ -244,13 +245,14 @@ class GoalsService {
                 status: newCurrentCount >= goalData.targetCount ? 'completed' : 'active',
             });
         }
+        return true;
     }
 
     /**
      * Get logs for a goal
      */
     async getGoalLogs(goalId: string, limit: number = 30): Promise<GoalLog[]> {
-        if (!this.userId) throw new Error('User not authenticated');
+        if (!this.userId) return [];
 
         const q = query(this.getGoalLogsRef(goalId), orderBy('date', 'desc'));
         const snapshot = await getDocs(q);
@@ -271,11 +273,12 @@ class GoalsService {
     /**
      * Delete a goal
      */
-    async deleteGoal(goalId: string): Promise<void> {
-        if (!this.userId) throw new Error('User not authenticated');
+    async deleteGoal(goalId: string): Promise<boolean> {
+        if (!this.userId) return false;
 
         const docRef = doc(this.getGoalsRef(), goalId);
         await deleteDoc(docRef);
+        return true;
     }
 
     /**

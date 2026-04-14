@@ -4,10 +4,11 @@
  */
 
 import { UserLocation } from './PrayerTimesService';
+import { Geolocation as NativeGeolocation } from '@capacitor/geolocation';
+import { Capacitor } from '@capacitor/core';
 
 // Re-export UserLocation so other modules can import from here
 export type { UserLocation };
-
 // =================== TYPES ===================
 
 export interface GeocodingResult {
@@ -52,12 +53,43 @@ export const POPULAR_CITIES: GeocodingResult[] = [
 ];
 
 // =================== SERVICE CLASS ===================
-
 class LocationService {
     /**
      * Get current position using browser Geolocation API
      */
     async getCurrentPosition(): Promise<UserLocation> {
+        // Native Implementation
+        if (Capacitor.isNativePlatform()) {
+            try {
+                const position = await NativeGeolocation.getCurrentPosition({
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                });
+
+                const { latitude, longitude } = position.coords;
+                // Get city name via reverse geocoding
+                const geocoded = await this.reverseGeocode(latitude, longitude);
+
+                const location: UserLocation = {
+                    latitude,
+                    longitude,
+                    city: geocoded?.city || 'Unknown',
+                    country: geocoded?.country || 'Unknown',
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    source: 'gps',
+                };
+                this.saveLocation(location);
+                return location;
+            } catch (error: any) {
+                console.error("Native Geolocation Error:", error);
+                throw {
+                    code: 'PERMISSION_DENIED',
+                    message: error.message || 'Location permission denied',
+                } as LocationError;
+            }
+        }
+
+        // Web Implementation
         return new Promise((resolve, reject) => {
             if (!navigator.geolocation) {
                 reject({

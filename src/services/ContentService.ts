@@ -97,34 +97,34 @@ const CURATED_VIDEOS: ContentItem[] = [
 const CURATED_ARTICLES: ContentItem[] = [
     // Quran
     { id: 'a1', type: 'article', title: 'How to Develop Khushu in Salah', description: 'Practical tips for concentration in prayer', url: 'https://yaqeeninstitute.org/read/paper/how-to-develop-khushu-in-salah', thumbnailUrl: 'https://yaqeeninstitute.org/wp-content/uploads/2020/02/khushu-salah.jpg', category: 'quran', author: 'Yaqeen Institute', featured: true },
-    { id: 'a2', type: 'article', title: 'Benefits of Reciting Surah Al-Kahf', description: 'Why we recite it every Friday', url: 'https://islamqa.info/en/answers/10700/the-virtues-of-soorat-al-kahf', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'quran', author: 'IslamQA' },
-    { id: 'a3', type: 'article', title: 'Understanding Tajweed', description: 'Basics of Quran recitation rules', url: 'https://quran.com/tajweed-guide', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'quran', author: 'Quran.com' },
+    { id: 'a2', type: 'article', title: 'Benefits of Reciting Surah Al-Kahf', description: 'Why we recite it every Friday', url: 'https://islamqa.info/en/answers/10700/the-virtues-of-soorat-al-kahf', thumbnailUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=400&auto=format&fit=crop', category: 'quran', author: 'IslamQA' },
+    { id: 'a3', type: 'article', title: 'Understanding Tajweed', description: 'Basics of Quran recitation rules', url: 'https://quran.com/tajweed-guide', thumbnailUrl: 'https://images.unsplash.com/photo-1594223274512-ad4803739b7c?q=80&w=400&auto=format&fit=crop', category: 'quran', author: 'Quran.com' },
 
     // Hadith
-    { id: 'a4', type: 'article', title: 'Introduction to Hadith Sciences', description: 'How scholars verify prophetic traditions', url: 'https://yaqeeninstitute.org/read/paper/hadith-authentication', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'hadith', author: 'Yaqeen Institute' },
-    { id: 'a5', type: 'article', title: 'Daily Adhkar from Sunnah', description: 'Morning and evening supplications', url: 'https://sunnah.com/riyadussalihin/16', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'hadith', author: 'Sunnah.com', featured: true },
+    { id: 'a4', type: 'article', title: 'Introduction to Hadith Sciences', description: 'How scholars verify prophetic traditions', url: 'https://yaqeeninstitute.org/read/paper/hadith-authentication', thumbnailUrl: 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=400&auto=format&fit=crop', category: 'hadith', author: 'Yaqeen Institute' },
+    { id: 'a5', type: 'article', title: 'Daily Adhkar from Sunnah', description: 'Morning and evening supplications', url: 'https://sunnah.com/riyadussalihin/16', thumbnailUrl: 'https://images.unsplash.com/photo-1576098587405-d7868d5d09c8?q=80&w=400&auto=format&fit=crop', category: 'hadith', author: 'Sunnah.com', featured: true },
 
     // Aqeedah
-    { id: 'a6', type: 'article', title: 'The 99 Names of Allah', description: 'Understanding Allahs beautiful names', url: 'https://99namesofallah.name/', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'aqeedah', author: '99 Names', featured: true },
-    { id: 'a7', type: 'article', title: 'Belief in the Last Day', description: 'What happens on the Day of Judgment', url: 'https://yaqeeninstitute.org/read/paper/the-day-of-judgment', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'aqeedah', author: 'Yaqeen Institute' },
+    { id: 'a6', type: 'article', title: 'The 99 Names of Allah', description: 'Understanding Allahs beautiful names', url: 'https://99namesofallah.name/', thumbnailUrl: 'https://images.unsplash.com/photo-1464639351491-a172c2aa2911?q=80&w=400&auto=format&fit=crop', category: 'aqeedah', author: '99 Names', featured: true },
+    { id: 'a7', type: 'article', title: 'Belief in the Last Day', description: 'What happens on the Day of Judgment', url: 'https://yaqeeninstitute.org/read/paper/the-day-of-judgment', thumbnailUrl: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=400&auto=format&fit=crop', category: 'aqeedah', author: 'Yaqeen Institute' },
 
     // Fiqh
-    { id: 'a8', type: 'article', title: 'Complete Wudu Guide', description: 'Step by step ablution guide', url: 'https://islamqa.info/en/answers/11497/description-of-wudoo', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'fiqh', author: 'IslamQA' },
-    { id: 'a9', type: 'article', title: 'Fasting Rules Made Easy', description: 'What breaks and doesnt break the fast', url: 'https://islamqa.info/en/answers/38023/things-that-break-the-fast', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'fiqh', author: 'IslamQA', featured: true },
+    { id: 'a8', type: 'article', title: 'Complete Wudu Guide', description: 'Step by step ablution guide', url: 'https://islamqa.info/en/answers/11497/description-of-wudoo', thumbnailUrl: 'https://images.unsplash.com/photo-1563200924-d2e850ebdb7c?q=80&w=400&auto=format&fit=crop', category: 'fiqh', author: 'IslamQA' },
+    { id: 'a9', type: 'article', title: 'Fasting Rules Made Easy', description: 'What breaks and doesnt break the fast', url: 'https://islamqa.info/en/answers/38023/things-that-break-the-fast', thumbnailUrl: 'https://images.unsplash.com/photo-1590455584551-739a8c17b8ef?q=80&w=400&auto=format&fit=crop', category: 'fiqh', author: 'IslamQA', featured: true },
 
     // Seerah
-    { id: 'a10', type: 'article', title: 'Timeline of the Prophets Life', description: 'Key events from birth to death', url: 'https://www.islamicity.org/7149/the-life-of-prophet-muhammad/', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'seerah', author: 'IslamiCity' },
+    { id: 'a10', type: 'article', title: 'Timeline of the Prophets Life', description: 'Key events from birth to death', url: 'https://www.islamicity.org/7149/the-life-of-prophet-muhammad/', thumbnailUrl: 'https://images.unsplash.com/photo-1565552629483-601eb57f9488?q=80&w=400&auto=format&fit=crop', category: 'seerah', author: 'IslamiCity' },
 
     // Character
-    { id: 'a11', type: 'article', title: 'The Disease of the Heart', description: 'Spiritual diseases and their cures', url: 'https://yaqeeninstitute.org/read/paper/diseases-of-the-heart', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'character', author: 'Yaqeen Institute', featured: true },
-    { id: 'a12', type: 'article', title: 'How to Control Anger', description: 'Prophetic advice on managing anger', url: 'https://islamqa.info/en/answers/658/how-to-deal-with-anger', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'character', author: 'IslamQA' },
+    { id: 'a11', type: 'article', title: 'The Disease of the Heart', description: 'Spiritual diseases and their cures', url: 'https://yaqeeninstitute.org/read/paper/diseases-of-the-heart', thumbnailUrl: 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=400&auto=format&fit=crop', category: 'character', author: 'Yaqeen Institute', featured: true },
+    { id: 'a12', type: 'article', title: 'How to Control Anger', description: 'Prophetic advice on managing anger', url: 'https://islamqa.info/en/answers/658/how-to-deal-with-anger', thumbnailUrl: 'https://images.unsplash.com/photo-1518288774672-b94e808873ff?q=80&w=400&auto=format&fit=crop', category: 'character', author: 'IslamQA' },
 
     // Motivation
-    { id: 'a13', type: 'article', title: 'Trusting Allahs Plan', description: 'Finding peace through tawakkul', url: 'https://yaqeeninstitute.org/read/paper/trusting-allahs-plan', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'motivation', author: 'Yaqeen Institute', featured: true },
-    { id: 'a14', type: 'article', title: 'Overcoming Laziness', description: 'Islamic tips for productivity', url: 'https://productivemuslim.com/overcome-laziness/', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'motivation', author: 'Productive Muslim' },
+    { id: 'a13', type: 'article', title: 'Trusting Allahs Plan', description: 'Finding peace through tawakkul', url: 'https://yaqeeninstitute.org/read/paper/trusting-allahs-plan', thumbnailUrl: 'https://images.unsplash.com/photo-1470813740244-df37b8c1ed8e?q=80&w=400&auto=format&fit=crop', category: 'motivation', author: 'Yaqeen Institute', featured: true },
+    { id: 'a14', type: 'article', title: 'Overcoming Laziness', description: 'Islamic tips for productivity', url: 'https://productivemuslim.com/overcome-laziness/', thumbnailUrl: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=400&auto=format&fit=crop', category: 'motivation', author: 'Productive Muslim' },
 
     // Family
-    { id: 'a15', type: 'article', title: 'Rights of Parents in Islam', description: 'What Islam says about honoring parents', url: 'https://islamqa.info/en/answers/5326/rights-of-parents', thumbnailUrl: 'https://via.placeholder.com/400x200', category: 'family', author: 'IslamQA' },
+    { id: 'a15', type: 'article', title: 'Rights of Parents in Islam', description: 'What Islam says about honoring parents', url: 'https://islamqa.info/en/answers/5326/rights-of-parents', thumbnailUrl: 'https://images.unsplash.com/photo-1628102491629-77858c63e26b?q=80&w=400&auto=format&fit=crop', category: 'family', author: 'IslamQA' },
 ];
 
 const ALL_CONTENT: ContentItem[] = [...CURATED_VIDEOS, ...CURATED_ARTICLES];
