@@ -93,7 +93,7 @@ export const DailyDuaWidget: React.FC = () => {
     if (!currentDua) return null;
 
     return (
-        <div className="bg-white dark:bg-brand-surface rounded-2xl p-5 border border-emerald-100/50 dark:border-white/10 shadow-sm mb-6 card-3d">
+        <div className="bg-brand-surface rounded-2xl p-5 border border-brand-border shadow-sm mb-6 card-3d">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -101,13 +101,13 @@ export const DailyDuaWidget: React.FC = () => {
                         <Heart size={16} className="text-rose-500 fill-rose-500 drop-shadow-sm" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-emerald-900 dark:text-white text-sm drop-shadow-sm">Daily Dua</h3>
+                        <h3 className="font-bold text-brand-forest dark:text-white text-sm drop-shadow-sm">Daily Dua</h3>
                         <span className="text-[10px] text-emerald-600/60 dark:text-emerald-200/80 uppercase tracking-wide font-medium">{currentDua.category}</span>
                     </div>
                 </div>
                 <button
                     onClick={handleRefresh}
-                    className="p-2 hover:bg-emerald-50 dark:hover:bg-white/5 rounded-lg transition-colors group"
+                    className="p-2 hover:bg-emerald-50 dark:hover:bg-brand-subtle rounded-lg transition-colors group"
                     title="Get another dua"
                 >
                     <RefreshCw size={16} className="text-emerald-400 group-hover:text-emerald-600 dark:text-emerald-200 transition-colors" />
@@ -127,13 +127,13 @@ export const DailyDuaWidget: React.FC = () => {
                 </p>
 
                 {/* English */}
-                <p className="text-sm text-gray-600 dark:text-gray-100 leading-relaxed font-medium">
+                <p className="text-sm text-brand-muted dark:text-gray-100 leading-relaxed font-medium">
                     {currentDua.english}
                 </p>
 
                 {/* Source */}
                 {currentDua.source && (
-                    <div className="mt-3 pt-3 border-t border-emerald-50 dark:border-white/10 flex items-center gap-1.5">
+                    <div className="mt-3 pt-3 border-t border-brand-border dark:border-white/10 flex items-center gap-1.5">
                         <BookOpen size={12} className="text-emerald-300 dark:text-emerald-400" />
                         <span className="text-[10px] text-emerald-400 dark:text-emerald-300 font-medium">{currentDua.source}</span>
                     </div>

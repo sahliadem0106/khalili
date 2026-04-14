@@ -104,18 +104,18 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                 onClick={onClose}
             />
 
-            <div className="bg-brand-surface w-full max-h-[90vh] sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-glass border border-white/10 animate-in slide-in-from-bottom duration-300 relative z-10 flex flex-col">
+            <div className="bg-brand-surface w-full max-h-[90vh] sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-glass border border-brand-border animate-in slide-in-from-bottom duration-300 relative z-10 flex flex-col">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                <div className="px-6 py-4 border-b border-brand-border flex justify-between items-center">
                     <div className="flex items-center space-x-2 rtl:space-x-reverse">
                         <div className="bg-brand-primary/10 p-2 rounded-full">
                             <MapPin size={18} className="text-brand-primary" />
                         </div>
-                        <h3 className="text-lg font-bold text-neutral-900">{t('location_title')}</h3>
+                        <h3 className="text-lg font-bold text-brand-forest">{t('location_title')}</h3>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-white/10 rounded-full text-neutral-400"
+                        className="p-2 hover:bg-brand-subtle rounded-full text-brand-muted"
                     >
                         <X size={20} />
                     </button>
@@ -133,12 +133,12 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
                 {/* Mode Toggle */}
                 <div className="px-6 py-4">
-                    <div className="flex bg-black/20 p-1 rounded-xl border border-white/5">
+                    <div className="flex bg-brand-subtle p-1 rounded-xl border border-brand-border">
                         <button
                             onClick={() => setMode('gps')}
                             className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center ${mode === 'gps'
                                 ? 'bg-brand-surface shadow-sm text-brand-primary'
-                                : 'text-neutral-500 hover:text-neutral-300'
+                                : 'text-brand-muted hover:text-brand-forest'
                                 }`}
                         >
                             <Navigation size={16} className="me-2" />
@@ -148,7 +148,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                             onClick={() => setMode('search')}
                             className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center ${mode === 'search'
                                 ? 'bg-brand-surface shadow-sm text-brand-primary'
-                                : 'text-neutral-500 hover:text-neutral-300'
+                                : 'text-brand-muted hover:text-brand-forest'
                                 }`}
                         >
                             <Search size={16} className="me-2" />
@@ -191,7 +191,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
                             {/* Popular Cities */}
                             <div>
-                                <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
+                                <h4 className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-3">
                                     {t('location_popular')}
                                 </h4>
                                 <div className="grid grid-cols-2 gap-2">
@@ -199,10 +199,10 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                                         <button
                                             key={`${city.city}-${city.country}`}
                                             onClick={() => handlePopularCitySelect(city)}
-                                            className="p-3 text-start bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all"
+                                            className="p-3 text-start bg-brand-subtle rounded-xl border border-brand-border hover:bg-brand-surface transition-all"
                                         >
-                                            <p className="font-semibold text-sm text-white truncate">{city.city}</p>
-                                            <p className="text-xs text-neutral-400 truncate">{city.country}</p>
+                                            <p className="font-semibold text-sm text-brand-forest truncate">{city.city}</p>
+                                            <p className="text-xs text-brand-muted truncate">{city.country}</p>
                                         </button>
                                     ))}
                                 </div>
@@ -222,7 +222,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder={t('location_search_placeholder') as string}
-                                    className={`w-full py-3 rounded-xl bg-black/20 border border-white/10 focus:ring-1 focus:ring-brand-primary focus:border-brand-primary/50 transition-all text-sm text-white placeholder-neutral-500 outline-none ${dir === 'rtl' ? 'pr-10 pl-4' : 'pl-10 pr-4'
+                                    className={`w-full py-3 rounded-xl bg-brand-subtle border border-brand-border focus:ring-1 focus:ring-brand-primary focus:border-brand-primary/50 transition-all text-sm text-brand-forest placeholder-brand-muted outline-none ${dir === 'rtl' ? 'pr-10 pl-4' : 'pl-10 pr-4'
                                         }`}
                                     autoFocus
                                 />
@@ -244,13 +244,13 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                                             onClick={() => handleCitySelect(city)}
                                             className={`w-full p-4 text-start rounded-xl border transition-all ${selectedCity === city
                                                 ? 'border-brand-primary bg-brand-primary/10'
-                                                : 'border-white/5 bg-white/5 hover:bg-white/10'
+                                                : 'border-brand-border bg-brand-subtle hover:bg-brand-surface'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="font-semibold text-white">{city.city}</p>
-                                                    <p className="text-xs text-neutral-400">{city.country}</p>
+                                                    <p className="font-semibold text-brand-forest">{city.city}</p>
+                                                    <p className="text-xs text-brand-muted">{city.country}</p>
                                                 </div>
                                                 {selectedCity === city && (
                                                     <Check size={18} className="text-brand-primary" />
@@ -264,7 +264,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                             {/* Popular Cities when no search */}
                             {searchQuery.length === 0 && (
                                 <div>
-                                    <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
+                                    <h4 className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-3">
                                         {t('location_popular_cities')}
                                     </h4>
                                     <div className="space-y-2">
@@ -274,12 +274,12 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                                                 onClick={() => handleCitySelect(city)}
                                                 className={`w-full p-3 text-start rounded-xl border transition-all flex items-center justify-between ${selectedCity === city
                                                     ? 'border-brand-primary bg-brand-primary/10'
-                                                    : 'border-white/5 bg-white/5 hover:bg-white/10'
+                                                    : 'border-brand-border bg-brand-subtle hover:bg-brand-surface'
                                                     }`}
                                             >
                                                 <div>
-                                                    <p className="font-semibold text-sm text-white">{city.city}</p>
-                                                    <p className="text-xs text-neutral-400">{city.country}</p>
+                                                    <p className="font-semibold text-sm text-brand-forest">{city.city}</p>
+                                                    <p className="text-xs text-brand-muted">{city.country}</p>
                                                 </div>
                                                 {selectedCity === city && (
                                                     <Check size={16} className="text-brand-primary" />
@@ -295,7 +295,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
                 {/* Footer with Confirm Button (for search mode) */}
                 {mode === 'search' && selectedCity && (
-                    <div className="px-6 py-4 border-t border-white/10">
+                    <div className="px-6 py-4 border-t border-brand-border">
                         <Button fullWidth onClick={handleConfirm} className="bg-brand-primary text-white hover:bg-brand-primary/90">
                             {t('confirm')}: {selectedCity.city}
                         </Button>

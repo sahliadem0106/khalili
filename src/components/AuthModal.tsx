@@ -66,7 +66,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                             stiffness: 300,
                             mass: 0.5
                         }}
-                        className="bg-brand-surface w-full max-w-md rounded-3xl shadow-2xl border border-white/10 relative z-10 overflow-hidden"
+                        className="bg-brand-surface w-full max-w-md rounded-3xl shadow-2xl border border-brand-border relative z-10 overflow-hidden"
                     >
                         {/* Header */}
                         <div className="bg-gradient-to-br from-emerald-950 to-brand-primary/90 px-6 py-10 text-center relative">
@@ -115,7 +115,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                             </AnimatePresence>
 
                             <div className="space-y-6">
-                                <p className="text-center text-neutral-500 text-sm leading-relaxed px-4">
+                                <p className="text-center text-brand-muted text-sm leading-relaxed px-4">
                                     {t('auth_sync_desc')}
                                 </p>
 
@@ -129,7 +129,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                                         type="button"
                                         onClick={handleGoogleSignIn}
                                         disabled={isLoading}
-                                        className="w-full relative py-4 bg-white text-neutral-800 font-bold rounded-xl hover:bg-neutral-50 transition-all active:scale-[0.98] flex items-center justify-center space-x-3 rtl:space-x-reverse disabled:opacity-70 shadow-lg shadow-neutral-200/10 group border border-neutral-200"
+                                        className="w-full relative py-4 bg-brand-surface text-brand-forest font-bold rounded-xl hover:bg-brand-subtle transition-all active:scale-[0.98] flex items-center justify-center space-x-3 rtl:space-x-reverse disabled:opacity-70 shadow-lg shadow-neutral-200/10 group border border-brand-border"
                                     >
                                         {isLoading ? (
                                             <Loader2 size={24} className="animate-spin text-brand-primary" />
@@ -149,7 +149,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                             </div>
 
                             <div className="mt-8 text-center">
-                                <p className="text-xs text-neutral-400">
+                                <p className="text-xs text-brand-muted">
                                     {t('auth_terms')}
                                 </p>
                             </div>

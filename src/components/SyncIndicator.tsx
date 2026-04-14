@@ -33,17 +33,17 @@ export const SyncIndicator: React.FC<SyncIndicatorProps> = ({
             case 'error':
                 return <AlertCircle size={16} className="text-red-400" />;
             case 'offline':
-                return <CloudOff size={16} className="text-neutral-500" />;
+                return <CloudOff size={16} className="text-brand-muted" />;
             default:
                 if (pendingChanges) {
                     return (
                         <div className="relative">
-                            <Cloud size={16} className="text-neutral-400" />
+                            <Cloud size={16} className="text-brand-muted" />
                             <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-accent rounded-full" />
                         </div>
                     );
                 }
-                return <Cloud size={16} className="text-neutral-400" />;
+                return <Cloud size={16} className="text-brand-muted" />;
         }
     };
 
@@ -68,7 +68,7 @@ export const SyncIndicator: React.FC<SyncIndicatorProps> = ({
             className={`flex items-center space-x-1.5 px-2 py-1 rounded-full text-xs font-medium transition-all
         ${status === 'error' ? 'bg-red-500/10 text-red-400' :
                     status === 'synced' ? 'bg-brand-primary/10 text-brand-primary' :
-                        'bg-white/5 text-neutral-400 hover:bg-white/10'}`}
+                        'bg-brand-subtle text-brand-muted border border-brand-border hover:bg-brand-surface'}`}
             title={isOnline ? 'Cloud sync status' : 'Offline mode'}
         >
             {getIcon()}

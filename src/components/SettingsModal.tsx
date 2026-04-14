@@ -249,7 +249,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         onClick={() => updateSetting('calculationMethod', method.id)}
                         className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${settings.calculationMethod === method.id
                             ? 'bg-brand-primary/20 border border-brand-primary/50'
-                            : 'hover:bg-white/5 border border-transparent'
+                            : 'hover:bg-brand-subtle border border-transparent'
                             }`}
                     >
                         <span className={`text-sm ${settings.calculationMethod === method.id

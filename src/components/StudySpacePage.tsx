@@ -229,17 +229,17 @@ export const StudySpacePage: React.FC<StudySpacePageProps> = ({ onBack }) => {
             {/* Streak Settings Modal */}
             {showStreakModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-white dark:bg-brand-surface w-full max-w-sm rounded-2xl shadow-glass border border-neutral-200 dark:border-white/10">
-                        <div className="p-4 border-b border-neutral-200 dark:border-white/10 flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                    <div className="bg-brand-surface w-full max-w-sm rounded-2xl shadow-glass border border-brand-border">
+                        <div className="p-4 border-b border-brand-border flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-brand-forest">
                                 {t('study_streak_settings')}
                             </h3>
-                            <button onClick={() => setShowStreakModal(false)} className="p-2 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/5 rounded-lg">
+                            <button onClick={() => setShowStreakModal(false)} className="p-2 text-brand-muted hover:bg-brand-subtle rounded-lg">
                                 <X size={20} />
                             </button>
                         </div>
                         <div className="p-4 space-y-4">
-                            <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                            <p className="text-sm text-brand-muted">
                                 {language === 'ar'
                                     ? 'حدد الحد الأدنى لوقت الدراسة اليومي لاحتسابه كيوم سلسلة'
                                     : 'Set the minimum daily study time to count as a streak day'
@@ -247,7 +247,7 @@ export const StudySpacePage: React.FC<StudySpacePageProps> = ({ onBack }) => {
                             </p>
                             <div className="flex items-center justify-center space-x-4 rtl:space-x-reverse">
                                 <div className="text-center">
-                                    <label className="text-xs text-neutral-500 dark:text-neutral-400 block mb-1">
+                                    <label className="text-xs text-brand-muted block mb-1">
                                         {t('study_hours')}
                                     </label>
                                     <input
@@ -260,12 +260,12 @@ export const StudySpacePage: React.FC<StudySpacePageProps> = ({ onBack }) => {
                                             const mins = streakSettings.dailyGoalMinutes % 60;
                                             setStreakSettings({ dailyGoalMinutes: hours * 60 + mins });
                                         }}
-                                        className="w-20 text-center text-xl font-bold bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 rounded-xl p-3 text-neutral-900 dark:text-white"
+                                        className="w-20 text-center text-xl font-bold bg-brand-subtle border border-brand-border rounded-xl p-3 text-brand-forest"
                                     />
                                 </div>
-                                <span className="text-2xl font-bold text-neutral-400">:</span>
+                                <span className="text-2xl font-bold text-brand-muted">:</span>
                                 <div className="text-center">
-                                    <label className="text-xs text-neutral-500 dark:text-neutral-400 block mb-1">
+                                    <label className="text-xs text-brand-muted block mb-1">
                                         {t('study_minutes')}
                                     </label>
                                     <input
@@ -279,11 +279,11 @@ export const StudySpacePage: React.FC<StudySpacePageProps> = ({ onBack }) => {
                                             const mins = parseInt(e.target.value) || 0;
                                             setStreakSettings({ dailyGoalMinutes: hours * 60 + mins });
                                         }}
-                                        className="w-20 text-center text-xl font-bold bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 rounded-xl p-3 text-neutral-900 dark:text-white"
+                                        className="w-20 text-center text-xl font-bold bg-brand-subtle border border-brand-border rounded-xl p-3 text-brand-forest"
                                     />
                                 </div>
                             </div>
-                            <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
+                            <p className="text-center text-sm text-brand-muted">
                                 {language === 'ar'
                                     ? `الهدف الحالي: ${Math.floor(streakSettings.dailyGoalMinutes / 60)}س ${streakSettings.dailyGoalMinutes % 60}د`
                                     : `Current goal: ${Math.floor(streakSettings.dailyGoalMinutes / 60)}h ${streakSettings.dailyGoalMinutes % 60}m`
@@ -335,10 +335,10 @@ const SubjectManagerModal: React.FC<SubjectManagerModalProps> = ({ subjects, onC
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-brand-surface w-full max-w-sm rounded-2xl shadow-glass border border-white/10">
-                <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-                    <h3 className="font-bold text-neutral-900 dark:text-white">{t('study_subjects')}</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full text-neutral-500 dark:text-neutral-400">
+            <div className="bg-brand-surface w-full max-w-sm rounded-2xl shadow-glass border border-brand-border">
+                <div className="px-4 py-3 border-b border-brand-border flex items-center justify-between">
+                    <h3 className="font-bold text-brand-forest">{t('study_subjects')}</h3>
+                    <button onClick={onClose} className="p-1 hover:bg-brand-subtle rounded-full text-brand-muted">
                         <X size={18} />
                     </button>
                 </div>
@@ -351,13 +351,13 @@ const SubjectManagerModal: React.FC<SubjectManagerModalProps> = ({ subjects, onC
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
                             placeholder={t('study_subject_name') as string}
-                            className="flex-1 px-3 py-2 bg-neutral-100 dark:bg-black/20 border border-white/10 rounded-lg text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary/50 placeholder-neutral-500"
+                            className="flex-1 px-3 py-2 bg-brand-subtle border border-brand-border rounded-lg text-sm text-brand-forest focus:outline-none focus:ring-2 focus:ring-brand-primary/50 placeholder-brand-muted"
                             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
                         />
                         <button
                             onClick={handleAdd}
                             disabled={!newName.trim()}
-                            className="px-4 py-2 bg-brand-primary text-neutral-900 dark:text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-brand-primary/90"
+                            className="px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-brand-primary/90"
                         >
                             <Plus size={16} />
                         </button>
@@ -381,11 +381,11 @@ const SubjectManagerModal: React.FC<SubjectManagerModalProps> = ({ subjects, onC
                         {subjects.map(subject => (
                             <div
                                 key={subject.id}
-                                className="flex items-center justify-between p-2 bg-neutral-100 dark:bg-white/5 rounded-lg border border-neutral-200 dark:border-white/5"
+                                className="flex items-center justify-between p-2 bg-brand-subtle rounded-lg border border-brand-border"
                             >
                                 <div className="flex items-center space-x-2 rtl:space-x-reverse">
                                     <div className="w-4 h-4 rounded" style={{ backgroundColor: subject.color }} />
-                                    <span className="text-sm font-medium text-neutral-900 dark:text-white">{subject.name}</span>
+                                    <span className="text-sm font-medium text-brand-forest">{subject.name}</span>
                                 </div>
                                 <button
                                     onClick={() => handleDelete(subject.id)}
@@ -468,12 +468,12 @@ const TasksTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
         <div className="space-y-4">
             {/* Filters */}
             <div className="flex items-center justify-between">
-                <div className="flex space-x-1 rtl:space-x-reverse bg-neutral-100 dark:bg-black/20 p-1 rounded-lg">
+                <div className="flex space-x-1 rtl:space-x-reverse bg-brand-subtle p-1 rounded-lg border border-brand-border">
                     {(['today', 'week', 'all'] as const).map(f => (
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${filter === f ? 'bg-brand-surface text-brand-primary shadow-sm' : 'text-neutral-500 dark:text-neutral-400'
+                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${filter === f ? 'bg-brand-surface text-brand-primary shadow-sm' : 'text-brand-muted'
                                 }`}
                         >
                             {f === 'today' && t('study_today')}
@@ -485,7 +485,7 @@ const TasksTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
 
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="flex items-center space-x-1 rtl:space-x-reverse px-3 py-1.5 bg-brand-primary text-neutral-900 dark:text-white rounded-lg text-sm font-medium hover:bg-brand-primary/90"
+                    className="flex items-center space-x-1 rtl:space-x-reverse px-3 py-1.5 bg-brand-primary text-white rounded-lg text-sm font-medium hover:bg-brand-primary/90"
                 >
                     <Plus size={16} />
                     <span>{t('study_task')}</span>
@@ -497,7 +497,7 @@ const TasksTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                 <div className="flex flex-wrap gap-2">
                     <button
                         onClick={() => setSubjectFilter('')}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${!subjectFilter ? 'bg-brand-primary/20 text-brand-primary' : 'bg-white/5 text-neutral-500 dark:text-neutral-400'
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${!subjectFilter ? 'bg-brand-primary/20 text-brand-primary' : 'bg-brand-subtle text-brand-muted border border-brand-border'
                             }`}
                     >
                         {t('study_all')}
@@ -526,7 +526,7 @@ const TasksTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                     return (
                         <div
                             key={task.id}
-                            className={`bg-white dark:bg-brand-surface/40  border-neutral-200 dark:border-white/5 ${task.done ? 'opacity-60' : ''
+                            className={`bg-brand-surface border border-brand-border rounded-xl p-3 ${task.done ? 'opacity-60' : ''
                                 }`}
                         >
                             <div className="flex items-start space-x-3 rtl:space-x-reverse">
@@ -782,14 +782,14 @@ const CalendarTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
     return (
         <div className="space-y-4">
             {/* Month Navigation */}
-            <div className="flex items-center justify-between bg-white dark:bg-brand-surface/40  border-neutral-200 dark:border-white/5">
-                <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-lg text-neutral-500 dark:text-neutral-400">
+            <div className="flex items-center justify-between bg-brand-surface border border-brand-border rounded-xl px-2 py-1">
+                <button onClick={prevMonth} className="p-2 hover:bg-brand-subtle rounded-lg text-brand-muted">
                     <ArrowLeft size={18} />
                 </button>
-                <h3 className="font-bold text-neutral-900 dark:text-white">
+                <h3 className="font-bold text-brand-forest">
                     {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </h3>
-                <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-lg text-neutral-500 dark:text-neutral-400">
+                <button onClick={nextMonth} className="p-2 hover:bg-brand-subtle rounded-lg text-brand-muted">
                     <ArrowLeft size={18} className="rotate-180" />
                 </button>
             </div>
@@ -823,10 +823,10 @@ const CalendarTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                             key={day}
                             onClick={() => setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))}
                             className={`aspect-square rounded-lg flex flex-col items-center justify-center text-sm transition-colors relative ${today
-                                ? 'bg-brand-primary text-neutral-900 dark:text-white font-bold'
+                                    ? 'bg-brand-primary text-white font-bold'
                                 : hasEvents
-                                    ? 'bg-brand-surface/60 text-neutral-900 dark:text-white hover:bg-brand-surface'
-                                    : 'text-neutral-500 dark:text-neutral-400 hover:bg-white/5'
+                                    ? 'bg-brand-surface text-brand-forest hover:bg-brand-subtle border border-brand-border'
+                                    : 'text-brand-muted hover:bg-brand-subtle'
                                 }`}
                         >
                             {day}
@@ -848,9 +848,9 @@ const CalendarTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
 
             {/* Selected Day Details */}
             {selectedDate && (
-                <div className="bg-white dark:bg-brand-surface/40  border-neutral-200 dark:border-white/5 space-y-3">
+                <div className="bg-brand-surface border border-brand-border rounded-xl p-3 space-y-3">
                     <div className="flex items-center justify-between">
-                        <h4 className="font-bold text-neutral-900 dark:text-white">
+                        <h4 className="font-bold text-brand-forest">
                             {selectedDate.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
                                 weekday: 'long',
                                 month: 'short',
@@ -859,7 +859,7 @@ const CalendarTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                         </h4>
                         <button
                             onClick={() => setSelectedDate(null)}
-                            className="p-1 hover:bg-white/10 rounded text-neutral-500 dark:text-neutral-400"
+                            className="p-1 hover:bg-brand-subtle rounded text-brand-muted"
                         >
                             <X size={16} />
                         </button>
@@ -868,7 +868,7 @@ const CalendarTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                     {/* Tasks */}
                     {selectedTasks.length > 0 && (
                         <div className="space-y-2">
-                            <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                            <p className="text-xs font-medium text-brand-muted uppercase tracking-wider">
                                 {t('study_tasks')}
                             </p>
                             {selectedTasks.map(task => {
@@ -876,7 +876,7 @@ const CalendarTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                                 return (
                                     <div key={task.id} className="flex items-center space-x-2 rtl:space-x-reverse text-sm">
                                         <div className={`w-2 h-2 rounded-full ${task.done ? 'bg-green-400' : 'bg-yellow-400'}`} />
-                                        <span className={task.done ? 'line-through text-neutral-500' : 'text-neutral-900 dark:text-white'}>{task.title}</span>
+                                        <span className={task.done ? 'line-through text-brand-muted' : 'text-brand-forest'}>{task.title}</span>
                                         {subject && (
                                             <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: subject.color + '20', color: subject.color }}>
                                                 {subject.name}
@@ -891,7 +891,7 @@ const CalendarTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                     {/* Sessions */}
                     {selectedSessions.length > 0 && (
                         <div className="space-y-2">
-                            <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                            <p className="text-xs font-medium text-brand-muted uppercase tracking-wider">
                                 {t('study_focus_sessions')}
                             </p>
                             {selectedSessions.map(session => {
@@ -899,7 +899,7 @@ const CalendarTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                                 return (
                                     <div key={session.id} className="flex items-center space-x-2 rtl:space-x-reverse text-sm">
                                         <div className="w-2 h-2 rounded-full bg-green-400" />
-                                        <span className="text-neutral-900 dark:text-white">{session.duration} min</span>
+                                        <span className="text-brand-forest">{session.duration} min</span>
                                         {subject && (
                                             <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: subject.color + '20', color: subject.color }}>
                                                 {subject.name}
@@ -912,7 +912,7 @@ const CalendarTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                     )}
 
                     {selectedTasks.length === 0 && selectedSessions.length === 0 && (
-                        <p className="text-neutral-500 text-sm text-center py-2">
+                        <p className="text-brand-muted text-sm text-center py-2">
                             {t('study_no_events')}
                         </p>
                     )}
@@ -920,7 +920,7 @@ const CalendarTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
             )}
 
             {/* Legend */}
-            <div className="flex items-center justify-center space-x-4 rtl:space-x-reverse text-xs text-neutral-500 dark:text-neutral-400">
+            <div className="flex items-center justify-center space-x-4 rtl:space-x-reverse text-xs text-brand-muted">
                 <div className="flex items-center space-x-1 rtl:space-x-reverse">
                     <div className="w-2 h-2 rounded-full bg-yellow-400" />
                     <span>{t('study_tasks')}</span>
@@ -997,12 +997,12 @@ const WeeklyAnalytics: React.FC<{ subjects: Subject[]; language: string; refresh
     return (
         <div className="space-y-4">
             {/* Weekly Chart */}
-            <div className="bg-white dark:bg-brand-surface/40  border-neutral-200 dark:border-white/5">
+            <div className="bg-brand-surface border border-brand-border rounded-xl p-3">
                 <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-medium text-neutral-900 dark:text-white">
+                    <h4 className="text-sm font-medium text-brand-forest">
                         {t('study_this_week')}
                     </h4>
-                    <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <span className="text-xs text-brand-muted">
                         {Math.floor(totalWeek / 60)}h {totalWeek % 60}m
                     </span>
                 </div>
@@ -1015,9 +1015,9 @@ const WeeklyAnalytics: React.FC<{ subjects: Subject[]; language: string; refresh
                         >
                             {/* Tooltip */}
                             {(selectedDay === i) && (
-                                <div className="absolute bottom-full mb-1 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-[10px] py-1 px-2 rounded shadow-lg whitespace-nowrap z-10">
+                                <div className="absolute bottom-full mb-1 bg-brand-forest text-white text-[10px] py-1 px-2 rounded shadow-lg whitespace-nowrap z-10">
                                     {Math.floor(d.minutes / 60)}h {d.minutes % 60}m
-                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-900 dark:border-t-white"></div>
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-brand-forest"></div>
                                 </div>
                             )}
 
@@ -1027,7 +1027,7 @@ const WeeklyAnalytics: React.FC<{ subjects: Subject[]; language: string; refresh
                                     style={{ height: `${(d.minutes / maxMinutes) * 100}%`, minHeight: d.minutes > 0 ? '4px' : '0' }}
                                 />
                             </div>
-                            <span className="text-[10px] text-neutral-500 mt-1">{d.day}</span>
+                            <span className="text-[10px] text-brand-muted mt-1">{d.day}</span>
                         </button>
                     ))}
                 </div>
@@ -1035,16 +1035,16 @@ const WeeklyAnalytics: React.FC<{ subjects: Subject[]; language: string; refresh
 
             {/* Subject Breakdown */}
             {subjectData.length > 0 && (
-                <div className="bg-white dark:bg-brand-surface/40  border-neutral-200 dark:border-white/5">
-                    <h4 className="text-sm font-medium text-neutral-900 dark:text-white mb-3">
+                <div className="bg-brand-surface border border-brand-border rounded-xl p-3">
+                    <h4 className="text-sm font-medium text-brand-forest mb-3">
                         {t('study_by_subject')}
                     </h4>
                     <div className="space-y-2">
                         {subjectData.map(s => (
                             <div key={s.id} className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: s.color }} />
-                                <span className="flex-1 text-sm text-neutral-600 dark:text-neutral-300 truncate">{s.name}</span>
-                                <span className="text-xs text-neutral-500">
+                                <span className="flex-1 text-sm text-brand-forest truncate">{s.name}</span>
+                                <span className="text-xs text-brand-muted">
                                     {Math.floor(s.minutes / 60)}h {s.minutes % 60}m
                                 </span>
                             </div>
@@ -1398,7 +1398,7 @@ const TimerTab: React.FC<{ subjects: Subject[]; onSessionSaved?: () => void; ref
                             disabled={isRunning && mode !== m.id}
                             className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${mode === m.id
                                 ? 'bg-brand-primary text-neutral-900 dark:text-white'
-                                : 'bg-white/5 text-neutral-500 dark:text-neutral-400 disabled:opacity-50 hover:bg-white/10'
+                                : 'bg-brand-subtle text-brand-muted disabled:opacity-50 hover:bg-brand-subtle/80 border border-brand-border'
                                 }`}
                         >
                             <span>{m.label}</span>
@@ -1411,7 +1411,7 @@ const TimerTab: React.FC<{ subjects: Subject[]; onSessionSaved?: () => void; ref
                     value={selectedSubject}
                     onChange={(e) => setSelectedSubject(e.target.value)}
                     disabled={isRunning}
-                    className="w-full px-3 py-2 bg-white dark:bg-brand-surface/40  border-neutral-200 dark:border-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 text-neutral-900 dark:text-white"
+                    className="w-full px-3 py-2 bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 text-brand-forest"
                 >
                     <option value="" className="bg-brand-surface">{t('study_general')}</option>
                     {subjects.map(s => (
@@ -1420,13 +1420,13 @@ const TimerTab: React.FC<{ subjects: Subject[]; onSessionSaved?: () => void; ref
                 </select>
 
                 {/* Timer Display */}
-                <div className="bg-white dark:bg-brand-surface/40  border-neutral-200 dark:border-white/5 rounded-3xl p-8 shadow-soft text-center">
+                <div className="bg-brand-surface border border-brand-border rounded-3xl p-8 shadow-soft text-center">
                     <p className={`text-sm font-medium mb-2 ${isBreak ? 'text-brand-secondary' : 'text-brand-primary'}`}>
                         {isBreak
                             ? t('study_break')
                             : t('study_focus')}
                     </p>
-                    <div className={`text-6xl font-mono font-bold ${isBreak ? 'text-brand-secondary' : 'text-neutral-900 dark:text-white'}`}>
+                    <div className={`text-6xl font-mono font-bold ${isBreak ? 'text-brand-secondary' : 'text-brand-forest'}`}>
                         {formatTime(timeLeft)}
                     </div>
                     {isRunning && (
@@ -1442,10 +1442,10 @@ const TimerTab: React.FC<{ subjects: Subject[]; onSessionSaved?: () => void; ref
                     <div className="flex-1 flex justify-end gap-4 px-4">
                         <button
                             onClick={reset}
-                            className="p-4 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/5 w-14 h-14 flex items-center justify-center"
+                            className="p-4 bg-brand-subtle rounded-full hover:bg-brand-subtle/80 transition-colors border border-brand-border w-14 h-14 flex items-center justify-center"
                             title={t('study_reset') as string}
                         >
-                            <RotateCcw size={24} className="text-neutral-500 dark:text-neutral-400" />
+                            <RotateCcw size={24} className="text-brand-muted" />
                         </button>
                     </div>
 
@@ -1457,9 +1457,9 @@ const TimerTab: React.FC<{ subjects: Subject[]; onSessionSaved?: () => void; ref
                             title={isRunning ? (language === 'ar' ? 'إيقاف مؤقت' : 'Pause') : (language === 'ar' ? 'ابدأ' : 'Start')}
                         >
                             {isRunning ? (
-                                <Pause size={32} className="text-neutral-900 dark:text-white" />
+                                <Pause size={32} className="text-white" />
                             ) : (
-                                <Play size={32} className="text-neutral-900 dark:text-white ms-1" />
+                                <Play size={32} className="text-white ms-1" />
                             )}
                         </button>
                     </div>
@@ -1482,8 +1482,8 @@ const TimerTab: React.FC<{ subjects: Subject[]; onSessionSaved?: () => void; ref
                                 disabled={isRunning}
                                 className={`p-4 rounded-full transition-colors border w-14 h-14 flex items-center justify-center
                                 ${isRunning
-                                        ? 'bg-white/5 border-white/5 text-neutral-500 cursor-not-allowed opacity-50'
-                                        : 'bg-white/5 border-white/5 text-neutral-400 cursor-pointer'
+                                        ? 'bg-brand-subtle border-brand-border text-brand-muted cursor-not-allowed opacity-50'
+                                        : 'bg-brand-subtle border-brand-border text-brand-muted cursor-pointer'
                                     }`}
                                 title={language === 'ar' ? 'إعدادات' : 'Settings'}
                             >
@@ -1494,8 +1494,8 @@ const TimerTab: React.FC<{ subjects: Subject[]; onSessionSaved?: () => void; ref
                 </div>
 
                 {/* Today's Total */}
-                <div className="bg-white dark:bg-brand-surface/20 border border-white/5 rounded-xl p-4 text-center">
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400">{language === 'ar' ? 'مجموع اليوم' : "Today's Total"}</p>
+                <div className="bg-brand-surface border border-brand-border rounded-xl p-4 text-center">
+                    <p className="text-sm text-brand-muted">{language === 'ar' ? 'مجموع اليوم' : "Today's Total"}</p>
                     <p className="text-2xl font-bold text-brand-primary">
                         {Math.floor(todayTotal / 60)}h {todayTotal % 60}m
                     </p>
@@ -1507,16 +1507,16 @@ const TimerTab: React.FC<{ subjects: Subject[]; onSessionSaved?: () => void; ref
                 {/* Custom Timer Modal */}
                 {showCustomModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                        <div className="bg-brand-surface w-full max-w-sm rounded-2xl shadow-glass border border-white/10">
-                            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-                                <h3 className="font-bold text-neutral-900 dark:text-white">{t('study_customize_timer')}</h3>
-                                <button onClick={() => setShowCustomModal(false)} className="p-1 hover:bg-white/10 rounded-full text-neutral-500 dark:text-neutral-400">
+                        <div className="bg-brand-surface w-full max-w-sm rounded-2xl shadow-glass border border-brand-border">
+                            <div className="px-4 py-3 border-b border-brand-border flex items-center justify-between">
+                                <h3 className="font-bold text-brand-forest">{t('study_customize_timer')}</h3>
+                                <button onClick={() => setShowCustomModal(false)} className="p-1 hover:bg-brand-subtle rounded-full text-brand-muted">
                                     <X size={18} />
                                 </button>
                             </div>
                             <div className="p-4 space-y-4">
                                 <div>
-                                    <label className="text-sm font-medium text-neutral-600 dark:text-neutral-300 block mb-2">
+                                    <label className="text-sm font-medium text-brand-muted block mb-2">
                                         {t('study_work_time_min')}
                                     </label>
                                     <input
@@ -1525,11 +1525,11 @@ const TimerTab: React.FC<{ subjects: Subject[]; onSessionSaved?: () => void; ref
                                         onChange={(e) => setCustomSettings({ ...customSettings, work: Math.max(1, parseInt(e.target.value) || 1) })}
                                         min={1}
                                         max={120}
-                                        className="w-full px-3 py-2 bg-neutral-100 dark:bg-black/20 border border-white/10 rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
+                                        className="w-full px-3 py-2 bg-brand-subtle border border-brand-border rounded-lg text-brand-forest focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-neutral-600 dark:text-neutral-300 block mb-2">
+                                    <label className="text-sm font-medium text-brand-muted block mb-2">
                                         {t('study_break_time_min')}
                                     </label>
                                     <input
@@ -1538,11 +1538,12 @@ const TimerTab: React.FC<{ subjects: Subject[]; onSessionSaved?: () => void; ref
                                         onChange={(e) => setCustomSettings({ ...customSettings, break: Math.max(1, parseInt(e.target.value) || 1) })}
                                         min={1}
                                         max={60}
+                                        className="w-full px-3 py-2 bg-brand-subtle border border-brand-border rounded-lg text-brand-forest focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
                                     />
                                 </div>
                                 <button
                                     onClick={() => saveCustomSettings(customSettings.work, customSettings.break)}
-                                    className="w-full py-3 bg-brand-primary text-neutral-900 dark:text-white rounded-lg font-medium hover:bg-brand-primary/90"
+                                    className="w-full py-3 bg-brand-primary text-white rounded-lg font-medium hover:bg-brand-primary/90"
                                 >
                                     {t('save')}
                                 </button>
@@ -1582,14 +1583,14 @@ const NotesTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder={t('study_search_notes') as string}
-                    className="w-full pl-10 rtl:pl-3 rtl:pr-10 pr-3 py-2 bg-white dark:bg-brand-surface/40  border-neutral-200 dark:border-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 text-neutral-900 placeholder-neutral-500"
+                    className="w-full pl-10 rtl:pl-3 rtl:pr-10 pr-3 py-2 bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 text-brand-forest placeholder-brand-muted"
                 />
             </div>
 
             {/* Add Button */}
             <button
                 onClick={() => setShowAddModal(true)}
-                className="w-full py-3 border-2 border-dashed border-white/10 rounded-xl text-neutral-500 dark:text-neutral-400 hover:border-brand-primary hover:text-brand-primary transition-colors flex items-center justify-center space-x-2 rtl:space-x-reverse"
+                className="w-full py-3 border-2 border-dashed border-brand-border rounded-xl text-brand-muted hover:border-brand-primary hover:text-brand-primary transition-colors flex items-center justify-center space-x-2 rtl:space-x-reverse"
             >
                 <Plus size={18} />
                 <span>{t('study_new_note')}</span>
@@ -1603,10 +1604,10 @@ const NotesTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                         <button
                             key={note.id}
                             onClick={() => setSelectedNote(note)}
-                            className="bg-white dark:bg-brand-surface/40  border-neutral-200 dark:border-white/5 text-start hover:shadow-md transition-shadow hover:bg-brand-surface/60"
+                            className="bg-brand-surface border border-brand-border rounded-xl p-3 text-start hover:shadow-md transition-shadow hover:bg-brand-subtle"
                         >
-                            <h4 className="font-medium text-sm truncate text-neutral-900">{note.title}</h4>
-                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">
+                            <h4 className="font-medium text-sm truncate text-brand-forest">{note.title}</h4>
+                            <p className="text-xs text-brand-muted mt-1 line-clamp-2">
                                 {note.content.slice(0, 100)}
                             </p>
                             {subject && (
@@ -1623,7 +1624,7 @@ const NotesTab: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
             </div>
 
             {filteredNotes.length === 0 && (
-                <div className="text-center py-8 text-neutral-500 dark:text-neutral-400">
+                <div className="text-center py-8 text-brand-muted">
                     <StickyNote size={40} className="mx-auto mb-2 opacity-50" />
                     <p>{t('study_no_notes')}</p>
                 </div>

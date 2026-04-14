@@ -61,19 +61,19 @@ export const NotificationPermission: React.FC<NotificationPermissionProps> = ({ 
                 onClick={handleSkip}
             />
 
-            <div className="bg-white w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300 relative z-10">
+            <div className="bg-brand-surface border border-brand-border w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300 relative z-10">
                 {/* Icon */}
                 <div className="w-16 h-16 bg-brand-mint rounded-full flex items-center justify-center mx-auto mb-4">
                     <Bell size={28} className="text-brand-forest" />
                 </div>
 
                 {/* Title */}
-                <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
+                <h2 className="text-xl font-bold text-brand-forest text-center mb-2">
                     {t('notif_enable_title')}
                 </h2>
 
                 {/* Description */}
-                <p className="text-gray-500 text-center text-sm mb-6">
+                <p className="text-brand-muted text-center text-sm mb-6">
                     {t('notif_enable_desc')}
                 </p>
 
@@ -88,7 +88,7 @@ export const NotificationPermission: React.FC<NotificationPermissionProps> = ({ 
                             <div className="w-5 h-5 bg-brand-forest/10 rounded-full flex items-center justify-center flex-shrink-0">
                                 <Check size={12} className="text-brand-forest" />
                             </div>
-                            <span className="text-sm text-gray-800">
+                            <span className="text-sm text-brand-forest">
                                 {item.en}
                             </span>
                         </div>
@@ -118,14 +118,14 @@ export const NotificationPermission: React.FC<NotificationPermissionProps> = ({ 
 
                     <button
                         onClick={handleSkip}
-                        className="w-full py-3 text-sm text-neutral-500 hover:text-neutral-700 transition-colors"
+                        className="w-full py-3 text-sm text-brand-muted hover:text-brand-forest transition-colors"
                     >
                         {t('not_now')}
                     </button>
                 </div>
 
                 {/* Privacy Note */}
-                <p className="text-[10px] text-neutral-400 text-center mt-4">
+                <p className="text-[10px] text-brand-muted text-center mt-4">
                     {t('notif_change_later')}
                 </p>
             </div>

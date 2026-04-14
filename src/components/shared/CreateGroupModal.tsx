@@ -56,7 +56,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden"
+                        className="bg-brand-surface border border-brand-border w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden"
                     >
                         {/* Header */}
                         <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 p-6 text-white relative">
@@ -76,7 +76,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">
+                                <label className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-2 block">
                                     {type === 'family' ? t('family_name_label') : t('circle_name_label')}
                                 </label>
                                 <input
@@ -84,7 +84,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder={placeholder}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                                    className="w-full bg-brand-subtle border border-brand-border rounded-xl px-4 py-3 text-brand-forest placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                                     autoFocus
                                 />
                                 {error && (
@@ -96,7 +96,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                                    className="flex-1 py-3 bg-brand-subtle border border-brand-border text-brand-forest rounded-xl font-bold hover:bg-brand-primary/10 transition-colors"
                                 >
                                     {t('cancel' as any)}
                                 </button>

@@ -302,22 +302,22 @@ export const QuranReader: React.FC = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by Surah Name or Number..."
-                  className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-3.5 rounded-xl bg-white dark:bg-brand-surface border-none shadow-sm focus:ring-2 focus:ring-brand-teal focus:outline-none text-sm text-neutral-900 dark:text-white dark:placeholder:text-neutral-500"
+                  className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-3.5 rounded-xl bg-brand-surface border border-brand-border shadow-sm focus:ring-2 focus:ring-brand-teal focus:outline-none text-sm text-brand-forest placeholder:text-brand-muted"
                />
             </div>
 
             {/* Tabs */}
             <div>
-               <div className="flex p-1 bg-white dark:bg-brand-surface rounded-xl shadow-sm border border-neutral-100 dark:border-white/10">
+               <div className="flex p-1 bg-brand-surface rounded-xl shadow-sm border border-brand-border">
                   <button
                      onClick={() => setListTab('surah')}
-                     className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${listTab === 'surah' ? 'bg-brand-primary text-white shadow' : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-white/5'}`}
+                     className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${listTab === 'surah' ? 'bg-brand-primary text-white shadow' : 'text-brand-muted hover:bg-brand-subtle'}`}
                   >
                      Surah Index
                   </button>
                   <button
                      onClick={() => setListTab('juz')}
-                     className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${listTab === 'juz' ? 'bg-brand-primary text-white shadow' : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-white/5'}`}
+                     className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${listTab === 'juz' ? 'bg-brand-primary text-white shadow' : 'text-brand-muted hover:bg-brand-subtle'}`}
                   >
                      Juz Index
                   </button>
@@ -335,10 +335,10 @@ export const QuranReader: React.FC = () => {
                      <div
                         key={surah.number}
                         onClick={() => goToSurah(surah.number)}
-                        className="bg-white dark:bg-brand-surface p-4 rounded-2xl border border-neutral-100 dark:border-white/10 shadow-sm flex items-center justify-between cursor-pointer hover:border-brand-mint active:scale-[0.99] transition-all group"
+                        className="bg-brand-surface p-4 rounded-2xl border border-brand-border shadow-sm flex items-center justify-between cursor-pointer hover:border-brand-mint active:scale-[0.99] transition-all group"
                      >
                         <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                           <div className="w-10 h-10 bg-neutral-50 dark:bg-white/5 rounded-lg flex items-center justify-center relative rotate-45 border border-neutral-200 dark:border-white/10 group-hover:border-brand-forest group-hover:bg-brand-forest group-hover:text-white transition-colors">
+                           <div className="w-10 h-10 bg-brand-subtle rounded-lg flex items-center justify-center relative rotate-45 border border-brand-border group-hover:border-brand-forest group-hover:bg-brand-forest group-hover:text-white transition-colors">
                               <span className="font-bold text-sm -rotate-45 dark:text-white group-hover:text-white">{surah.number}</span>
                            </div>
                            <div>
@@ -366,7 +366,7 @@ export const QuranReader: React.FC = () => {
                         <div
                            key={juzNum}
                            onClick={() => goToJuz(juzNum)}
-                           className="bg-white dark:bg-brand-surface p-4 rounded-2xl border border-neutral-100 dark:border-white/10 shadow-sm flex items-center justify-between cursor-pointer hover:bg-neutral-50 dark:hover:bg-white/5 group"
+                        className="bg-brand-surface p-4 rounded-2xl border border-brand-border shadow-sm flex items-center justify-between cursor-pointer hover:bg-brand-subtle group"
                         >
                            <div className="flex items-center space-x-4 rtl:space-x-reverse">
                               <div className="w-10 h-10 rounded-full bg-brand-mint text-brand-forest flex items-center justify-center font-bold text-sm border-2 border-white dark:border-white/10 shadow-sm group-hover:scale-110 transition-transform">
@@ -377,7 +377,7 @@ export const QuranReader: React.FC = () => {
                                  <span className="text-xs text-neutral-400">Part {juzNum} of 30</span>
                               </div>
                            </div>
-                           <div className="w-8 h-8 flex items-center justify-center bg-neutral-50 dark:bg-white/5 rounded-full text-neutral-400 group-hover:bg-brand-forest group-hover:text-white transition-colors">
+                           <div className="w-8 h-8 flex items-center justify-center bg-brand-subtle rounded-full text-brand-muted group-hover:bg-brand-forest group-hover:text-white transition-colors">
                               <ChevronRight size={16} className="rtl:rotate-180" />
                            </div>
                         </div>
@@ -427,10 +427,10 @@ export const QuranReader: React.FC = () => {
          {/* 1. HEADER */}
          <div className="bg-[#fffcf5]/95 dark:bg-neutral-950/95 backdrop-blur-sm z-30 border-b border-amber-100/50 dark:border-white/10 px-4 py-2 shadow-sm flex justify-between items-center">
             <div className="flex items-center">
-               <button onClick={() => setMode('list')} className="p-2 -ml-2 rtl:ml-0 rtl:-mr-2 rounded-full hover:bg-amber-100 dark:hover:bg-white/10 text-neutral-600 dark:text-white">
+               <button onClick={() => setMode('list')} className="p-2 -ml-2 rtl:ml-0 rtl:-mr-2 rounded-full hover:bg-amber-100 dark:hover:bg-brand-subtle text-neutral-600 dark:text-white">
                   <BackIcon size={24} />
                </button>
-               <button onClick={() => setIsNavOpen(true)} className="p-2 rounded-full hover:bg-amber-100 dark:hover:bg-white/10 text-neutral-600 dark:text-white ms-1">
+               <button onClick={() => setIsNavOpen(true)} className="p-2 rounded-full hover:bg-amber-100 dark:hover:bg-brand-subtle text-neutral-600 dark:text-white ms-1">
                   <Menu size={24} />
                </button>
             </div>
@@ -576,10 +576,10 @@ export const QuranReader: React.FC = () => {
             isNavOpen && (
                <div className="fixed inset-0 z-[60] flex justify-end">
                   <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in" onClick={() => setIsNavOpen(false)}></div>
-                  <div className="relative w-4/5 max-w-sm bg-white h-full shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col">
-                     <div className="p-5 border-b border-neutral-100 flex justify-between items-center bg-neutral-50">
+                  <div className="relative w-4/5 max-w-sm bg-brand-surface h-full shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col border-l border-brand-border">
+                     <div className="p-5 border-b border-brand-border flex justify-between items-center bg-brand-subtle">
                         <h3 className="font-bold text-lg text-neutral-primary">Navigation</h3>
-                        <button onClick={() => setIsNavOpen(false)}><X size={24} className="text-neutral-400" /></button>
+                        <button onClick={() => setIsNavOpen(false)}><X size={24} className="text-brand-muted" /></button>
                      </div>
                      <div className="flex-1 overflow-y-auto p-4 space-y-6">
                         {/* My Reflections Button */}
@@ -602,11 +602,11 @@ export const QuranReader: React.FC = () => {
                                  <button
                                     key={s.number}
                                     onClick={() => goToSurah(s.number)}
-                                    className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-neutral-50 border border-transparent hover:border-neutral-200 text-left transition-colors"
+                                    className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-brand-subtle border border-transparent hover:border-brand-border text-left transition-colors"
                                  >
                                     <div className="flex items-center">
-                                       <span className="w-6 text-xs font-bold text-neutral-400">{s.number}</span>
-                                       <span className="font-bold text-neutral-700">{s.englishName}</span>
+                                       <span className="w-6 text-xs font-bold text-brand-muted">{s.number}</span>
+                                       <span className="font-bold text-brand-forest">{s.englishName}</span>
                                     </div>
                                     <span className="font-quran text-brand-forest text-lg">{s.name}</span>
                                  </button>
@@ -622,18 +622,18 @@ export const QuranReader: React.FC = () => {
          {/* All Reflections Sheet (Full Screen or Large Modal) */}
          {
             activeSheet === 'all_reflections' && (
-               <div className="fixed inset-0 z-[70] bg-white flex flex-col animate-in slide-in-from-bottom duration-300">
-                  <div className="p-4 border-b border-neutral-100 flex justify-between items-center bg-neutral-50">
+               <div className="fixed inset-0 z-[70] bg-brand-surface flex flex-col animate-in slide-in-from-bottom duration-300">
+                  <div className="p-4 border-b border-brand-border flex justify-between items-center bg-brand-subtle">
                      <div className="flex items-center">
                         <Brain className="text-brand-forest me-2" size={20} />
                         <h3 className="font-bold text-lg text-neutral-primary">My Reflections</h3>
                      </div>
-                     <button onClick={() => setActiveSheet(null)} className="p-2 bg-neutral-100 rounded-full hover:bg-neutral-200">
+                     <button onClick={() => setActiveSheet(null)} className="p-2 bg-brand-surface border border-brand-border rounded-full hover:bg-brand-subtle">
                         <X size={20} />
                      </button>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-4 bg-neutral-body">
+                  <div className="flex-1 overflow-y-auto p-4 bg-brand-background">
                      {allReflections.length > 0 ? (
                         <div className="space-y-4 max-w-2xl mx-auto">
                            {allReflections.map((ref) => {
@@ -646,17 +646,17 @@ export const QuranReader: React.FC = () => {
                                        setActiveSheet(null);
                                        goToSurah(ref.surahNumber);
                                     }}
-                                    className="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm cursor-pointer hover:border-brand-forest/50 hover:shadow-md transition-all group"
+                                    className="bg-brand-surface p-4 rounded-xl border border-brand-border shadow-sm cursor-pointer hover:border-brand-forest/50 hover:shadow-md transition-all group"
                                  >
                                     <div className="flex justify-between items-start mb-2">
                                        <div>
                                           <span className="text-xs font-bold text-brand-forest bg-brand-mint/10 px-2 py-1 rounded-md mb-1 inline-block">
                                              {surah?.englishName} {ref.surahNumber}:{ref.ayahNumber}
                                           </span>
-                                          <p className="text-neutral-800 text-sm leading-relaxed line-clamp-3">{ref.reflection}</p>
+                                          <p className="text-brand-forest text-sm leading-relaxed line-clamp-3">{ref.reflection}</p>
                                        </div>
                                     </div>
-                                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-neutral-50">
+                                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-brand-border">
                                        <span className="text-[10px] text-neutral-400 font-medium">
                                           {new Date(ref.updatedAt).toLocaleDateString()}
                                        </span>
@@ -688,14 +688,14 @@ export const QuranReader: React.FC = () => {
                   onClick={() => setShowAyahMenu(false)}
                >
                   <div
-                     className="bg-white w-full max-w-md rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300"
+                     className="bg-brand-surface border border-brand-border w-full max-w-md rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300"
                      onClick={e => e.stopPropagation()}
                   >
 
                      {!activeSheet ? (
                         <>
                            {/* Menu Header */}
-                           <div className="flex items-center justify-between mb-6 border-b border-neutral-100 pb-4">
+                           <div className="flex items-center justify-between mb-6 border-b border-brand-border pb-4">
                               <div className="flex items-center space-x-3 rtl:space-x-reverse">
                                  <span className="bg-brand-forest text-white w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold font-mono shadow-md shadow-brand-forest/30">
                                     {activeAyahData.numberInSurah}
@@ -708,11 +708,11 @@ export const QuranReader: React.FC = () => {
                               <div className="flex space-x-2">
                                  <button
                                     onClick={() => toggleBookmark(selectedAyahPage!, activeAyahData.numberInSurah)}
-                                    className={`p-2 rounded-full transition-colors ${bookmarks.has(`ayah:${selectedAyahPage}:${activeAyahData.numberInSurah}`) ? "bg-red-50 dark:bg-red-500/20 text-red-500 dark:text-red-400" : "bg-neutral-50 dark:bg-white/10 text-neutral-400"}`}
+                                    className={`p-2 rounded-full transition-colors ${bookmarks.has(`ayah:${selectedAyahPage}:${activeAyahData.numberInSurah}`) ? "bg-red-50 dark:bg-red-500/20 text-red-500 dark:text-red-400" : "bg-brand-subtle text-brand-muted"}`}
                                  >
                                     <Bookmark size={20} className={bookmarks.has(`ayah:${selectedAyahPage}:${activeAyahData.numberInSurah}`) ? "fill-current" : ""} />
                                  </button>
-                                 <button className="p-2 rounded-full bg-neutral-50 text-neutral-400 hover:bg-neutral-100">
+                                 <button className="p-2 rounded-full bg-brand-subtle text-brand-muted hover:bg-brand-surface border border-brand-border">
                                     <Share2 size={20} />
                                  </button>
                               </div>
@@ -749,7 +749,7 @@ export const QuranReader: React.FC = () => {
                         /* Sub-Sheet: Tafsir or Notes */
                         <div className="h-[50vh] flex flex-col">
                            <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-3">
-                              <button onClick={() => setActiveSheet(null)} className="flex items-center text-sm font-bold text-neutral-500 dark:text-neutral-400 hover:text-brand-forest dark:hover:text-white">
+                              <button onClick={() => setActiveSheet(null)} className="flex items-center text-sm font-bold text-brand-muted hover:text-brand-forest">
                                  <BackIcon size={18} className="me-1" /> {t('back')}
                               </button>
                               <span className="font-bold text-neutral-800 dark:text-white text-sm uppercase tracking-wide">{activeSheet === 'tafsir' ? 'Tafsir Ibn Kathir' : 'Reflections'}</span>
@@ -759,7 +759,7 @@ export const QuranReader: React.FC = () => {
                            <div className="flex-1 overflow-y-auto no-scrollbar">
                               {activeSheet === 'tafsir' ? (
                                  <div className="space-y-4 p-1">
-                                    <h4 className="font-bold text-neutral-800 dark:text-white">Tafsir for Ayah {activeAyahData.numberInSurah}</h4>
+                                    <h4 className="font-bold text-brand-forest dark:text-white">Tafsir for Ayah {activeAyahData.numberInSurah}</h4>
                                     {isLoadingTafsir ? (
                                        <div className="space-y-2 opacity-50">
                                           <div className="h-2 bg-neutral-200 rounded w-full animate-pulse"></div>

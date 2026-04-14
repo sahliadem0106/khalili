@@ -196,8 +196,8 @@ export const SuhbaDashboard: React.FC = () => {
         return (
             <>
                 <div className="text-center py-12 bg-brand-surface rounded-2xl border border-brand-border shadow-sm">
-                    <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-inner">
-                        <Users size={36} className="text-emerald-600" />
+                    <div className="w-20 h-20 bg-brand-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-inner">
+                        <Users size={36} className="text-brand-primary" />
                     </div>
                     <h3 className="text-xl font-bold text-brand-forest mb-2">No Circles Yet</h3>
                     <p className="text-brand-muted max-w-xs mx-auto mb-6 text-sm px-4">
@@ -213,7 +213,7 @@ export const SuhbaDashboard: React.FC = () => {
                         </button>
                         <button
                             onClick={() => setShowJoinModal(true)}
-                            className="inline-flex items-center justify-center gap-2 bg-white border-2 border-emerald-200 text-emerald-700 font-bold px-6 py-3 rounded-xl hover:bg-emerald-50 hover:border-emerald-300 transition-all active:scale-95"
+                            className="inline-flex items-center justify-center gap-2 bg-brand-surface border-2 border-brand-border text-brand-primary font-bold px-6 py-3 rounded-xl hover:bg-brand-subtle hover:border-brand-primary/30 transition-all active:scale-95"
                         >
                             <Users size={18} />
                             Join with Code
@@ -239,17 +239,17 @@ export const SuhbaDashboard: React.FC = () => {
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                                 className="bg-brand-surface w-full max-w-sm p-6 rounded-3xl shadow-xl border border-brand-border"
                             >
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">Join a Circle</h3>
-                                <p className="text-sm text-gray-500 mb-6">
+                                <h3 className="text-xl font-bold text-brand-forest mb-2">Join a Circle</h3>
+                                <p className="text-sm text-brand-muted mb-6">
                                     Enter the invite code or paste the invite link shared with you.
                                 </p>
 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1 block">Invite Code or Link</label>
+                                        <label className="text-xs font-bold text-brand-muted uppercase tracking-wider ml-1 mb-1 block">Invite Code or Link</label>
                                         <input
                                             type="text"
-                                            className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                            className="w-full bg-brand-subtle border border-brand-border p-3 rounded-xl text-sm text-brand-forest focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                                             placeholder="SUH-XXXXXX or paste link..."
                                             value={joinCode}
                                             onChange={(e) => setJoinCode(e.target.value)}
@@ -259,7 +259,7 @@ export const SuhbaDashboard: React.FC = () => {
                                     <div className="flex gap-3 pt-2">
                                         <button
                                             onClick={() => { setShowJoinModal(false); setJoinCode(''); }}
-                                            className="flex-1 py-3 bg-transparent border border-gray-200 text-gray-500 rounded-xl font-bold hover:bg-gray-50 transition-colors"
+                                            className="flex-1 py-3 bg-transparent border border-brand-border text-brand-muted rounded-xl font-bold hover:bg-brand-subtle transition-colors"
                                         >
                                             Cancel
                                         </button>
@@ -297,7 +297,7 @@ export const SuhbaDashboard: React.FC = () => {
                 ))}
                 <button
                     onClick={() => setShowCreateModal(true)}
-                    className="w-10 h-10 rounded-xl bg-brand-surface/50 text-brand-primary border border-white/10 hover:bg-brand-surface flex items-center justify-center flex-shrink-0 transition-colors"
+                    className="w-10 h-10 rounded-xl bg-brand-surface text-brand-primary border border-brand-border hover:bg-brand-subtle flex items-center justify-center flex-shrink-0 transition-colors"
                     title="Create Circle"
                 >
                     <Plus size={20} />
@@ -317,10 +317,10 @@ export const SuhbaDashboard: React.FC = () => {
                     <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
                         <div>
                             <h2 className="text-2xl font-bold font-outfit text-brand-forest">{selectedCircle.name}</h2>
-                            <p className="text-xs text-neutral-400 font-medium mt-1">{selectedCircle.description || 'Suhba Circle'}</p>
+                            <p className="text-xs text-brand-muted font-medium mt-1">{selectedCircle.description || 'Suhba Circle'}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold bg-brand-surface border border-white/10 text-brand-forest/70 px-3 py-1.5 rounded-full flex items-center gap-1">
+                            <span className="text-xs font-bold bg-brand-surface border border-brand-border text-brand-forest/70 px-3 py-1.5 rounded-full flex items-center gap-1">
                                 <Users size={12} />
                                 {selectedCircle.members.length}
                             </span>
@@ -346,7 +346,7 @@ export const SuhbaDashboard: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-white/5 to-white/10 border border-white/10 rounded-2xl p-5 mb-6">
+                    <div className="bg-brand-subtle border border-brand-border rounded-2xl p-5 mb-6">
                         <h3 className="font-bold text-brand-forest mb-4 flex items-center gap-2 text-sm uppercase tracking-wider opacity-80">
                             <Zap size={16} className="text-amber-500" />
                             Broadcast to Circle
@@ -375,7 +375,7 @@ export const SuhbaDashboard: React.FC = () => {
                             value={broadcastMsg}
                             onChange={(e) => setBroadcastMsg(e.target.value)}
                             placeholder={broadcastType === 'adhkar' ? "Which surah/dhikr should we read?" : "Motivate your circle..."}
-                            className="w-full bg-brand-surface/50 border border-white/10 p-4 rounded-xl mb-3 text-sm h-24 text-brand-forest placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/30 transition-all resize-none"
+                            className="w-full bg-brand-surface border border-brand-border p-4 rounded-xl mb-3 text-sm h-24 text-brand-forest placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/30 transition-all resize-none"
                         />
 
                         <button
@@ -388,7 +388,7 @@ export const SuhbaDashboard: React.FC = () => {
                     </div>
 
                     <div className="mt-8">
-                        <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4 px-1">Circle Members</p>
+                        <p className="text-xs font-bold text-brand-muted uppercase tracking-widest mb-4 px-1">Circle Members</p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {selectedCircle.members.map((m) => {
@@ -402,9 +402,9 @@ export const SuhbaDashboard: React.FC = () => {
                                     : displayName.slice(0, 2).toUpperCase();
 
                                 return (
-                                    <div key={m} className={`flex items-center justify-between p-3 rounded-xl border transition-all ${isMe ? 'bg-brand-primary/5 border-brand-primary/10' : 'bg-brand-surface/30 border-white/5 hover:border-white/10'}`}>
+                                    <div key={m} className={`flex items-center justify-between p-3 rounded-xl border transition-all ${isMe ? 'bg-brand-primary/5 border-brand-primary/10' : 'bg-brand-surface border-brand-border hover:border-brand-primary/20'}`}>
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold ${isMe ? 'bg-brand-primary text-white' : 'bg-brand-surface text-neutral-500'}`}>
+                                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold ${isMe ? 'bg-brand-primary text-white' : 'bg-brand-subtle text-brand-muted'}`}>
                                                 {initials}
                                             </div>
                                             <div>
@@ -444,21 +444,21 @@ export const SuhbaDashboard: React.FC = () => {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="bg-brand-surface w-full max-w-sm p-6 rounded-3xl shadow-glass border border-white/10"
+                            className="bg-brand-surface w-full max-w-sm p-6 rounded-3xl shadow-glass border border-brand-border"
                         >
                             <h3 className="text-xl font-bold font-outfit text-brand-forest mb-2">Invite Member</h3>
-                            <p className="text-sm text-neutral-500 mb-6">
+                            <p className="text-sm text-brand-muted mb-6">
                                 Share this Circle ID or enter a User ID to send a request.
                             </p>
 
-                            <div className="bg-black/5 p-4 rounded-xl border border-black/5 mb-6 flex justify-between items-center group cursor-pointer"
+                            <div className="bg-brand-subtle p-4 rounded-xl border border-brand-border mb-6 flex justify-between items-center group cursor-pointer"
                                 onClick={() => {
                                     navigator.clipboard.writeText(selectedCircle?.id || '');
                                     showToast('ID Copied!', 'success');
                                 }}
                             >
                                 <div>
-                                    <p className="text-[10px] text-neutral-400 uppercase tracking-wider mb-1">Circle ID</p>
+                                    <p className="text-[10px] text-brand-muted uppercase tracking-wider mb-1">Circle ID</p>
                                     <code className="text-sm font-mono text-brand-primary font-bold">{selectedCircle?.id}</code>
                                 </div>
                                 <span className="text-xs text-brand-primary/70 font-bold group-hover:text-brand-primary transition-colors">
@@ -467,17 +467,17 @@ export const SuhbaDashboard: React.FC = () => {
                             </div>
 
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="h-px bg-neutral-200 flex-1"></div>
-                                <span className="text-xs text-neutral-300 font-bold">OR</span>
-                                <div className="h-px bg-neutral-200 flex-1"></div>
+                                <div className="h-px bg-brand-border flex-1"></div>
+                                <span className="text-xs text-brand-muted font-bold">OR</span>
+                                <div className="h-px bg-brand-border flex-1"></div>
                             </div>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider ml-1 mb-1 block">User ID</label>
+                                    <label className="text-xs font-bold text-brand-muted uppercase tracking-wider ml-1 mb-1 block">User ID</label>
                                     <input
                                         type="text"
-                                        className="w-full bg-white/50 border border-neutral-200 p-3 rounded-xl text-sm text-brand-forest focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                                        className="w-full bg-brand-subtle border border-brand-border p-3 rounded-xl text-sm text-brand-forest focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
                                         placeholder="Paste User ID here..."
                                         value={inviteUserId}
                                         onChange={(e) => setInviteUserId(e.target.value)}
@@ -487,7 +487,7 @@ export const SuhbaDashboard: React.FC = () => {
                                 <div className="flex gap-3 pt-2">
                                     <button
                                         onClick={() => setInviteModalOpen(false)}
-                                        className="flex-1 py-3 bg-transparent border border-neutral-200 text-neutral-500 rounded-xl font-bold hover:bg-neutral-50 transition-colors"
+                                        className="flex-1 py-3 bg-transparent border border-brand-border text-brand-muted rounded-xl font-bold hover:bg-brand-subtle transition-colors"
                                     >
                                         Cancel
                                     </button>
@@ -531,17 +531,17 @@ export const SuhbaDashboard: React.FC = () => {
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             className="bg-brand-surface w-full max-w-sm p-6 rounded-3xl shadow-xl border border-brand-border"
                         >
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Join a Circle</h3>
-                            <p className="text-sm text-gray-500 mb-6">
+                            <h3 className="text-xl font-bold text-brand-forest mb-2">Join a Circle</h3>
+                            <p className="text-sm text-brand-muted mb-6">
                                 Enter the invite code or paste the invite link shared with you.
                             </p>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1 block">Invite Code or Link</label>
+                                    <label className="text-xs font-bold text-brand-muted uppercase tracking-wider ml-1 mb-1 block">Invite Code or Link</label>
                                     <input
                                         type="text"
-                                        className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                        className="w-full bg-brand-subtle border border-brand-border p-3 rounded-xl text-sm text-brand-forest focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                                         placeholder="SUH-XXXXXX or paste link..."
                                         value={joinCode}
                                         onChange={(e) => setJoinCode(e.target.value)}
@@ -551,7 +551,7 @@ export const SuhbaDashboard: React.FC = () => {
                                 <div className="flex gap-3 pt-2">
                                     <button
                                         onClick={() => { setShowJoinModal(false); setJoinCode(''); }}
-                                        className="flex-1 py-3 bg-transparent border border-gray-200 text-gray-500 rounded-xl font-bold hover:bg-gray-50 transition-colors"
+                                        className="flex-1 py-3 bg-transparent border border-brand-border text-brand-muted rounded-xl font-bold hover:bg-brand-subtle transition-colors"
                                     >
                                         Cancel
                                     </button>

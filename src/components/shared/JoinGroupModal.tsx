@@ -58,27 +58,27 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl"
+                        className="bg-brand-surface border border-brand-border rounded-3xl p-6 w-full max-w-md shadow-2xl"
                     >
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold font-outfit text-emerald-950">
+                            <h2 className="text-2xl font-bold font-outfit text-brand-forest">
                                 {t('join_group_label').replace('{group}', groupLabel)}
                             </h2>
                             <button
                                 onClick={onClose}
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                className="p-2 hover:bg-brand-subtle rounded-full transition-colors"
                             >
-                                <X size={20} className="text-gray-500" />
+                                <X size={20} className="text-brand-muted" />
                             </button>
                         </div>
 
-                        <p className="text-gray-600 mb-6">
+                        <p className="text-brand-muted mb-6">
                             {t('enter_invite_desc').replace('{group}', groupLabel.toLowerCase())}
                         </p>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-brand-forest mb-2">
                                     {t('invite_code')}
                                 </label>
                                 <input
@@ -89,7 +89,7 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
                                         setError('');
                                     }}
                                     placeholder={type === 'family' ? 'FAM-XXXXXX' : 'SHB-XXXXXX'}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:outline-none text-center text-xl font-mono tracking-widest uppercase"
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-brand-border bg-brand-subtle text-brand-forest focus:border-emerald-500 focus:outline-none text-center text-xl font-mono tracking-widest uppercase"
                                     maxLength={12}
                                 />
                             </div>

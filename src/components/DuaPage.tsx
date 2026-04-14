@@ -101,16 +101,16 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
     <div className="min-h-screen bg-brand-background pb-24 animate-in fade-in duration-300">
 
       {/* HEADER */}
-      <div className="bg-brand-surface/80 backdrop-blur-md sticky top-0 z-20 border-b border-white/10 px-4 py-4 shadow-sm">
+      <div className="bg-brand-surface/90 backdrop-blur-md sticky top-0 z-20 border-b border-brand-border px-4 py-4 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             {activeCategory && !isSearching ? (
-              <button onClick={() => setActiveCategory(null)} className="p-2 -ml-2 rounded-full hover:bg-white/10 text-brand-forest transition-colors">
+              <button onClick={() => setActiveCategory(null)} className="p-2 -ml-2 rounded-full hover:bg-brand-subtle text-brand-forest transition-colors">
                 <BackIcon size={22} />
               </button>
             ) : (
               onBack && (
-                <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-white/10 text-brand-forest transition-colors">
+                <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-brand-subtle text-brand-forest transition-colors">
                   <BackIcon size={22} />
                 </button>
               )
@@ -123,7 +123,7 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
           {onHelp && (
             <button
               onClick={handleHelpClick}
-              className="p-2 rounded-full hover:bg-white/10 text-brand-primary"
+              className="p-2 rounded-full hover:bg-brand-subtle text-brand-primary"
             >
               <Sparkles size={20} />
             </button>
@@ -138,10 +138,10 @@ export const DuaPage: React.FC<DuaPageProps> = ({ onBack, onHelp }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('dua_search_placeholder')}
-            className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-3 rounded-2xl bg-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:bg-white/80 transition-all text-sm text-neutral-800 placeholder-neutral-400 font-medium"
+            className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-3 rounded-2xl bg-brand-subtle border border-brand-border focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:bg-brand-surface transition-all text-sm text-brand-forest placeholder-brand-muted font-medium"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand-primary bg-white/80 px-2 py-0.5 rounded-md shadow-sm">
+            <button onClick={() => setSearchQuery('')} className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-brand-primary bg-brand-surface px-2 py-0.5 rounded-md shadow-sm border border-brand-border">
               {t('dua_clear')}
             </button>
           )}

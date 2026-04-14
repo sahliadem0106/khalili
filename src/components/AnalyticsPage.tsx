@@ -103,7 +103,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
   const heatmapData = useMemo(() => {
     const startDate = new Date(journeyStartDate);
     const today = new Date();
-    const data: { day: number; date: string; dateLabel: string; count: number; isToday: boolean }[] = [];
+    const data: { day: number; date: string; dateLabel: string; weekdayLabel: string; count: number; isToday: boolean }[] = [];
 
     for (let i = 0; i < heatmapDays; i++) {
       const date = new Date(startDate);
@@ -116,6 +116,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
         day: i + 1,
         date: dateStr,
         dateLabel: date.toLocaleDateString(language === 'ar' ? 'ar-EG' : language, { weekday: 'short', day: 'numeric' }),
+        weekdayLabel: date.toLocaleDateString(language === 'ar' ? 'ar-EG' : language, { weekday: 'short' }),
         count: summary.completed,
         isToday
       });
@@ -258,7 +259,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
 
       {/* Consistency Heatmap */}
       <motion.div variants={itemVariants} className="bg-white dark:bg-brand-surface rounded-2xl border border-brand-border dark:border-white/10 shadow-glass p-5">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-brand-sand dark:bg-white/5 rounded-full text-brand-primary dark:text-emerald-300">
               <Calendar size={18} />
@@ -282,14 +283,15 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-2">
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-7 gap-2 min-w-[320px]">
           {heatmapData.map((day, i) => {
             const showWeekdayLabel = heatmapDays === 7 || i < 7;
             return (
               <div key={day.date} className="flex flex-col items-center gap-1 min-w-0">
                 {/* Dynamic Day Label above each bubble */}
-                <span className="text-[10px] font-bold text-neutral-300 uppercase h-3">
-                  {showWeekdayLabel ? day.dateLabel.split(',')[0] : ''}
+                <span className="text-[9px] font-bold text-neutral-300 uppercase h-3 leading-none whitespace-nowrap text-center w-full">
+                  {showWeekdayLabel ? day.weekdayLabel.slice(0, 3) : ''}
                 </span>
 
                 <motion.button
@@ -306,6 +308,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ prayers }) => {
               </div>
             );
           })}
+          </div>
         </div>
       </motion.div>
 

@@ -335,10 +335,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
     return (
       <div className="space-y-6 animate-in slide-in-from-right duration-300">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10">
-            <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600" />
+          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-brand-subtle">
+            <ChevronLeft size={24} className="rtl:rotate-180 text-brand-muted" />
           </button>
-          <h2 className="text-xl font-bold text-neutral-900">Password & Security</h2>
+          <h2 className="text-xl font-bold text-brand-forest">Password & Security</h2>
         </div>
 
         <div className="p-5 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-start gap-4">
@@ -383,20 +383,20 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
     return (
       <div className="space-y-6 animate-in slide-in-from-right duration-300">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10">
-            <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600 dark:text-neutral-400" />
+          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-brand-subtle">
+            <ChevronLeft size={24} className="rtl:rotate-180 text-brand-muted" />
           </button>
-          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Notifications</h2>
+          <h2 className="text-xl font-bold text-brand-forest">Notifications</h2>
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-white dark:bg-brand-surface rounded-2xl border border-neutral-100 dark:border-white/5 shadow-sm">
+        <div className="flex items-center justify-between p-4 bg-brand-surface rounded-2xl border border-brand-border shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-brand-primary/10 text-brand-primary rounded-lg">
               <Bell size={20} />
             </div>
             <div>
-              <p className="font-bold text-neutral-800 dark:text-white">Push Notifications</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Master switch for all alerts</p>
+              <p className="font-bold text-brand-forest">Push Notifications</p>
+              <p className="text-xs text-brand-muted">Master switch for all alerts</p>
             </div>
           </div>
           <div
@@ -409,10 +409,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
 
         {/* Prayer Alerts - Always show but grey out when disabled */}
         <div className={`space-y-3 ${!enabled ? 'opacity-50 pointer-events-none' : 'animate-in fade-in slide-in-from-top-2'}`}>
-          <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider ml-2">Prayer Alerts</h3>
+          <h3 className="text-xs font-bold text-brand-muted uppercase tracking-wider ml-2">Prayer Alerts</h3>
           {Object.entries(reminders).map(([key, val]) => (
-            <div key={key} className="flex items-center justify-between p-4 bg-white dark:bg-brand-surface rounded-xl border border-neutral-100 dark:border-white/5">
-              <span className="capitalize font-medium text-neutral-700 dark:text-neutral-200">{key}</span>
+            <div key={key} className="flex items-center justify-between p-4 bg-brand-surface rounded-xl border border-brand-border">
+              <span className="capitalize font-medium text-brand-forest">{key}</span>
               <div
                 onClick={() => enabled && togglePrayer(key as keyof typeof reminders)}
                 className={`w-10 h-6 rounded-full transition-colors relative ${enabled ? 'cursor-pointer' : 'cursor-not-allowed'} ${val ? 'bg-brand-forest' : 'bg-neutral-200 dark:bg-neutral-700'}`}
@@ -431,10 +431,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onTestAdhan, onR
     return (
       <div className="space-y-6 animate-in slide-in-from-right duration-300">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-white/10">
-            <ChevronLeft size={24} className="rtl:rotate-180 text-neutral-600 dark:text-neutral-400" />
+          <button onClick={() => setActiveView('main')} className="p-2 -ml-2 rounded-full hover:bg-brand-subtle">
+            <ChevronLeft size={24} className="rtl:rotate-180 text-brand-muted" />
           </button>
-          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+          <h2 className="text-xl font-bold text-brand-forest">
             {t('my_achievements')}
           </h2>
         </div>

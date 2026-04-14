@@ -103,9 +103,9 @@ export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
     return (
         <div className="min-h-screen bg-transparent">
             {/* Header */}
-            <div className="bg-brand-surface/80 backdrop-blur-xl border-b border-white/5 text-neutral-900 px-4 py-4 sticky top-0 z-20">
+            <div className="bg-brand-surface/90 backdrop-blur-xl border-b border-brand-border text-brand-forest px-4 py-4 sticky top-0 z-20">
                 <div className="flex items-center justify-between mb-4">
-                    <button onClick={onBack} className="p-2 -ml-2 text-neutral-400 hover:bg-white/5 hover:text-neutral-900 rounded-full">
+                    <button onClick={onBack} className="p-2 -ml-2 text-brand-muted hover:bg-brand-subtle hover:text-brand-forest rounded-full">
                         <ArrowLeft size={20} />
                     </button>
                     <h1 className="text-lg font-bold">
@@ -116,18 +116,18 @@ export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
 
                 {/* Search Bar */}
                 <div className="relative mb-3">
-                    <Search size={18} className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                    <Search size={18} className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-brand-muted" />
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={language === 'ar' ? 'ابحث...' : 'Search content...'}
-                        className="w-full pl-10 rtl:pl-3 rtl:pr-10 pr-10 py-2 bg-brand-surface/40 border border-white/10 rounded-xl text-neutral-900 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                        className="w-full pl-10 rtl:pl-3 rtl:pr-10 pr-10 py-2 bg-brand-subtle border border-brand-border rounded-xl text-brand-forest placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                     />
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery('')}
-                            className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                            className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-brand-forest"
                         >
                             <X size={16} />
                         </button>
@@ -142,7 +142,7 @@ export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
                                 ? 'bg-brand-surface text-brand-secondary shadow-sm'
-                                : 'bg-white/5 text-neutral-400 hover:bg-white/10'
+                                : 'bg-brand-subtle text-brand-muted hover:bg-brand-surface border border-brand-border'
                                 }`}
                         >
                             {language === 'ar' ? tab.labelAr : tab.label}
@@ -152,12 +152,12 @@ export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
             </div>
 
             {/* Category Filter */}
-            <div className="px-4 py-3 overflow-x-auto flex space-x-2 rtl:space-x-reverse border-b border-white/5 bg-brand-surface/20 backdrop-blur-sm">
+            <div className="px-4 py-3 overflow-x-auto flex space-x-2 rtl:space-x-reverse border-b border-brand-border bg-brand-subtle/70 backdrop-blur-sm">
                 <button
                     onClick={() => setCategoryFilter('all')}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${categoryFilter === 'all'
                         ? 'bg-brand-secondary/20 text-brand-secondary'
-                        : 'bg-white/5 text-neutral-400 hover:bg-white/10'
+                        : 'bg-brand-surface text-brand-muted hover:bg-brand-subtle border border-brand-border'
                         }`}
                 >
                     {language === 'ar' ? 'الكل' : 'All'}
@@ -168,7 +168,7 @@ export const ContentHubPage: React.FC<ContentHubPageProps> = ({ onBack }) => {
                         onClick={() => setCategoryFilter(cat.id)}
                         className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${categoryFilter === cat.id
                             ? 'bg-brand-secondary/20 text-brand-secondary'
-                            : 'bg-white/5 text-neutral-400 hover:bg-white/10'
+                            : 'bg-brand-surface text-brand-muted hover:bg-brand-subtle border border-brand-border'
                             }`}
                     >
                         {cat.icon} {language === 'ar' ? cat.nameAr : cat.name}

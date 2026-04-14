@@ -123,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({
       {isEditing && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div
-            className="bg-white dark:bg-neutral-900 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+            className="bg-brand-surface border border-brand-border w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -142,14 +142,14 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Modal Body */}
             <div className="p-5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-brand-forest mb-2">
                 {t('set_intention') || 'Enter something you want to remember:'}
               </label>
               <textarea
                 value={quote}
                 onChange={(e) => setQuote(e.target.value)}
                 placeholder={t('write_reminder') || "Write your note here..."}
-                className="w-full h-32 p-3 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all resize-none text-base font-medium text-gray-800 dark:text-white placeholder:text-gray-400"
+                className="w-full h-32 p-3 bg-brand-subtle border border-brand-border rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all resize-none text-base font-medium text-brand-forest placeholder:text-brand-muted"
                 autoFocus
               />
 
@@ -157,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="flex gap-3 mt-5">
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 dark:border-neutral-700 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                  className="flex-1 py-2.5 px-4 rounded-xl border border-brand-border text-brand-muted font-medium hover:bg-brand-subtle transition-colors"
                 >
                   {t('close') || 'Close'}
                 </button>
